@@ -1,0 +1,373 @@
+package com.example.final_case_social_web.service.impl;
+
+
+import com.example.final_case_social_web.common.Common;
+import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.dto.ListAvatarDefault;
+import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.model.*;
+import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.repository.FollowWatchingRepository;
+import com.example.final_case_social_web.repository.UserRepository;
+import com.example.final_case_social_web.repository.VerificationTokenRepository;
+import com.example.final_case_social_web.service.FriendRelationService;
+import com.example.final_case_social_web.service.UserService;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class UserServiceImpl implements UserService {
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private FollowWatchingRepository followWatchingRepository;
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private FriendRelationService friendRelationService;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+        if (this.checkLogin(user)) {
+            return UserPrinciple.build(user);
+        }
+        boolean enable = false;
+        boolean accountNonExpired = false;
+        boolean credentialsNonExpired = false;
+        boolean accountNonLocked = false;
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                user.getPassword(), enable, accountNonExpired, credentialsNonExpired,
+                accountNonLocked, null);
+    }
+
+
+    @Override
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<User> findAllRoleUser() {
+        return userRepository.findAllRoleUser();
+    }
+
+    @Override
+    public Iterable<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        User user;
+        String userName;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            userName = ((UserDetails) principal).getUsername();
+        } else {
+            userName = principal.toString();
+        }
+        user = this.findByUsername(userName);
+        return user;
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public UserDetails loadUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (!user.isPresent()) {
+            throw new NullPointerException();
+        }
+        return UserPrinciple.build(user.get());
+    }
+
+    @Override
+    public boolean checkLogin(User user) {
+        Iterable<User> users = this.findAll();
+        boolean isCorrectUser = false;
+        for (User currentUser : users) {
+            if (currentUser.getUsername().equals(user.getUsername())
+                    && user.getPassword().equals(currentUser.getPassword()) &&
+                    currentUser.isEnabled()) {
+                isCorrectUser = true;
+            }
+        }
+        return isCorrectUser;
+    }
+
+    @Override
+    public boolean isCorrectConfirmPassword(User user) {
+        boolean isCorrentConfirmPassword = false;
+        if (user.getPassword().equals(user.getConfirmPassword())) {
+            isCorrentConfirmPassword = true;
+        }
+        return isCorrentConfirmPassword;
+    }
+
+    @Override
+    public void createDefault(User user) {
+        if (user.getAvatar().equals(Constants.ImageDefault.DEFAULT_BACKGROUND_2)) {
+            user.setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE);
+        }
+        if (user.getAvatar().equals(Constants.ImageDefault.DEFAULT_BACKGROUND_2)) {
+            user.setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE);
+        }
+        if (user.getGender().equals(Constants.GENDER_FEMALE)) {
+            user.setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE);
+        }
+        if (user.getGender().equals(Constants.BLANK)) {
+            user.setGender(Constants.GENDER_DEFAULT);
+        }
+        if (user.getGender().equals(Constants.GENDER_DEFAULT)) {
+            user.setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT);
+        }
+    }
+
+    @Override
+    public UserDTO mapper(User user) {
+        return modelMapper.map(user, UserDTO.class);
+    }
+
+    @Override
+    public Object checkAdmin(Long idAdmin) {
+        if (idAdmin == null) {
+            return null;
+        }
+        Optional<User> adminOptional = userRepository.findById(idAdmin);
+        if (adminOptional.isPresent()) {
+            if (adminOptional.get().getRoles().toString().substring(17, 27).equals(Constants.Roles.ROLE_ADMIN)) {
+                return adminOptional.get().getRoles();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public User checkUser(Long idUser) {
+        Optional<User> userOptional = userRepository.findById(idUser);
+        return userOptional.orElse(null);
+    }
+
+    @Override
+    public List<ListAvatarDefault> listAvatar() {
+        List<ListAvatarDefault> listImageDefault = new ArrayList<>();
+        listImageDefault.add(new ListAvatarDefault(1L, Constants.ListAvatarDefault.DEFAULT_AVATAR_1, Constants.GENDER_MALE));
+        listImageDefault.add(new ListAvatarDefault(2L, Constants.ListAvatarDefault.DEFAULT_AVATAR_2, Constants.GENDER_MALE));
+        listImageDefault.add(new ListAvatarDefault(3L, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE, Constants.GENDER_MALE));
+        listImageDefault.add(new ListAvatarDefault(4L, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT, Constants.GENDER_DEFAULT));
+        listImageDefault.add(new ListAvatarDefault(5L, Constants.ListAvatarDefault.DEFAULT_AVATAR_3, Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(6L, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE, Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(7L, Constants.ListAvatarDefault.DEFAULT_AVATAR_4, Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(8L, Constants.ListAvatarDefault.DEFAULT_AVATAR_5, Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(9L, Constants.ListAvatarDefault.DEFAULT_AVATAR_6, Constants.GENDER_FEMALE));
+        return listImageDefault;
+    }
+
+    @Override
+    public Set<User> findAllByIdIn(Set<Long> inputList) {
+        return userRepository.findAllByIdIn(inputList);
+    }
+
+    @Override
+    public List<User> friendSuggestion(Long idUser) {
+        return userRepository.friendSuggestion(idUser);
+    }
+
+    @Override
+    public List<User> listPeople(Long idUser) {
+        return userRepository.listPeople(idUser);
+    }
+
+    @Override
+    public List<User> findAllUserBanned() {
+        return userRepository.findAllUserBanned();
+    }
+
+    @Override
+    public List<User> allFriendByUserId(Long idUser) {
+        return userRepository.allFriendByUserId(idUser);
+    }
+
+    @Override
+    public List<UserDTO> filterUser(Long idUser, String type) {
+        List<Long> longList = new ArrayList<>();
+        List<UserDTO> userDTOList = new ArrayList<>();
+        if (type.equals(Constants.FollowPeople.FOLLOW)) {
+            List<FollowWatching> followList = followWatchingRepository.getListFollowByIdUser(idUser);
+            longList = followList.stream().map(FollowWatching::getIdUserTarget).collect(Collectors.toList());
+        }
+        if (type.equals(Constants.FollowPeople.WATCHING)) {
+            List<FollowWatching> watchingList = followWatchingRepository.getListWatchingByIdUser(idUser);
+            longList = watchingList.stream().map(FollowWatching::getIdUser).collect(Collectors.toList());
+        }
+        List<User> list = userRepository.listPeopleNoImpact(idUser);
+        List<User> listUserFilter = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(longList)) {
+            for (Long id : longList) {
+                list.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(listUserFilter::add);
+            }
+            List<User> listFriend = allFriendByUserId(idUser);
+            if (CollectionUtils.isEmpty(listFriend)) {
+                listFriend = new ArrayList<>();
+            }
+            for (User value : listUserFilter) {
+                UserDTO userDTO = modelMapper.map(value, UserDTO.class);
+                userDTOList.add(userDTO);
+            }
+            for (int i = 0; i < userDTOList.size(); i++) {
+                List<User> friendOfUserFilter = allFriendByUserId(userDTOList.get(i).getId());
+                List<User> mutualFriends = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(friendOfUserFilter)) {
+                    for (int j = 0; j < listFriend.size(); j++) {
+                        Long idUserFriend = listFriend.get(j).getId();
+                        friendOfUserFilter.stream().filter(item -> item.getId().equals(idUserFriend)).
+                                findFirst().ifPresent(mutualFriends::add);
+                    }
+                }
+                userDTOList.get(i).setMutualFriends(mutualFriends.size());
+            }
+            List<FriendRelation> friendRelationList = friendRelationService.listRequest(idUser);
+            if (!CollectionUtils.isEmpty(friendRelationList)) {
+                Set<Long> listUserId = new HashSet<>();
+                for (FriendRelation friendRelation : friendRelationList) {
+                    listUserId.add(friendRelation.getIdFriend());
+                }
+                Set<User> userList = findAllByIdIn(listUserId);
+                if (userList == null) {
+                    userList = new HashSet<>();
+                }
+                List<User> checkUserFollowSendRequestFriend = new ArrayList<>(userList);
+                for (int i = 0; i < checkUserFollowSendRequestFriend.size(); i++) {
+                    Long id = checkUserFollowSendRequestFriend.get(i).getId();
+                    userDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(user -> {
+                        user.setSendRequestFriend(true);
+                    });
+                }
+            }
+            List<FriendRelation> friendRelations = friendRelationService.findAllListRequestAddFriendById(idUser);
+            List<Optional<User>> optionalList = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(friendRelations)) {
+                for (FriendRelation friendRelation : friendRelations) {
+                    Optional<User> userOptional = findById(friendRelation.getFriend().getId());
+                    if (!userOptional.isPresent()) {
+                        continue;
+                    }
+                    if (userOptional.get().getId().equals(idUser)) {
+                        continue;
+                    }
+                    optionalList.add(userOptional);
+                }
+            }
+            if (!CollectionUtils.isEmpty(optionalList)) {
+                for (int i = 0; i < optionalList.size(); i++) {
+                    Long id = optionalList.get(i).get().getId();
+                    userDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(user -> {
+                        user.setPeopleSendRequestFriend(true);
+                    });
+                }
+            }
+        }
+        return userDTOList;
+    }
+
+    @Override
+    public List<User> findAllByIdIn(List<Long> inputList) {
+        return userRepository.findAllByIdIn(inputList);
+    }
+
+    @Override
+    public List<User> findAllByEmailAndFullName(String searchText, Long idSendBlock) {
+        return userRepository.findAllByEmailAndFullName(searchText, idSendBlock);
+    }
+
+    @Override
+    public List<User> searchFriend(String searchText, Long idUser) {
+        return userRepository.searchFriend(searchText, idUser);
+    }
+
+    @Override
+    public List<User> searchAll(String searchText, Long idUser) {
+        return userRepository.searchAll(searchText, idUser);
+    }
+
+    @Override
+    public ResponseNotification checkExistUserNameAndEmail(User user) {
+        Iterable<User> users = userRepository.findAll();
+        List<User> list = (List<User>) users;
+        List<String> userName = list.stream().map(User::getUsername).collect(Collectors.toList());
+        if (userName.stream().anyMatch(item -> item.equals(user.getUsername()))) {
+            return new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    MessageResponse.RegisterMessage.USER_NAME_DUPLICATE);
+        }
+        List<String> email = list.stream().map(User::getEmail).collect(Collectors.toList());
+        if (email.stream().anyMatch(item -> item.equals(user.getEmail()))) {
+            return new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    MessageResponse.RegisterMessage.EMAIL_USED);
+        }
+        return null;
+    }
+
+    @Override
+    public Optional<User> findUserByEmailAndUserName(String userName, String email) {
+        return userRepository.findUserByEmailAndUserName(userName, email);
+    }
+
+    @Override
+    public ResponseEntity<?> errorToken(String authorization, Long idUser) {
+        if (StringUtils.isEmpty(authorization)) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
+        }
+        String tokenRequest = Common.formatToken(authorization);
+        boolean checkToken = jwtService.validateJwtToken(tokenRequest);
+        if (!checkToken) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
+        }
+        String userName = jwtService.getUserNameFromJwtToken(tokenRequest);
+        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(idUser);
+        if (!verificationToken.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!tokenRequest.equals(verificationToken.get().getToken())) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
+        }
+        if (!userName.equals(verificationToken.get().getUser().getUsername())) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    "Username", "Username không hợp lệ"), HttpStatus.UNAUTHORIZED);
+        }
+        return null;
+    }
+}

@@ -1,0 +1,14 @@
+package com.example.final_case_social_web.dto;
+
+import lombok.Data;
+
+import java.util.Date;
+
+@Data
+public class MessengerDTO {
+    private Long id;
+    private String content;
+    private String statusMessenger;
+    private Date createAt;
+    private Long idConversation;
+}
