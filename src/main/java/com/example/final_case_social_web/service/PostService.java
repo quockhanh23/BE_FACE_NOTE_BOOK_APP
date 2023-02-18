@@ -30,4 +30,8 @@ public interface PostService extends GeneralService<Post2> {
     void saveAll(List<Post2> post2List);
 
     List<PostDTO> changeDTO(List<Post2> post2List);
+
+    List<Post2> findAllByUserIdAndDeleteTrue(Long user_id);
+
+    List<PostDTO> filterListPost(List<Post2> post2List);
 }

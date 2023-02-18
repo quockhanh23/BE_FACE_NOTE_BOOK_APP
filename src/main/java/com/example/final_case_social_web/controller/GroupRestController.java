@@ -201,9 +201,9 @@ public class GroupRestController {
         Iterable<GroupParticipant> groupParticipants = groupParticipantService.findAll();
         List<GroupParticipant> groupParticipantList = (List<GroupParticipant>) groupParticipants;
         if (groupParticipants != null) {
-            for (int i = 0; i < groupParticipantList.size(); i++) {
-                if (groupParticipantList.get(i).getUser().getId().equals(idUser)
-                        && groupParticipantList.get(i).getTheGroup().getId().equals(idTheGroup)) {
+            for (GroupParticipant groupParticipant : groupParticipantList) {
+                if (groupParticipant.getUser().getId().equals(idUser)
+                        && groupParticipant.getTheGroup().getId().equals(idTheGroup)) {
                     return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
                 }
             }

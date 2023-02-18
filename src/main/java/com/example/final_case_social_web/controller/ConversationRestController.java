@@ -283,6 +283,7 @@ public class ConversationRestController {
         return new ResponseEntity<>(messengerList, HttpStatus.OK);
     }
 
+    // Id của người gửi tin nhắn cuối
     @GetMapping("/lastMessageIdSender")
     public ResponseEntity<?> lastMessage(@RequestParam Long idConversation) {
         List<Messenger> messengers = messengerService.lastMessage(idConversation);
@@ -293,6 +294,7 @@ public class ConversationRestController {
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
+    // Tin nhắn cuối cùng
     @GetMapping("/lastMessage")
     public ResponseEntity<?> lastMessageTime(@RequestParam Long idConversation) {
         List<Messenger> messenger = messengerService.lastTimeMessage(idConversation);

@@ -25,4 +25,8 @@ public interface ShortNewsRepository extends JpaRepository<ShortNews, Long> {
     @Modifying
     @Query(value = "select * from short_news where user_id= :idUser and is_delete = false order by create_at desc", nativeQuery = true)
     List<ShortNews> myShortNew(@Param("idUser") Long idUser);
+
+    @Modifying
+    @Query(value = "select * from short_news where is_delete is true and user_id = :idUser order by id desc", nativeQuery = true)
+    List<ShortNews> getListShortNewInTrash(@Param("idUser") Long idUser);
 }

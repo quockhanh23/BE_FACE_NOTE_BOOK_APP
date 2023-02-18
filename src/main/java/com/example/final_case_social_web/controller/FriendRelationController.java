@@ -129,8 +129,7 @@ public class FriendRelationController {
                 List<User> mutualFriends = new ArrayList<>();
                 if (!CollectionUtils.isEmpty(friendOfFriend)) {
                     List<Long> listId = userDTOList.stream().map(UserDTO::getId).collect(Collectors.toList());
-                    for (int j = 0; j < listId.size(); j++) {
-                        Long id = listId.get(j);
+                    for (Long id : listId) {
                         friendOfFriend.stream().filter(item -> item.getId().equals(id))
                                 .findFirst().ifPresent(mutualFriends::add);
                     }

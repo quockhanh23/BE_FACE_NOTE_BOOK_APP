@@ -20,4 +20,6 @@ public interface ShortNewsService extends GeneralService<ShortNews> {
     List<ShortNews> findAllShortNewsPublic();
 
     List<ShortNews> myShortNew(@Param("idUser") Long idUser);
+
+    List<ShortNews> getListShortNewInTrash(@Param("idUser") Long idUser);
 }

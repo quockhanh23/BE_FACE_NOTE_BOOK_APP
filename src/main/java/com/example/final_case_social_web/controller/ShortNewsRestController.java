@@ -10,6 +10,7 @@ import com.example.final_case_social_web.service.ShortNewsService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -252,12 +253,12 @@ public class ShortNewsRestController {
         }
         shortNewsService.createShortNews(shortNews);
         if (shortNews.getImage().equals(Constants.ImageDefault.DEFAULT_IMAGE_SHORT_NEW)) {
-            if (shortNews.getContent() == null || shortNews.getContent().equals("")) {
+            if (StringUtils.isEmpty(shortNews.getContent())) {
                 return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                         HttpStatus.BAD_REQUEST);
             }
         }
-        if (shortNews.getStatus().equals("") || shortNews.getStatus() == null) {
+        if (StringUtils.isEmpty(shortNews.getStatus())) {
             shortNews.setStatus(Constants.STATUS_PUBLIC);
         }
         shortNews.setDelete(false);
@@ -310,5 +311,20 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(shortNewsOptional.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+    }
+
+    // Các tin đã xóa
+    @GetMapping("/shortNewsInTrash")
+    public ResponseEntity<?> shortNewsInTrash(@RequestParam Long idUser) {
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
+        }
+        List<ShortNews> shortNews = shortNewsService.getListShortNewInTrash(idUser);
+        if (CollectionUtils.isEmpty(shortNews)) {
+            shortNews = new ArrayList<>();
+        }
+        return new ResponseEntity<>(shortNews, HttpStatus.OK);
     }
 }

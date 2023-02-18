@@ -156,7 +156,7 @@ public class CommentRestController {
         return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     }
 
-    // Xem tất cả comment của 1 bài viết
+    // Xem tất cả comment của 1 bài viết theo người comment
     @GetMapping("/getAllCommentByIdUser")
     public ResponseEntity<List<Comment>> getAllCommentByIdUser(@RequestParam Long idUser) {
         List<Comment> commentList = commentService.findAllByUserId(idUser);
@@ -166,7 +166,7 @@ public class CommentRestController {
         return new ResponseEntity<>(commentList, HttpStatus.OK);
     }
 
-    // Xem tất cả comment của 1 bài viết
+    // Xem tất cả comment của 1 bài viết theo bài viết
     @GetMapping("/getAllCommentByIdPost")
     public ResponseEntity<List<Comment>> getAllCommentByIdPost(@RequestParam Long idPost) {
         List<Comment> commentList = commentService.getCommentByIdPost(idPost);

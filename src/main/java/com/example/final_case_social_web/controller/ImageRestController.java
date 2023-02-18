@@ -6,7 +6,6 @@ import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.service.ImageService;
 import com.example.final_case_social_web.service.UserService;
-import com.example.final_case_social_web.service.impl.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,23 +29,15 @@ public class ImageRestController {
     private ImageService imageService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private JwtService jwtService;
 
     @GetMapping("/findAllImages")
-    public ResponseEntity<List<?>> findAllImages(@RequestParam Long idUser,
-                                                 @RequestHeader("Authorization") String Authorization) {
-        String tokenRequest = null;
-        if (Authorization.startsWith("Bearer ")) {
-            tokenRequest = Authorization.substring(7);
-        } else {
-            tokenRequest = Authorization;
-        }
-        String jwt = jwtService.getUserNameFromJwtToken(tokenRequest);
-        System.out.println(jwt);
+    public ResponseEntity<?> findAllImages(@RequestParam Long idUser, @RequestParam String type) {
         List<Image> imageList = imageService.findAllImageByIdUser(idUser);
         if (CollectionUtils.isEmpty(imageList)) {
             imageList = new ArrayList<>();
+        }
+        if ("visit".equals(type)) {
+            imageList.removeIf(item -> item.getStatus().equals("Private"));
         }
         return new ResponseEntity<>(imageList, HttpStatus.OK);
     }
@@ -54,7 +45,8 @@ public class ImageRestController {
     // Thêm ảnh
     @PostMapping("/addPhoto")
     public ResponseEntity<?> addPhoto(@RequestBody Image image,
-                                      @RequestParam Long idUser) {
+                                      @RequestParam Long idUser,
+                                      @RequestHeader("Authorization") String authorization) {
         if (userService.checkUser(idUser) == null) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
@@ -65,7 +57,9 @@ public class ImageRestController {
     }
 
     @DeleteMapping("/privatePhoto")
-    public ResponseEntity<?> privatePhoto(@RequestParam Long idUser, @RequestParam Long idImage) {
+    public ResponseEntity<?> privatePhoto(@RequestParam Long idUser,
+                                          @RequestParam Long idImage,
+                                          @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -85,7 +79,9 @@ public class ImageRestController {
     }
 
     @DeleteMapping("/publicPhoto")
-    public ResponseEntity<?> publicPhoto(@RequestParam Long idUser, @RequestParam Long idImage) {
+    public ResponseEntity<?> publicPhoto(@RequestParam Long idUser,
+                                         @RequestParam Long idImage,
+                                         @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -106,7 +102,8 @@ public class ImageRestController {
 
     // Chuyển vào thùng rác
     @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam Long idImage, @RequestParam Long idUser) {
+    public ResponseEntity<?> delete(@RequestParam Long idImage, @RequestParam Long idUser,
+                                    @RequestHeader("Authorization") String authorization) {
         Optional<Image> imageOptional = imageService.findById(idImage);
         if (!imageOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
@@ -142,7 +139,8 @@ public class ImageRestController {
 
     // Khôi phục ảnh
     @DeleteMapping("/restoreImage")
-    public ResponseEntity<?> restoreImage(@RequestParam Long idImage, @RequestParam Long idUser) {
+    public ResponseEntity<?> restoreImage(@RequestParam Long idImage, @RequestParam Long idUser,
+                                          @RequestHeader("Authorization") String authorization) {
         Optional<Image> imageOptional = imageService.findById(idImage);
         if (!imageOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
@@ -163,7 +161,8 @@ public class ImageRestController {
 
     // Xóa hẳn ảnh
     @DeleteMapping("/deleteImage")
-    public ResponseEntity<?> deleteImage(@RequestParam Long idImage, @RequestParam Long idUser) {
+    public ResponseEntity<?> deleteImage(@RequestParam Long idImage, @RequestParam Long idUser,
+                                         @RequestHeader("Authorization") String authorization) {
         Optional<Image> imageOptional = imageService.findById(idImage);
         if (!imageOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
@@ -183,7 +182,8 @@ public class ImageRestController {
 
     // Danh sách ảnh đã xóa
     @GetMapping("/getAllImageDeleted")
-    public ResponseEntity<?> getAllImageDeleted(@RequestParam Long idUser) {
+    public ResponseEntity<?> getAllImageDeleted(@RequestParam Long idUser,
+                                                @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),

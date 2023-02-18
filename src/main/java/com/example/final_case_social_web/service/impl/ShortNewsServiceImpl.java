@@ -79,4 +79,9 @@ public class ShortNewsServiceImpl implements ShortNewsService {
     public List<ShortNews> myShortNew(Long idUser) {
         return shortNewsRepository.myShortNew(idUser);
     }
+
+    @Override
+    public List<ShortNews> getListShortNewInTrash(Long idUser) {
+        return shortNewsRepository.getListShortNewInTrash(idUser);
+    }
 }

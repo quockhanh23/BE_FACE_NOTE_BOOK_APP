@@ -3,9 +3,10 @@ package com.example.final_case_social_web.service.impl;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.dto.PostDTO;
 import com.example.final_case_social_web.dto.UserDTO;
-import com.example.final_case_social_web.model.Post2;
+import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.repository.PostRepository;
-import com.example.final_case_social_web.service.PostService;
+import com.example.final_case_social_web.service.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
     @Autowired
     private PostRepository postRepository;
-
+    @Autowired
+    private LikePostService likePostService;
+    @Autowired
+    private DisLikePostService disLikePostService;
+    @Autowired
+    private IconHeartService iconHeartService;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private AnswerCommentService answerCommentService;
     @Autowired
     ModelMapper modelMapper;
 
@@ -125,6 +136,43 @@ public class PostServiceImpl implements PostService {
             PostDTO postDTO = modelMapper.map(post2, PostDTO.class);
             postDTO.setUserDTO(userDTO);
             postDTOList.add(postDTO);
+        }
+        return postDTOList;
+    }
+
+    @Override
+    public List<Post2> findAllByUserIdAndDeleteTrue(Long user_id) {
+        return postRepository.findAllByUserIdAndDeleteIsTrue(user_id);
+    }
+
+    @Override
+    public List<PostDTO> filterListPost(List<Post2> post2List) {
+        List<PostDTO> postDTOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(post2List)) {
+            postDTOList = changeDTO(post2List);
+            List<Long> listPostId = post2List.stream().map(Post2::getId).collect(Collectors.toList());
+            List<LikePost> likePosts = likePostService.findAllByPostIdIn(listPostId);
+            List<DisLikePost> disLikePosts = disLikePostService.findAllByPostIdIn(listPostId);
+            List<IconHeart> iconHearts = iconHeartService.findAllByPostIdIn(listPostId);
+            List<Comment> commentList = commentService.findAllByPostIdIn(listPostId);
+            for (PostDTO postDTO : postDTOList) {
+                Long idPost = postDTO.getId();
+                List<LikePost> likePostList = likePosts.stream()
+                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
+                List<DisLikePost> disLikePostList = disLikePosts.stream()
+                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
+                List<IconHeart> iconHeartList = iconHearts.stream()
+                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
+                List<Comment> comments = commentList.stream()
+                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
+                List<Long> listCommentId = comments.stream().map(Comment::getId).collect(Collectors.toList());
+                List<AnswerComment> answerCommentList = answerCommentService.findAllByCommentIdIn(listCommentId);
+                int countAllCommentAndAnswerComment = listCommentId.size() + answerCommentList.size();
+                postDTO.setNumberLike((long) likePostList.size());
+                postDTO.setNumberDisLike((long) disLikePostList.size());
+                postDTO.setIconHeart((long) iconHeartList.size());
+                postDTO.setCountAllComment(countAllCommentAndAnswerComment);
+            }
         }
         return postDTOList;
     }

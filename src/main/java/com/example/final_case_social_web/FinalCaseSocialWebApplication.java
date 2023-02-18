@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 public class FinalCaseSocialWebApplication implements CommandLineRunner {
     @Resource
     FilesStorageService storageService;
+
     public static void main(String[] args) {
         SpringApplication.run(FinalCaseSocialWebApplication.class, args);
     }

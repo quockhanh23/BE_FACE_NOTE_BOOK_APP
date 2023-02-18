@@ -28,7 +28,7 @@ import java.util.Optional;
 @RestController
 @PropertySource("classpath:application.properties")
 @CrossOrigin("*")
-@RequestMapping("/api/AnswerComments")
+@RequestMapping("/api/answerComments")
 @Slf4j
 public class AnswerCommentRestController {
     @Autowired

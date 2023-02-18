@@ -221,7 +221,7 @@ public class UserController {
             Image image = imageService.createImageDefault(user.getCover(), user);
             imageService.save(image);
         }
-        emailService.sendMail(user.getEmail(), MessageResponse.Email.WELL_COME + user.getFullName(), MessageResponse.Email.THANK);
+//        emailService.sendMail(user.getEmail(), MessageResponse.Email.WELL_COME + user.getFullName(), MessageResponse.Email.THANK);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 

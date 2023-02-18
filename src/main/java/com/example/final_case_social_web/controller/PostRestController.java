@@ -17,11 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -43,10 +41,6 @@ public class PostRestController {
     private ModelMapper modelMapper;
     @Autowired
     private ImageService imageService;
-    @Autowired
-    private CommentService commentService;
-    @Autowired
-    private AnswerCommentService answerCommentService;
 
     @GetMapping("/allPostPublic")
     public ResponseEntity<?> reloadAllPostPublic(@RequestParam(required = false) Long idUser) {
@@ -56,33 +50,7 @@ public class PostRestController {
         } else {
             post2List = postService.allPost();
         }
-        List<PostDTO> postDTOList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(post2List)) {
-            postDTOList = postService.changeDTO(post2List);
-            List<Long> listPostId = post2List.stream().map(Post2::getId).collect(Collectors.toList());
-            List<LikePost> likePosts = likePostService.findAllByPostIdIn(listPostId);
-            List<DisLikePost> disLikePosts = disLikePostService.findAllByPostIdIn(listPostId);
-            List<IconHeart> iconHearts = iconHeartService.findAllByPostIdIn(listPostId);
-            List<Comment> commentList = commentService.findAllByPostIdIn(listPostId);
-            for (PostDTO postDTO : postDTOList) {
-                Long idPost = postDTO.getId();
-                List<LikePost> likePostList = likePosts.stream()
-                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
-                List<DisLikePost> disLikePostList = disLikePosts.stream()
-                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
-                List<IconHeart> iconHeartList = iconHearts.stream()
-                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
-                List<Comment> comments = commentList.stream()
-                        .filter(item -> item.getPost().getId().equals(idPost)).collect(Collectors.toList());
-                List<Long> listCommentId = comments.stream().map(Comment::getId).collect(Collectors.toList());
-                List<AnswerComment> answerCommentList = answerCommentService.findAllByCommentIdIn(listCommentId);
-                int countAllCommentAndAnswerComment = listCommentId.size() + answerCommentList.size();
-                postDTO.setNumberLike((long) likePostList.size());
-                postDTO.setNumberDisLike((long) disLikePostList.size());
-                postDTO.setIconHeart((long) iconHeartList.size());
-                postDTO.setCountAllComment(countAllCommentAndAnswerComment);
-            }
-        }
+        List<PostDTO> postDTOList = postService.filterListPost(post2List);
         return new ResponseEntity<>(postDTOList, HttpStatus.OK);
     }
 
@@ -282,5 +250,13 @@ public class PostRestController {
         UserDTO userDTO = modelMapper.map(postOptional.get().getUser(), UserDTO.class);
         postDTO.setUserDTO(userDTO);
         return new ResponseEntity<>(postDTO, HttpStatus.OK);
+    }
+
+    // Tất cả bài viết trong thùng rác
+    @GetMapping("/allPostInTrash")
+    public ResponseEntity<?> allPostInTrash(@RequestParam Long idUser) {
+        List<Post2> post2List = postService.findAllByUserIdAndDeleteTrue(idUser);
+        List<PostDTO> postDTOList = postService.filterListPost(post2List);
+        return new ResponseEntity<>(postDTOList, HttpStatus.OK);
     }
 }
