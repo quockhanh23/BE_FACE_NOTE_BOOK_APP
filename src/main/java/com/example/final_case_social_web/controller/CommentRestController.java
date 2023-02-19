@@ -2,6 +2,7 @@ package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.common.Regex;
 import com.example.final_case_social_web.dto.CommentDTO;
 import com.example.final_case_social_web.model.*;
@@ -153,7 +154,9 @@ public class CommentRestController {
             answerCommentService.saveAll(answerCommentList);
             return new ResponseEntity<>(commentOptional.get().isDelete(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Xem tất cả comment của 1 bài viết theo người comment

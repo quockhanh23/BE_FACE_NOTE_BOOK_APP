@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.Post2;
 import com.example.final_case_social_web.model.User;
@@ -88,7 +89,9 @@ public class AdminRestController {
             userService.save(optionalUser.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Kích hoạt tài khoản
@@ -114,7 +117,9 @@ public class AdminRestController {
             userService.save(optionalUser.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Xoá bài viết trong database
@@ -139,7 +144,9 @@ public class AdminRestController {
             postService.delete(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Khóa bài viết
@@ -165,7 +172,9 @@ public class AdminRestController {
             postService.save(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/allPost")

@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.AnswerCommentDTO;
 import com.example.final_case_social_web.model.AnswerComment;
 import com.example.final_case_social_web.model.Comment;
@@ -130,6 +131,8 @@ public class AnswerCommentRestController {
             answerCommentService.save(answerComment.get());
             return new ResponseEntity<>(answerComment.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 }

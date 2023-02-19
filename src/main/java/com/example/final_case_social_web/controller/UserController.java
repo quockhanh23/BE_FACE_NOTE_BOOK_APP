@@ -447,7 +447,9 @@ public class UserController {
             userService.save(userOptional.get());
             return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/changeStatusUserLock/{idUser}")
@@ -465,7 +467,9 @@ public class UserController {
             userService.save(userOptional.get());
             return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/listImageDefault")

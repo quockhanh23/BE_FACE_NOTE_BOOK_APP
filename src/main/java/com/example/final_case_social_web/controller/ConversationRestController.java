@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.MessagePhotoDTO;
 import com.example.final_case_social_web.dto.MessengerDTO;
 import com.example.final_case_social_web.model.Conversation;
@@ -179,7 +180,9 @@ public class ConversationRestController {
             messengerService.save(messenger1);
             return new ResponseEntity<>(messenger, HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/findById")
@@ -330,6 +333,8 @@ public class ConversationRestController {
             messengerService.delete(messenger.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 }

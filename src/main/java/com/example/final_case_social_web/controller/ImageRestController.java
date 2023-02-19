@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.model.Image;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
@@ -75,7 +76,9 @@ public class ImageRestController {
             imageService.save(imageOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/publicPhoto")
@@ -97,7 +100,9 @@ public class ImageRestController {
             imageService.save(imageOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Chuyển vào thùng rác
@@ -134,7 +139,9 @@ public class ImageRestController {
             }
             return new ResponseEntity<>(imageOptional.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Khôi phục ảnh
@@ -156,7 +163,9 @@ public class ImageRestController {
             imageOptional.get().setDeleteAt(null);
             imageService.save(imageOptional.get());
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Xóa hẳn ảnh
@@ -177,7 +186,9 @@ public class ImageRestController {
             imageService.delete(imageOptional.get());
             return new ResponseEntity<>(imageOptional.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Danh sách ảnh đã xóa

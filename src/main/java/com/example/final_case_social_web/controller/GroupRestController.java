@@ -264,7 +264,7 @@ public class GroupRestController {
             groupParticipantService.save(groupParticipant.get());
             return new ResponseEntity<>(groupParticipant, HttpStatus.OK);
         }
-        return new ResponseEntity<>(groupParticipant, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Quản trị viên duyệt bài viết
@@ -281,7 +281,7 @@ public class GroupRestController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
-        return new ResponseEntity<>(groupPost, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Quản trị viên từ chối duyệt bài viết
@@ -298,7 +298,7 @@ public class GroupRestController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_REFUSE);
-        return new ResponseEntity<>(groupPost, HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Tạo bài viết trong nhóm
