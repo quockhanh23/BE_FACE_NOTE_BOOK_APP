@@ -6,6 +6,7 @@ import com.example.final_case_social_web.service.GroupPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,5 +27,15 @@ public class GroupPostServiceImpl implements GroupPostService {
     @Override
     public GroupPost save(GroupPost groupPost) {
         return groupPostRepository.save(groupPost);
+    }
+
+    @Override
+    public List<GroupPost> findAllPostByIdGroup(Long idGroup) {
+        return groupPostRepository.findAllPostByIdGroup(idGroup);
+    }
+
+    @Override
+    public List<GroupPost> findAllPostWaiting(Long idGroup) {
+        return groupPostRepository.findAllPostWaiting(idGroup);
     }
 }

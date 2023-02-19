@@ -49,10 +49,9 @@ public class GroupRestController {
         return new ResponseEntity<>(theGroupList, HttpStatus.OK);
     }
 
-    // Các nhóm đã tạo
     @GetMapping("/findAllGroup")
-    public ResponseEntity<?> findAllGroup(@RequestParam Long idUserCreate) {
-        List<TheGroup> theGroups = theGroupService.findAllGroup(idUserCreate);
+    public ResponseEntity<?> findAllGroup(@RequestParam Long idUser) {
+        List<TheGroup> theGroups = theGroupService.findAllGroup(idUser);
         if (CollectionUtils.isEmpty(theGroups)) {
             theGroups = new ArrayList<>();
         }
@@ -324,6 +323,9 @@ public class GroupRestController {
         groupPost.setCreateBy(userOptional.get().getFullName());
         groupPost.setCreateAt(new Date());
         groupPost.setTheGroup(theGroupOptional.get());
+        if (theGroupOptional.get().getIdUserCreate().equals(idUser)) {
+            groupPost.setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
+        }
         groupPostService.save(groupPost);
         if (!StringUtils.isEmpty(groupPost.getImage())) {
             ImageGroup imageGroup = imageGroupService
@@ -331,6 +333,46 @@ public class GroupRestController {
             imageGroupService.save(imageGroup);
         }
         return new ResponseEntity<>(groupPost, HttpStatus.OK);
+    }
+
+    // Các bài viết trong nhóm
+    @GetMapping("/postByGroup")
+    public ResponseEntity<?> postByGroup(@RequestParam Long idGroup, @RequestParam String type) {
+        Optional<TheGroup> theGroupOptional = theGroupService.findById(idGroup);
+        if (!theGroupOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_THE_GROUP, idGroup), HttpStatus.NOT_FOUND);
+        }
+        List<GroupPost> groupPostList = new ArrayList<>();
+        if (type.equals(Constants.GroupStatus.STATUS_GROUP_APPROVED)) {
+            groupPostList = groupPostService.findAllPostByIdGroup(idGroup);
+        }
+        if (type.equals(Constants.GroupStatus.STATUS_GROUP_PENDING)) {
+            groupPostList = groupPostService.findAllPostWaiting(idGroup);
+        }
+        return new ResponseEntity<>(groupPostList, HttpStatus.OK);
+    }
+
+    @GetMapping("/checkUserInGroup")
+    public ResponseEntity<?> checkUserInGroup(@RequestParam Long idGroup, @RequestParam Long idUser) {
+        Optional<TheGroup> theGroupOptional = theGroupService.findById(idGroup);
+        if (!theGroupOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_THE_GROUP, idGroup), HttpStatus.NOT_FOUND);
+        }
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_ADMIN_GROUP, idUser), HttpStatus.NOT_FOUND);
+        }
+        List<GroupParticipant> groupParticipants = groupParticipantService.findAllUserStatusApproved(idGroup);
+        List<GroupParticipant> groupParticipantList = groupParticipants.stream()
+                .filter(item -> item.getUser().getId().equals(idUser)
+                        && item.getStatus().equals(Constants.GroupStatus.STATUS_GROUP_APPROVED)).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(groupParticipantList)) {
+            groupParticipantList = new ArrayList<>();
+        }
+        return new ResponseEntity<>(groupParticipantList, HttpStatus.OK);
     }
 
     @GetMapping("/searchAllByGroupNameAndType")
