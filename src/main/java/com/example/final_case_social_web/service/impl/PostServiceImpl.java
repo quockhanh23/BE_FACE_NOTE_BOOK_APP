@@ -61,8 +61,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post2> allPost() {
-        return postRepository.AllPost();
+    public List<Post2> allPost(Long id) {
+        return postRepository.AllPost(id);
     }
 
     @Override

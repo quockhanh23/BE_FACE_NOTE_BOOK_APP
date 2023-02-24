@@ -11,7 +11,7 @@ public interface PostService extends GeneralService<Post2> {
 
     List<Post2> findAllPostByUser(@Param("id") Long id);
 
-    List<Post2> allPost();
+    List<Post2> allPost(Long id);
 
     Optional<Post2> checkPostPublic(Long id);
 

@@ -17,8 +17,12 @@ public interface PostRepository extends JpaRepository<Post2, Long> {
     List<Post2> findAllPostByUser(@Param("id") Long id);
 
     @Modifying
-    @Query(value = "select * from post2 where is_delete = false and status like 'Public' order by create_at desc", nativeQuery = true)
-    List<Post2> AllPost();
+    @Query(value = "select *\n" +
+            "from post2\n" +
+            "where (id in (select id from post2 where is_delete = false and status like 'Public' and user_id != :id))\n" +
+            "   or (id in (select id from post2 where is_delete = false and user_id = :id))\n" +
+            "order by create_at desc", nativeQuery = true)
+    List<Post2> AllPost(@Param("id") Long id);
 
     @Modifying
     @Query(value = "select * from post2 where is_delete is true and user_id = :id order by id desc", nativeQuery = true)

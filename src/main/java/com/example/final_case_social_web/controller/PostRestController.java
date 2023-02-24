@@ -50,7 +50,7 @@ public class PostRestController {
 
     @GetMapping("/allPostPublic")
     public ResponseEntity<?> allPostPublic(@RequestParam Long idUser, @RequestParam String type) {
-        List<Post2> post2List = postService.allPost();
+        List<Post2> post2List = postService.allPost(idUser);
         if (!CollectionUtils.isEmpty(post2List)) {
             if (type.equals("detailUser")) {
                 post2List = postService.findAllPostByUser(idUser);
