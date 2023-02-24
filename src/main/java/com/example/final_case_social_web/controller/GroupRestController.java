@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.service.*;
@@ -35,6 +36,8 @@ public class GroupRestController {
     private UserService userService;
     @Autowired
     private ImageGroupService imageGroupService;
+    @Autowired
+    private NotificationService notificationService;
 
     // Danh sách nhóm đã vào
     @GetMapping("/groupJoined")
@@ -86,8 +89,8 @@ public class GroupRestController {
         return new ResponseEntity<>(listGroupByIdUserCreate, HttpStatus.OK);
     }
 
-    @GetMapping("/{idGroup}")
-    public ResponseEntity<?> getOne(@PathVariable Long idGroup) {
+    @GetMapping("/findById")
+    public ResponseEntity<?> findById(@RequestParam Long idGroup) {
         Optional<TheGroup> theGroupOptional = theGroupService.findById(idGroup);
         if (!theGroupOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_GROUP, idGroup),
@@ -156,7 +159,9 @@ public class GroupRestController {
             theGroupOptional.get().setStatus(Constants.STATUS_DELETE);
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Xóa nhóm
@@ -177,16 +182,14 @@ public class GroupRestController {
             theGroupOptional.get().setStatus(Constants.STATUS_DELETE);
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     // Gửi yêu cầu tham gia nhóm
     @GetMapping("/createGroupParticipant")
     public ResponseEntity<?> createGroupParticipant(@RequestParam Long idUser, @RequestParam Long idTheGroup) {
-        if (userService.checkUser(idUser) == null) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
         Optional<TheGroup> theGroupOptional = theGroupService.findById(idTheGroup);
         if (!theGroupOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_THE_GROUP, idTheGroup),
@@ -197,19 +200,28 @@ public class GroupRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
+        Optional<User> optionalUser = userService.findById(theGroupOptional.get().getIdUserCreate());
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+                    HttpStatus.NOT_FOUND);
+        }
         Iterable<GroupParticipant> groupParticipants = groupParticipantService.findAll();
         List<GroupParticipant> groupParticipantList = (List<GroupParticipant>) groupParticipants;
-        if (groupParticipants != null) {
-            for (GroupParticipant groupParticipant : groupParticipantList) {
-                if (groupParticipant.getUser().getId().equals(idUser)
-                        && groupParticipant.getTheGroup().getId().equals(idTheGroup)) {
-                    return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-                }
+        for (GroupParticipant groupParticipant : groupParticipantList) {
+            if (groupParticipant.getUser().getId().equals(idUser)
+                    && groupParticipant.getTheGroup().getId().equals(idTheGroup)) {
+                return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                        MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                        HttpStatus.BAD_REQUEST);
             }
         }
         GroupParticipant groupParticipant = groupParticipantService
                 .createDefault(theGroupOptional.get(), userOptional.get(), Constants.GroupStatus.STATUS_GROUP_PENDING);
         groupParticipantService.save(groupParticipant);
+        Notification notification = notificationService.createDefault(optionalUser.get(), userOptional.get(),
+                Constants.Notification.TITLE_REQUEST_JOIN_GROUP, groupParticipant.getId(),
+                Constants.Notification.TYPE_GROUP);
+        notificationService.save(notification);
         return new ResponseEntity<>(groupParticipant, HttpStatus.OK);
     }
 
@@ -230,9 +242,19 @@ public class GroupRestController {
         if (userOptional.get().getId().equals(groupParticipant.get().getTheGroup().getIdUserCreate())) {
             groupParticipant.get().setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
             groupParticipantService.save(groupParticipant.get());
+            Optional<User> user = userService.findById(idUser);
+            if (!user.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            Notification notification = notificationService.createDefault(user.get(), userOptional.get(),
+                    Constants.Notification.TITLE_APPROVE_JOIN_GROUP, groupParticipant.get().getId(),
+                    Constants.Notification.TYPE_GROUP);
+            notificationService.save(notification);
             return new ResponseEntity<>(groupParticipant, HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/check")
@@ -261,6 +283,14 @@ public class GroupRestController {
         if (userOptional.get().getId().equals(groupParticipant.get().getTheGroup().getIdUserCreate())) {
             groupParticipant.get().setStatus(Constants.GroupStatus.STATUS_GROUP_REFUSE);
             groupParticipantService.save(groupParticipant.get());
+            Optional<User> user = userService.findById(idUser);
+            if (!user.isPresent()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            Notification notification = notificationService.createDefault(user.get(), userOptional.get(),
+                    Constants.Notification.TITLE_REJECT_JOIN_GROUP, groupParticipant.get().getId(),
+                    Constants.Notification.TYPE_GROUP);
+            notificationService.save(notification);
             return new ResponseEntity<>(groupParticipant, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.OK);
@@ -280,6 +310,11 @@ public class GroupRestController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
+        groupPostService.save(groupPost.get());
+
+        Notification notification = notificationService.createDefault(groupPost.get().getUser(), userOptional.get(),
+                Constants.Notification.TITLE_APPROVE, idGroupPost, Constants.Notification.TYPE_GROUP_POST);
+        notificationService.save(notification);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -297,6 +332,10 @@ public class GroupRestController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_REFUSE);
+        groupPostService.save(groupPost.get());
+        Notification notification = notificationService.createDefault(groupPost.get().getUser(), userOptional.get(),
+                Constants.Notification.TITLE_REJECT, idGroupPost, Constants.Notification.TYPE_GROUP_POST);
+        notificationService.save(notification);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -323,6 +362,7 @@ public class GroupRestController {
         groupPost.setCreateBy(userOptional.get().getFullName());
         groupPost.setCreateAt(new Date());
         groupPost.setTheGroup(theGroupOptional.get());
+        groupPost.setUser(userOptional.get());
         if (theGroupOptional.get().getIdUserCreate().equals(idUser)) {
             groupPost.setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
         }

@@ -96,6 +96,8 @@ public class Constants {
         public static final String STATUS_SEEN = "Seen";
         public static final String STATUS_NOT_SEEN = "Not seen";
         public static final String TYPE_POST = "Post";
+        public static final String TYPE_GROUP_POST = "Group post";
+        public static final String TYPE_GROUP = "Join group";
         public static final String TYPE_SYSTEM = "System";
         public static final String TYPE_COMMENT = "Comment";
         public static final String TYPE_ANSWER_COMMENT = "Answer comment";
@@ -110,6 +112,11 @@ public class Constants {
         public static final String TITLE_DISLIKE_COMMENT = "không thích bình luận của bạn";
         public static final String TITLE_COMMENT = "đã bình luận bài viết của bạn";
         public static final String TITLE_ANSWER_COMMENT = "đã trả lời bình luận của bạn";
+        public static final String TITLE_APPROVE = "đã duyệt bài viết của bạn";
+        public static final String TITLE_REJECT = "đã từ chối duyệt bài viết của bạn";
+        public static final String TITLE_APPROVE_JOIN_GROUP = "đã đồng ý cho bạn tham gia nhóm";
+        public static final String TITLE_REQUEST_JOIN_GROUP = "muốn tham gia nhóm của bạn";
+        public static final String TITLE_REJECT_JOIN_GROUP = "đã từ chối đề nghị tham gia nhóm của bạn";
     }
 
     public static class GroupType {

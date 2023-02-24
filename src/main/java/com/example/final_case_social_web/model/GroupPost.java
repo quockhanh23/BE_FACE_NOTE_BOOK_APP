@@ -26,8 +26,9 @@ public class GroupPost {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    @Column(name = "user_create_id")
-    private Long idUserCreate;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "the_group_id")

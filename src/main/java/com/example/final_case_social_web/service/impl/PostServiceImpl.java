@@ -7,6 +7,7 @@ import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.repository.PostRepository;
 import com.example.final_case_social_web.service.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -108,7 +109,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void create(Post2 post2) {
-        post2.setStatus(Constants.STATUS_PUBLIC);
+        if (StringUtils.isEmpty(post2.getStatus())) {
+            post2.setStatus(Constants.STATUS_PUBLIC);
+        }
         post2.setEditAt(null);
         post2.setDelete(false);
         post2.setCreateAt(new Date());
