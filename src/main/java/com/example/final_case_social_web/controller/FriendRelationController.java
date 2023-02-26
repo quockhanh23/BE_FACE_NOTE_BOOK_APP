@@ -1,7 +1,9 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.dto.UserNotificationDTO;
 import com.example.final_case_social_web.model.FollowWatching;
 import com.example.final_case_social_web.model.FriendRelation;
 import com.example.final_case_social_web.model.Notification;
@@ -48,11 +50,11 @@ public class FriendRelationController {
     @GetMapping("/allPeople")
     public ResponseEntity<?> listPeople(@RequestParam Long idUser) {
         List<User> listPeople = userService.listPeople(idUser);
-        if (CollectionUtils.isEmpty(listPeople)) {
-            listPeople = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(listPeople)) {
+            listPeople.removeIf(item -> item.getId().equals(idUser));
         }
-        listPeople.removeIf(item -> item.getId().equals(idUser));
-        return new ResponseEntity<>(listPeople, HttpStatus.OK);
+        List<UserNotificationDTO> list = friendRelationService.listUser(listPeople);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/friendCheck")
@@ -86,31 +88,33 @@ public class FriendRelationController {
     @GetMapping("/findAllListRequestAddFriendById")
     public ResponseEntity<List<?>> findAllListRequestAddFriendById(@RequestParam Long idUser) {
         List<FriendRelation> friendRelations = friendRelationService.findAllListRequestAddFriendById(idUser);
-        if (CollectionUtils.isEmpty(friendRelations)) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        List<UserDTO> userDTOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(friendRelations)) {
+            List<Long> idFriend = friendRelations.stream()
+                    .map(item -> item.getUserLogin().getId()).distinct().collect(Collectors.toList());
+            List<User> userList = userService.findAllByIdIn(idFriend);
+            userList.removeIf(item -> item.getId().equals(idUser));
+            userDTOList = friendRelationService.listResult(userList);
         }
-        List<Long> idFriend = friendRelations.stream()
-                .map(item -> item.getUserLogin().getId()).distinct().collect(Collectors.toList());
-        List<User> userList = userService.findAllByIdIn(idFriend);
-        if (CollectionUtils.isEmpty(friendRelations)) {
-            userList = new ArrayList<>();
-        }
-        userList.removeIf(item -> item.getId().equals(idUser));
-        return new ResponseEntity<>(userList, HttpStatus.OK);
+        return new ResponseEntity<>(userDTOList, HttpStatus.OK);
     }
 
     // Danh sách bạn đã gửi lời mời kết bạn
     @GetMapping("/listRequest")
     public ResponseEntity<?> listRequest(@RequestParam Long idUser) {
+        final double startTime = System.currentTimeMillis();
         List<FriendRelation> friendRelationList = friendRelationService.listRequest(idUser);
-        if (CollectionUtils.isEmpty(friendRelationList)) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        List<UserDTO> list = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(friendRelationList)) {
+            List<Long> idFriend = friendRelationList.stream()
+                    .map(FriendRelation::getIdFriend).distinct().collect(Collectors.toList());
+            List<User> userList = userService.findAllByIdIn(idFriend);
+            list = friendRelationService.listResult(userList);
         }
-        List<Long> idFriend = friendRelationList.stream()
-                .map(FriendRelation::getIdFriend).distinct().collect(Collectors.toList());
-        List<User> userList = userService.findAllByIdIn(idFriend);
-        userList.removeIf(item -> item.getId().equals(idUser));
-        return new ResponseEntity<>(userList, HttpStatus.OK);
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillis);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     // Danh sách bạn bè
@@ -144,16 +148,10 @@ public class FriendRelationController {
     @GetMapping("/listFriendShowAvatarLimit")
     public ResponseEntity<?> listFriendShowAvatarLimit(@RequestParam Long idUser) {
         List<User> listFriend = userService.allFriendByUserId(idUser);
-        List<UserDTO> userDTOList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(listFriend)) {
-            for (User user : listFriend) {
-                UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-                userDTOList.add(userDTO);
-                if (userDTOList.size() == 5) {
-                    break;
-                }
-            }
-        }
+        List<UserDTO> userDTOList = listFriend.stream()
+                .map(x -> new UserDTO(x.getId(), x.getFullName(), x.getAvatar(), x.getCover()))
+                .limit(5)
+                .collect(Collectors.toList());
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
     }
 
@@ -239,7 +237,7 @@ public class FriendRelationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         if (Objects.equals(idUser, idFriend)) {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Optional<User> user = userService.findById(idFriend);
         if (!user.isPresent()) {
@@ -252,10 +250,7 @@ public class FriendRelationController {
         if (user.get().getStatus().equals(Constants.STATUS_BANED)) {
             return new ResponseEntity<>(HttpStatus.LOCKED);
         }
-        optionalFriendRelation.get().setStatusFriend(Constants.FRIEND);
-        optionalFriendRelation2.get().setStatusFriend(Constants.FRIEND);
-        friendRelationService.save(optionalFriendRelation.get());
-        friendRelationService.save(optionalFriendRelation2.get());
+        friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.FRIEND);
         List<FollowWatching> followWatchingList = followWatchingRepository.findOne(idUser, idFriend);
         if (!CollectionUtils.isEmpty(followWatchingList)) {
             followWatchingList.get(0).setStatus(Constants.FRIEND);
@@ -280,12 +275,9 @@ public class FriendRelationController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         if (Objects.equals(idUser, idFriend)) {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        optionalFriendRelation.get().setStatusFriend(Constants.NO_FRIEND);
-        optionalFriendRelation2.get().setStatusFriend(Constants.NO_FRIEND);
-        friendRelationService.save(optionalFriendRelation.get());
-        friendRelationService.save(optionalFriendRelation2.get());
+        friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.NO_FRIEND);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -293,14 +285,7 @@ public class FriendRelationController {
     @GetMapping("/friendSuggestion")
     public ResponseEntity<?> everyone(@RequestParam Long idUser) {
         List<User> listSuggestion = userService.friendSuggestion(idUser);
-        List<UserDTO> listSuggestionUser = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(listSuggestion)) {
-            listSuggestion.forEach(user -> {
-                UserDTO userDTO = new UserDTO();
-                BeanUtils.copyProperties(user, userDTO);
-                listSuggestionUser.add(userDTO);
-            });
-        }
-        return new ResponseEntity<>(listSuggestionUser, HttpStatus.OK);
+        List<UserNotificationDTO> list = friendRelationService.listUser(listSuggestion);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

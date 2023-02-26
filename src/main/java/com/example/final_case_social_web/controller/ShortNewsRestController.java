@@ -94,28 +94,27 @@ public class ShortNewsRestController {
 
     // Kiểm tra hạn sử dụng
     @GetMapping("/allShortNews")
-    public ResponseEntity<Iterable<ShortNewsDTO>> allShortNews() {
+    public ResponseEntity<?> allShortNews() {
         Iterable<ShortNews> shortNews = shortNewsService.findAll();
-        List<ShortNewsDTO> shortNewsDTOList = new ArrayList<>();
         List<ShortNews> shortNewsList;
         shortNewsList = (List<ShortNews>) shortNews;
-        if (shortNews != null) {
-            for (int i = 0; i < shortNewsList.size(); i++) {
+        if (!CollectionUtils.isEmpty(shortNewsList)) {
+            for (ShortNews item : shortNewsList) {
 
-                int today = Integer.parseInt(shortNewsList.get(i).getToDay().toString().substring(8, 10));
-                int createDay = Integer.parseInt(shortNewsList.get(i).getCreateAt().toString().substring(8, 10));
+                int today = Integer.parseInt(item.getToDay().toString().substring(8, 10));
+                int createDay = Integer.parseInt(item.getCreateAt().toString().substring(8, 10));
 
-                int monthToday = Integer.parseInt(shortNewsList.get(i).getToDay().toString().substring(5, 7));
-                int monthCreate = Integer.parseInt(shortNewsList.get(i).getCreateAt().toString().substring(5, 7));
+                int monthToday = Integer.parseInt(item.getToDay().toString().substring(5, 7));
+                int monthCreate = Integer.parseInt(item.getCreateAt().toString().substring(5, 7));
 
-                int yearToday = Integer.parseInt(shortNewsList.get(i).getToDay().toString().substring(0, 4));
-                int yearCreate = Integer.parseInt(shortNewsList.get(i).getCreateAt().toString().substring(0, 4));
+                int yearToday = Integer.parseInt(item.getToDay().toString().substring(0, 4));
+                int yearCreate = Integer.parseInt(item.getCreateAt().toString().substring(0, 4));
 
                 int totalDay = 0;
 
-                Instant instant = Instant.ofEpochMilli(shortNewsList.get(i).getCreateAt().getTime());
+                Instant instant = Instant.ofEpochMilli(item.getCreateAt().getTime());
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                Instant instant1 = Instant.ofEpochMilli(shortNewsList.get(i).getToDay().getTime());
+                Instant instant1 = Instant.ofEpochMilli(item.getToDay().getTime());
                 LocalDateTime localDateTime1 = LocalDateTime.ofInstant(instant1, ZoneId.systemDefault());
 
                 LocalDate localDate = LocalDate.from(localDateTime);
@@ -216,31 +215,25 @@ public class ShortNewsRestController {
                 }
 
                 if (getMonth == 0 && getYear == 0) {
-                    shortNewsList.get(i).setRemaining(shortNewsList.get(i).getExpired() - getDay);
+                    item.setRemaining(item.getExpired() - getDay);
                 }
                 if (getMonth > 0 && getYear == 0) {
-                    shortNewsList.get(i).setRemaining(shortNewsList.get(i).getExpired() - totalDay);
+                    item.setRemaining(item.getExpired() - totalDay);
                 }
                 if (getMonth == 0 && getYear == 1) {
-                    shortNewsList.get(i).setRemaining(shortNewsList.get(i).getExpired() - dayOfYear);
+                    item.setRemaining(item.getExpired() - dayOfYear);
                 }
                 if (getMonth == 0 && getYear > 1) {
-                    shortNewsList.get(i).setRemaining(shortNewsList.get(i).getExpired() - totalDayOfYear);
+                    item.setRemaining(item.getExpired() - totalDayOfYear);
                 }
                 if (getMonth > 0 && getYear > 0) {
                     int totalDayOfYearAndMonth = totalDayOfYear + totalDay;
-                    shortNewsList.get(i).setRemaining(shortNewsList.get(i).getExpired() - totalDayOfYearAndMonth);
+                    item.setRemaining(item.getExpired() - totalDayOfYearAndMonth);
                 }
             }
             shortNewsService.saveAll(shortNewsList);
-            for (ShortNews news : shortNewsList) {
-                UserDTO userDTO = modelMapper.map(news.getUser(), UserDTO.class);
-                ShortNewsDTO shortNewsDTO = modelMapper.map(news, ShortNewsDTO.class);
-                shortNewsDTO.setUserDTO(userDTO);
-                shortNewsDTOList.add(shortNewsDTO);
-            }
         }
-        return new ResponseEntity<>(shortNewsDTOList, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Tạo tin
@@ -265,15 +258,14 @@ public class ShortNewsRestController {
         shortNews.setDelete(false);
         shortNews.setUser(userService.checkUser(idUser));
         shortNewsService.save(shortNews);
-        return new ResponseEntity<>(shortNews.getContent() + shortNews.getImage() + shortNews.getUser().getId(),
-                HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Xóa tin nhưng vẫn còn trong thùng rác
+    // Chuyển vào thùng rác, Xóa tin trong database
     @DeleteMapping("/deleteShortNews")
     public ResponseEntity<?> deleteShortNews(@RequestParam Long idSortNew,
-                                             @RequestParam Long idUser) {
-
+                                             @RequestParam Long idUser,
+                                             @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -284,34 +276,18 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_SORT_NEW, idSortNew), HttpStatus.NOT_FOUND);
         }
-        if (userOptional.get().getId().equals(shortNewsOptional.get().getUser().getId())) {
-            shortNewsOptional.get().setDelete(true);
-            shortNewsService.save(shortNewsOptional.get());
-            return new ResponseEntity<>(shortNewsOptional.get(), HttpStatus.OK);
+        if ("trash".equals(type)) {
+            if (userOptional.get().getId().equals(shortNewsOptional.get().getUser().getId())) {
+                shortNewsOptional.get().setDelete(true);
+                shortNewsService.save(shortNewsOptional.get());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    // Xóa tin trong database
-    @DeleteMapping("/deleteShortNews2")
-    public ResponseEntity<?> deleteShortNews2(@RequestParam Long idSortNew,
-                                              @RequestParam Long idUser) {
-
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        Optional<ShortNews> shortNewsOptional = shortNewsService.findById(idSortNew);
-        if (!shortNewsOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_SORT_NEW, idSortNew), HttpStatus.NOT_FOUND);
-        }
-        if (userOptional.get().getId().equals(shortNewsOptional.get().getUser().getId())) {
-            shortNewsService.delete(shortNewsOptional.get());
-            return new ResponseEntity<>(shortNewsOptional.get(), HttpStatus.OK);
+        if ("delete".equals(type)) {
+            if (userOptional.get().getId().equals(shortNewsOptional.get().getUser().getId())) {
+                shortNewsService.delete(shortNewsOptional.get());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                 MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),

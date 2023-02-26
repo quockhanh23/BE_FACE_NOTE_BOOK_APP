@@ -66,37 +66,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Optional<Post2> checkPostPublic(Long id) {
-        Optional<Post2> post2Optional = postRepository.findById(id);
-        if (!post2Optional.isPresent()) {
-            return Optional.empty();
-        }
-        post2Optional.get().setStatus(Constants.STATUS_PUBLIC);
-        return Optional.of(post2Optional.get());
-    }
-
-    @Override
-    public Optional<Post2> checkPostPrivate(Long id) {
-        Optional<Post2> post2Optional = postRepository.findById(id);
-        if (!post2Optional.isPresent()) {
-            return Optional.empty();
-        }
-        post2Optional.get().setStatus(Constants.STATUS_PRIVATE);
-        return Optional.of(post2Optional.get());
-    }
-
-    @Override
-    public Optional<Post2> checkPostDelete(Long id) {
-        Optional<Post2> post2Optional = postRepository.findById(id);
-        if (!post2Optional.isPresent()) {
-            return Optional.empty();
-        }
-        post2Optional.get().setStatus(Constants.STATUS_DELETE);
-        post2Optional.get().setDelete(true);
-        return Optional.of(post2Optional.get());
-    }
-
-    @Override
     public void delete(Post2 entity) {
         postRepository.delete(entity);
     }

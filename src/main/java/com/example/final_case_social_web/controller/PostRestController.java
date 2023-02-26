@@ -79,7 +79,7 @@ public class PostRestController {
     }
 
     @PostMapping("/createHidePost")
-    public ResponseEntity<?> create(@RequestParam Long idUser, @RequestParam Long idPost) {
+    public ResponseEntity<?> createHidePost(@RequestParam Long idUser, @RequestParam Long idPost) {
         List<HidePost> list = hidePostRepository.findAll();
         if (!CollectionUtils.isEmpty(list)) {
             for (HidePost post : list) {
@@ -140,7 +140,7 @@ public class PostRestController {
 
     // Chỉnh sửa post
     @PutMapping("/updatePost")
-    public ResponseEntity<?> update(@RequestParam Long idPost, @RequestParam Long idUser, @RequestBody Post2 post) {
+    public ResponseEntity<?> updatePost(@RequestParam Long idPost, @RequestParam Long idUser, @RequestBody Post2 post) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
@@ -213,10 +213,13 @@ public class PostRestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Đổi trạng thái post sang public
-    @DeleteMapping("/changeStatusPublic")
-    public ResponseEntity<?> changeStatusPublic(@RequestParam Long idPost, @RequestParam Long idUser) {
-        if (!postService.checkPostPublic(idPost).isPresent()) {
+    // Đổi trạng thái post sang public, private, chuyển vào thùng rác
+    @DeleteMapping("/changeStatusPost")
+    public ResponseEntity<?> changeStatusPost(@RequestParam Long idPost,
+                                                @RequestParam Long idUser,
+                                                @RequestParam String type) {
+        Optional<Post2> postOptional = postService.findById(idPost);
+        if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
@@ -225,52 +228,20 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        if (postService.checkPostPublic(idPost).get().getUser().getId().equals(userOptional.get().getId())) {
-            postService.save(postService.checkPostPublic(idPost).get());
+        if ("Public".equals(type)) {
+            postOptional.get().setStatus(Constants.STATUS_PUBLIC);
+            postService.save(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    // Đổi trạng thái post sang private
-    @DeleteMapping("/changeStatusPrivate")
-    public ResponseEntity<?> changeStatus(@RequestParam Long idPost,
-                                          @RequestParam Long idUser) {
-        if (!postService.checkPostPrivate(idPost).isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
-                    HttpStatus.NOT_FOUND);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        if (postService.checkPostPrivate(idPost).get().getUser().getId().equals(userOptional.get().getId())) {
-            postService.save(postService.checkPostPrivate(idPost).get());
+        if ("Private".equals(type)) {
+            postOptional.get().setStatus(Constants.STATUS_PRIVATE);
+            postService.save(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    // Đổi trạng thái post sang delete (chuyển vào thùng rác)
-    @DeleteMapping("/changeStatusDelete")
-    public ResponseEntity<?> delete(@RequestParam Long idPost,
-                                    @RequestParam Long idUser) {
-        if (!postService.checkPostDelete(idPost).isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
-                    HttpStatus.NOT_FOUND);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        if (postService.checkPostDelete(idPost).get().getUser().getId().equals(userOptional.get().getId())) {
-            postService.save(postService.checkPostDelete(idPost).get());
+        if ("Delete".equals(type)) {
+            postOptional.get().setStatus(Constants.STATUS_DELETE);
+            postOptional.get().setDelete(true);
+            postService.save(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),

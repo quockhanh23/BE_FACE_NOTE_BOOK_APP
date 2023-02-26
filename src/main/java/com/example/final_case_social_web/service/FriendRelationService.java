@@ -1,6 +1,9 @@
 package com.example.final_case_social_web.service;
 
+import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.dto.UserNotificationDTO;
 import com.example.final_case_social_web.model.FriendRelation;
+import com.example.final_case_social_web.model.User;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -21,4 +24,10 @@ public interface FriendRelationService extends GeneralService<FriendRelation> {
     List<FriendRelation> friend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
 
     FriendRelation create();
+
+    List<UserNotificationDTO> listUser(List<User> userList);
+
+    void saveAction(FriendRelation friendRelation1, FriendRelation friendRelation2, String status);
+
+    List<UserDTO> listResult(List<User> userList);
 }

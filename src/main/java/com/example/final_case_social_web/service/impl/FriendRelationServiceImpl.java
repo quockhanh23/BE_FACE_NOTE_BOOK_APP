@@ -1,14 +1,21 @@
 package com.example.final_case_social_web.service.impl;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.dto.UserNotificationDTO;
 import com.example.final_case_social_web.model.FriendRelation;
+import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.repository.FriendRelationRepository;
 import com.example.final_case_social_web.service.FriendRelationService;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendRelationServiceImpl implements FriendRelationService {
@@ -65,5 +72,37 @@ public class FriendRelationServiceImpl implements FriendRelationService {
         FriendRelation friendRelation = new FriendRelation();
         friendRelation.setStatusFriend(Constants.WAITING);
         return friendRelation;
+    }
+
+    @Override
+    public List<UserNotificationDTO> listUser(List<User> userList) {
+        List<UserNotificationDTO> list = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(userList)) {
+            userList.forEach(user -> {
+                UserNotificationDTO userDTO = new UserNotificationDTO();
+                BeanUtils.copyProperties(user, userDTO);
+                list.add(userDTO);
+            });
+        }
+        return list;
+    }
+
+    @Override
+    public void saveAction(FriendRelation friendRelation1, FriendRelation friendRelation2, String status) {
+        friendRelation1.setStatusFriend(status);
+        friendRelation2.setStatusFriend(status);
+        save(friendRelation1);
+        save(friendRelation2);
+    }
+
+    @Override
+    public List<UserDTO> listResult(List<User> userList) {
+        List<UserDTO> userDTOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(userList)) {
+            userDTOList = userList.stream()
+                    .map(x -> new UserDTO(x.getId(), x.getFullName(),
+                            x.getAvatar(), x.getCover())).collect(Collectors.toList());
+        }
+        return userDTOList;
     }
 }

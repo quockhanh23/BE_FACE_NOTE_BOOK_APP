@@ -58,25 +58,26 @@ public class CommentRestController {
     @GetMapping("/allCommentUpdated")
     public ResponseEntity<List<Comment>> allCommentUpdated() {
         List<Comment> list = commentService.getCommentTrue();
-        if (CollectionUtils.isEmpty(list)) {
+        if (!CollectionUtils.isEmpty(list)) {
+            List<Long> listIdComment = list.stream().map(Comment::getId).distinct().collect(Collectors.toList());
+            List<LikeComment> likeCommentList = likeCommentService.findAllByCommentIdIn(listIdComment);
+            List<DisLikeComment> disLikeCommentList = disLikeCommentService.findAllByCommentIdIn(listIdComment);
+            for (Long idComment : listIdComment) {
+                List<LikeComment> likeComments = likeCommentList.stream().
+                        filter(item -> item.getComment().getId().equals(idComment)).collect(Collectors.toList());
+                list.stream().filter(item -> item.getId().equals(idComment)).findFirst().ifPresent(comment -> {
+                    comment.setNumberLike((long) likeComments.size());
+                });
+                List<DisLikeComment> disLikeComments = disLikeCommentList.stream().
+                        filter(item -> item.getComment().getId().equals(idComment)).collect(Collectors.toList());
+                list.stream().filter(item -> item.getId().equals(idComment)).findFirst().ifPresent(comment -> {
+                    comment.setNumberDisLike((long) disLikeComments.size());
+                });
+            }
+            commentService.saveAll(list);
+        } else {
             list = new ArrayList<>();
         }
-        List<Long> listIdComment = list.stream().map(Comment::getId).distinct().collect(Collectors.toList());
-        List<LikeComment> likeCommentList = likeCommentService.findAllByCommentIdIn(listIdComment);
-        List<DisLikeComment> disLikeCommentList = disLikeCommentService.findAllByCommentIdIn(listIdComment);
-        for (Long idComment : listIdComment) {
-            List<LikeComment> likeComments = likeCommentList.stream().
-                    filter(item -> item.getComment().getId().equals(idComment)).collect(Collectors.toList());
-            list.stream().filter(item -> item.getId().equals(idComment)).findFirst().ifPresent(comment -> {
-                comment.setNumberLike((long) likeComments.size());
-            });
-            List<DisLikeComment> disLikeComments = disLikeCommentList.stream().
-                    filter(item -> item.getComment().getId().equals(idComment)).collect(Collectors.toList());
-            list.stream().filter(item -> item.getId().equals(idComment)).findFirst().ifPresent(comment -> {
-                comment.setNumberDisLike((long) disLikeComments.size());
-            });
-        }
-        commentService.saveAll(list);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

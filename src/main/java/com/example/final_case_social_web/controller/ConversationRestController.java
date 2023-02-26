@@ -2,8 +2,10 @@ package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.dto.ConversationDTO;
 import com.example.final_case_social_web.dto.MessagePhotoDTO;
 import com.example.final_case_social_web.dto.MessengerDTO;
+import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.Conversation;
 import com.example.final_case_social_web.model.ConversationDeleteTime;
 import com.example.final_case_social_web.model.Messenger;
@@ -114,7 +116,6 @@ public class ConversationRestController {
 
     @GetMapping("/myMessenger")
     public ResponseEntity<?> myMessenger(@RequestParam Long idUser) {
-
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -124,11 +125,23 @@ public class ConversationRestController {
         if (CollectionUtils.isEmpty(conversations)) {
             conversations = new ArrayList<>();
         }
-        return new ResponseEntity<>(conversations, HttpStatus.OK);
+        List<ConversationDTO> conversationDTOS = new ArrayList<>();
+        for (Conversation conversation : conversations) {
+            UserDTO userSender = new UserDTO();
+            BeanUtils.copyProperties(conversation.getIdSender(), userSender);
+            UserDTO userReceiver = new UserDTO();
+            BeanUtils.copyProperties(conversation.getIdReceiver(), userReceiver);
+            ConversationDTO conversationDTO = new ConversationDTO();
+            BeanUtils.copyProperties(conversation, conversationDTO);
+            conversationDTO.setIdSender(userSender);
+            conversationDTO.setIdReceiver(userReceiver);
+            conversationDTOS.add(conversationDTO);
+        }
+        return new ResponseEntity<>(conversationDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/messenger")
-    public ResponseEntity<?> myMessenger(@RequestParam Long idUser, @RequestParam Long idConversation) {
+    public ResponseEntity<?> messenger(@RequestParam Long idUser, @RequestParam Long idConversation) {
         Optional<Conversation> conversation = conversationService.findById(idConversation);
         if (!conversation.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -233,20 +246,19 @@ public class ConversationRestController {
     public ResponseEntity<?> findAllByConversation_IdAndContentNotNull(@RequestParam Long idConversation) {
         Set<String> messengersHaveLink = new HashSet<>();
         List<Messenger> messengers = messengerService.findAllByConversation_IdAndContentNotNullOrderByIdDesc(idConversation);
-        if (messengers == null) {
-            messengers = new ArrayList<>();
-        }
-        int count = 0;
-        for (Messenger messenger : messengers) {
-            if (messenger.getContent().length() > 8) {
-                if (messenger.getContent().substring(0, 8).equals(Constants.Link.CHECK_LINK)
-                        || messenger.getContent().substring(0, 5).equals(Constants.Link.CHECK_LINK_2)) {
-                    messengersHaveLink.add(messenger.getContent());
-                    count++;
+        if (!CollectionUtils.isEmpty(messengers)) {
+            int count = 0;
+            for (Messenger messenger : messengers) {
+                if (messenger.getContent().length() > 8) {
+                    if (messenger.getContent().substring(0, 8).equals(Constants.Link.CHECK_LINK)
+                            || messenger.getContent().substring(0, 5).equals(Constants.Link.CHECK_LINK_2)) {
+                        messengersHaveLink.add(messenger.getContent());
+                        count++;
+                    }
                 }
-            }
-            if (count == 10) {
-                break;
+                if (count == 10) {
+                    break;
+                }
             }
         }
         return new ResponseEntity<>(messengersHaveLink, HttpStatus.OK);

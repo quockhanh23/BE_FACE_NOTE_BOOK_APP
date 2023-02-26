@@ -28,4 +28,11 @@ public class UserDTO {
     private long mutualFriends;
     private Boolean sendRequestFriend = false;
     private Boolean peopleSendRequestFriend = false;
+
+    public UserDTO(Long id, String fullName, String avatar, String cover) {
+        this.id = id;
+        this.fullName = fullName;
+        this.avatar = avatar;
+        this.cover = cover;
+    }
 }

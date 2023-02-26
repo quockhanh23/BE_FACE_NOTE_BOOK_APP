@@ -147,7 +147,7 @@ public class UserController {
                 BeanUtils.copyProperties(user, userDTO);
                 userDTOList.add(userDTO);
             });
-            for (int i = 0; i < userDTOList.size(); i++) {
+            for (int i = 0; i < listFriend.size(); i++) {
                 List<User> friendOfFriend = userService.allFriendByUserId(userDTOList.get(i).getId());
                 List<User> mutualFriends = new ArrayList<>();
                 if (!CollectionUtils.isEmpty(friendOfFriend)) {

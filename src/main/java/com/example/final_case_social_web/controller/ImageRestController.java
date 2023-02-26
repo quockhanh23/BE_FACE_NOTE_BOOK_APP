@@ -57,33 +57,10 @@ public class ImageRestController {
         return new ResponseEntity<>(image, HttpStatus.OK);
     }
 
-    @DeleteMapping("/privatePhoto")
-    public ResponseEntity<?> privatePhoto(@RequestParam Long idUser,
-                                          @RequestParam Long idImage,
-                                          @RequestHeader("Authorization") String authorization) {
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        Optional<Image> imageOptional = imageService.findById(idImage);
-        if (!imageOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
-                    HttpStatus.NOT_FOUND);
-        }
-        if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
-            imageOptional.get().setStatus(Constants.STATUS_PRIVATE);
-            imageService.save(imageOptional.get());
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    @DeleteMapping("/publicPhoto")
-    public ResponseEntity<?> publicPhoto(@RequestParam Long idUser,
+    @DeleteMapping("/actionPhoto")
+    public ResponseEntity<?> actionPhoto(@RequestParam Long idUser,
                                          @RequestParam Long idImage,
+                                         @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
@@ -95,96 +72,55 @@ public class ImageRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
                     HttpStatus.NOT_FOUND);
         }
-        if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
-            imageOptional.get().setStatus(Constants.STATUS_PUBLIC);
-            imageService.save(imageOptional.get());
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    // Chuyển vào thùng rác
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestParam Long idImage, @RequestParam Long idUser,
-                                    @RequestHeader("Authorization") String authorization) {
-        Optional<Image> imageOptional = imageService.findById(idImage);
-        if (!imageOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
-                    HttpStatus.NOT_FOUND);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
-            imageOptional.get().setStatus(Constants.STATUS_DELETE);
-            imageOptional.get().setDeleteAt(new Date());
-            imageService.save(imageOptional.get());
-            if (userOptional.get().getCover().equals(imageOptional.get().getLinkImage())) {
-                userOptional.get().setCover(Constants.ImageDefault.DEFAULT_BACKGROUND_2);
-                userService.save(userOptional.get());
+        if ("Private".equals(type)) {
+            if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
+                imageOptional.get().setStatus(Constants.STATUS_PRIVATE);
+                imageService.save(imageOptional.get());
+                return new ResponseEntity<>(HttpStatus.OK);
             }
-            if (userOptional.get().getAvatar().equals(imageOptional.get().getLinkImage())) {
-                if (userOptional.get().getGender().equals(Constants.GENDER_FEMALE)) {
-                    userOptional.get().setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE);
-                } else if (userOptional.get().getGender().equals(Constants.GENDER_DEFAULT)) {
-                    userOptional.get().setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT);
-                } else {
-                    userOptional.get().setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE);
+        }
+        if ("Public".equals(type)) {
+            if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
+                imageOptional.get().setStatus(Constants.STATUS_PUBLIC);
+                imageService.save(imageOptional.get());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        }
+        if ("Delete".equals(type)) {
+            if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
+                imageOptional.get().setStatus(Constants.STATUS_DELETE);
+                imageOptional.get().setDeleteAt(new Date());
+                imageService.save(imageOptional.get());
+                if (userOptional.get().getCover().equals(imageOptional.get().getLinkImage())) {
+                    userOptional.get().setCover(Constants.ImageDefault.DEFAULT_BACKGROUND_2);
+                    userService.save(userOptional.get());
                 }
-                userService.save(userOptional.get());
+                if (userOptional.get().getAvatar().equals(imageOptional.get().getLinkImage())) {
+                    if (userOptional.get().getGender().equals(Constants.GENDER_FEMALE)) {
+                        userOptional.get().setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE);
+                    } else if (userOptional.get().getGender().equals(Constants.GENDER_DEFAULT)) {
+                        userOptional.get().setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT);
+                    } else {
+                        userOptional.get().setAvatar(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE);
+                    }
+                    userService.save(userOptional.get());
+                }
+                return new ResponseEntity<>(HttpStatus.OK);
             }
-            return new ResponseEntity<>(imageOptional.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    // Khôi phục ảnh
-    @DeleteMapping("/restoreImage")
-    public ResponseEntity<?> restoreImage(@RequestParam Long idImage, @RequestParam Long idUser,
-                                          @RequestHeader("Authorization") String authorization) {
-        Optional<Image> imageOptional = imageService.findById(idImage);
-        if (!imageOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
-                    HttpStatus.NOT_FOUND);
+        if ("Restore".equals(type)) {
+            if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
+                imageOptional.get().setStatus(Constants.STATUS_PUBLIC);
+                imageOptional.get().setDeleteAt(null);
+                imageService.save(imageOptional.get());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
-            imageOptional.get().setStatus(Constants.STATUS_PUBLIC);
-            imageOptional.get().setDeleteAt(null);
-            imageService.save(imageOptional.get());
-        }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
-
-    // Xóa hẳn ảnh
-    @DeleteMapping("/deleteImage")
-    public ResponseEntity<?> deleteImage(@RequestParam Long idImage, @RequestParam Long idUser,
-                                         @RequestHeader("Authorization") String authorization) {
-        Optional<Image> imageOptional = imageService.findById(idImage);
-        if (!imageOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),
-                    HttpStatus.NOT_FOUND);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
-            imageService.delete(imageOptional.get());
-            return new ResponseEntity<>(imageOptional.get(), HttpStatus.OK);
+        if ("DeleteDB".equals(type)) {
+            if (imageOptional.get().getUser().getId().equals(userOptional.get().getId())) {
+                imageService.delete(imageOptional.get());
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                 MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),

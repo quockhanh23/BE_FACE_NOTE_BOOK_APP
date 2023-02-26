@@ -1,10 +1,13 @@
 package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.dto.NotificationDTO;
+import com.example.final_case_social_web.dto.UserNotificationDTO;
 import com.example.final_case_social_web.model.Notification;
 import com.example.final_case_social_web.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -22,14 +25,24 @@ import java.util.List;
 public class NotificationController {
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @GetMapping("/getAllNotificationByIdSenTo")
     public ResponseEntity<?> getAllNotificationByIdSenTo(@RequestParam Long idSenTo) {
         List<Notification> notificationList = notificationService.findAllByIdSendTo(idSenTo);
-        if (CollectionUtils.isEmpty(notificationList)) {
-            notificationList = new ArrayList<>();
+        List<NotificationDTO> notificationDTOS = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(notificationList)) {
+            for (Notification notification : notificationList) {
+                NotificationDTO notificationDTO = modelMapper.map(notification, NotificationDTO.class);
+                UserNotificationDTO userAction = modelMapper.map(notification.getIdAction(), UserNotificationDTO.class);
+                UserNotificationDTO userSendTo = modelMapper.map(notification.getIdSendTo(), UserNotificationDTO.class);
+                notificationDTO.setIdAction(userAction);
+                notificationDTO.setIdSendTo(userSendTo);
+                notificationDTOS.add(notificationDTO);
+            }
         }
-        return new ResponseEntity<>(notificationList, HttpStatus.OK);
+        return new ResponseEntity<>(notificationDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/findAllByIdSendToNotSeen")
