@@ -6,14 +6,12 @@ import com.example.final_case_social_web.dto.ConversationDTO;
 import com.example.final_case_social_web.dto.MessagePhotoDTO;
 import com.example.final_case_social_web.dto.MessengerDTO;
 import com.example.final_case_social_web.dto.UserDTO;
-import com.example.final_case_social_web.model.Conversation;
-import com.example.final_case_social_web.model.ConversationDeleteTime;
-import com.example.final_case_social_web.model.Messenger;
-import com.example.final_case_social_web.model.User;
+import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.ConversationDeleteTimeRepository;
 import com.example.final_case_social_web.service.ConversationService;
 import com.example.final_case_social_web.service.MessengerService;
+import com.example.final_case_social_web.service.NotificationService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -44,6 +42,8 @@ public class ConversationRestController {
     private ConversationDeleteTimeRepository conversationDeleteTimeRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private NotificationService notificationService;
 
     //   messengers2.sort((p1, p2) -> p2.getCount() - p1.getCount());
 
@@ -184,6 +184,10 @@ public class ConversationRestController {
             Messenger messenger1 = messengerService.createDefaultMessage(messenger, userOptional.get(),
                     Constants.RESPONSE, Constants.ConversationStatus.STATUS_TWO);
             messengerService.save(messenger1);
+            Notification notification = notificationService.createDefault(messenger.getConversation().getIdReceiver(),
+                    messenger.getConversation().getIdSender(),
+                    Constants.Notification.TITLE_SEND_MESSAGE, idConversation, Constants.Notification.TYPE_CONVERSATION);
+            notificationService.save(notification);
             return new ResponseEntity<>(messenger, HttpStatus.OK);
         }
         if (!Objects.equals(messenger.getConversation().getIdReceiver().getId(), userOptional.get().getId())
@@ -191,6 +195,10 @@ public class ConversationRestController {
             Messenger messenger1 = messengerService.createDefaultMessage(messenger, userOptional.get(),
                     Constants.REQUEST, Constants.ConversationStatus.STATUS_TWO);
             messengerService.save(messenger1);
+            Notification notification = notificationService.createDefault(messenger.getConversation().getIdSender(),
+                    messenger.getConversation().getIdReceiver(),
+                    Constants.Notification.TITLE_SEND_MESSAGE, idConversation, Constants.Notification.TYPE_CONVERSATION);
+            notificationService.save(notification);
             return new ResponseEntity<>(messenger, HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),

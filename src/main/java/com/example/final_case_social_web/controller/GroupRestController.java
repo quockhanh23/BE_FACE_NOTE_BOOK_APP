@@ -334,6 +334,14 @@ public class GroupRestController {
                     .createImageGroupDefault(groupPost.getImage(), theGroupOptional.get().getId(), userOptional.get().getId());
             imageGroupService.save(imageGroup);
         }
+        Optional<User> user = userService.findById(theGroupOptional.get().getIdUserCreate());
+        if (!user.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_USER, theGroupOptional.get().getIdUserCreate()), HttpStatus.NOT_FOUND);
+        }
+        Notification notification = notificationService.createDefault(user.get(), userOptional.get(),
+                Constants.Notification.TITLE_REQUEST_CREATE_POST, idTheGroup, Constants.Notification.TYPE_GROUP_POST);
+        notificationService.save(notification);
         return new ResponseEntity<>(groupPost, HttpStatus.OK);
     }
 
