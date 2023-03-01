@@ -12,6 +12,7 @@ import com.example.final_case_social_web.repository.HidePostRepository;
 import com.example.final_case_social_web.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -166,58 +167,54 @@ public class PostRestController {
     }
 
     // update like
-    @DeleteMapping("/updateLikePost")
-    public ResponseEntity<?> updateLikePost(@RequestParam Long idPost) {
+    @DeleteMapping("/updateReflectPost")
+    public ResponseEntity<?> updateLikePost(@RequestParam Long idPost, @RequestParam String type) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
-        List<LikePost> likePost = likePostService.findAllLikeByPostId(idPost);
-        if (!CollectionUtils.isEmpty(likePost)) {
-            postOptional.get().setNumberLike((long) likePost.size());
-            postService.save(postOptional.get());
+        if ("like".equalsIgnoreCase(type)) {
+            List<LikePost> likePost = likePostService.findAllLikeByPostId(idPost);
+            if (!CollectionUtils.isEmpty(likePost)) {
+                postOptional.get().setNumberLike((long) likePost.size());
+            }
         }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // update disLike
-    @DeleteMapping("/updateDisLikePost")
-    public ResponseEntity<?> updateDisLikePost(@RequestParam Long idPost) {
-        Optional<Post2> postOptional = postService.findById(idPost);
-        if (!postOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
-                    HttpStatus.NOT_FOUND);
+        if ("disLike".equalsIgnoreCase(type)) {
+            List<DisLikePost> disLikePosts = disLikePostService.findAllDisLikeByPostId(idPost);
+            if (!CollectionUtils.isEmpty(disLikePosts)) {
+                postOptional.get().setNumberDisLike((long) disLikePosts.size());
+            }
         }
-        List<DisLikePost> disLikePosts = disLikePostService.findAllDisLikeByPostId(idPost);
-        if (!CollectionUtils.isEmpty(disLikePosts)) {
-            postOptional.get().setNumberDisLike((long) disLikePosts.size());
-            postService.save(postOptional.get());
+        if ("heart".equalsIgnoreCase(type)) {
+            List<IconHeart> iconHearts = iconHeartService.findAllHeartByPostId(idPost);
+            if (!CollectionUtils.isEmpty(iconHearts)) {
+                postOptional.get().setIconHeart((long) iconHearts.size());
+            }
         }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // update heart
-    @DeleteMapping("/updateHeartPost")
-    public ResponseEntity<?> updateHeartPost(@RequestParam Long idPost) {
-        Optional<Post2> postOptional = postService.findById(idPost);
-        if (!postOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
-                    HttpStatus.NOT_FOUND);
+        if ("all".equalsIgnoreCase(type)) {
+            List<LikePost> likePost = likePostService.findAllLikeByPostId(idPost);
+            if (!CollectionUtils.isEmpty(likePost)) {
+                postOptional.get().setNumberLike((long) likePost.size());
+            }
+            List<DisLikePost> disLikePosts = disLikePostService.findAllDisLikeByPostId(idPost);
+            if (!CollectionUtils.isEmpty(disLikePosts)) {
+                postOptional.get().setNumberDisLike((long) disLikePosts.size());
+            }
+            List<IconHeart> iconHearts = iconHeartService.findAllHeartByPostId(idPost);
+            if (!CollectionUtils.isEmpty(iconHearts)) {
+                postOptional.get().setIconHeart((long) iconHearts.size());
+            }
         }
-        List<IconHeart> iconHearts = iconHeartService.findAllHeartByPostId(idPost);
-        if (!CollectionUtils.isEmpty(iconHearts)) {
-            postOptional.get().setIconHeart((long) iconHearts.size());
-            postService.save(postOptional.get());
-        }
+        postService.save(postOptional.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Đổi trạng thái post sang public, private, chuyển vào thùng rác
     @DeleteMapping("/changeStatusPost")
     public ResponseEntity<?> changeStatusPost(@RequestParam Long idPost,
-                                                @RequestParam Long idUser,
-                                                @RequestParam String type) {
+                                              @RequestParam Long idUser,
+                                              @RequestParam String type) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
@@ -230,23 +227,23 @@ public class PostRestController {
         }
         if ("Public".equals(type)) {
             postOptional.get().setStatus(Constants.STATUS_PUBLIC);
-            postService.save(postOptional.get());
-            return new ResponseEntity<>(HttpStatus.OK);
         }
         if ("Private".equals(type)) {
             postOptional.get().setStatus(Constants.STATUS_PRIVATE);
-            postService.save(postOptional.get());
-            return new ResponseEntity<>(HttpStatus.OK);
         }
         if ("Delete".equals(type)) {
             postOptional.get().setStatus(Constants.STATUS_DELETE);
             postOptional.get().setDelete(true);
+        }
+        if (!StringUtils.isEmpty(type)) {
             postService.save(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                    HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
+
     }
 
     // Xoá hẳn post khỏi database

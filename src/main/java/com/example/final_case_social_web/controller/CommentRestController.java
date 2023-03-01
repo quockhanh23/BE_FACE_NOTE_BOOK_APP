@@ -10,6 +10,7 @@ import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -86,7 +87,7 @@ public class CommentRestController {
     public ResponseEntity<?> creatComment(@RequestBody Comment comment,
                                           @RequestParam Long idUser,
                                           @RequestParam Long idPost) {
-        if (comment.getContent() == null || comment.getContent().trim().equals(Constants.BLANK)) {
+        if (StringUtils.isEmpty(comment.getContent().trim())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }

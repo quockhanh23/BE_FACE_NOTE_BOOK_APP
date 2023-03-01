@@ -14,6 +14,7 @@ import com.example.final_case_social_web.service.MessengerService;
 import com.example.final_case_social_web.service.NotificationService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,9 +175,8 @@ public class ConversationRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        if ((messenger.getContent() == null || messenger.getContent().equals(Constants.BLANK))
-                && (messenger.getImage() == null || messenger.getImage().equals(Constants.BLANK))) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        if (StringUtils.isEmpty(messenger.getContent()) && StringUtils.isEmpty(messenger.getImage())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         messenger.setConversation(conversation.get());
         if (!Objects.equals(messenger.getConversation().getIdSender().getId(), userOptional.get().getId())

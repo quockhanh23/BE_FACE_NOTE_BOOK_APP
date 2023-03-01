@@ -157,16 +157,19 @@ public class GroupRestController {
         if ("lock".equals(type)) {
             if (userService.checkAdmin(idUser).toString().substring(17, 27).equals(Constants.Roles.ROLE_ADMIN)) {
                 theGroupOptional.get().setStatus(Constants.STATUS_LOCK);
+                theGroupService.save(theGroupOptional.get());
                 return new ResponseEntity<>(HttpStatus.OK);
             }
             if (theGroupOptional.get().getIdUserCreate().equals(userOptional.get().getId())) {
                 theGroupOptional.get().setStatus(Constants.STATUS_DELETE);
+                theGroupService.save(theGroupOptional.get());
                 return new ResponseEntity<>(HttpStatus.OK);
             }
         }
         if ("delete".equals(type)) {
             if (theGroupOptional.get().getIdUserCreate().equals(userOptional.get().getId())) {
                 theGroupOptional.get().setStatus(Constants.STATUS_DELETE);
+                theGroupService.save(theGroupOptional.get());
                 return new ResponseEntity<>(HttpStatus.OK);
             }
         }
@@ -216,9 +219,9 @@ public class GroupRestController {
     // Quản trị viên đồng ý, từ chối user tham gia nhóm
     @GetMapping("/actionJoinGroup")
     public ResponseEntity<?> actionJoinGroup(@RequestParam Long idAdminGroup,
-                                                 @RequestParam Long idUser,
-                                                 @RequestParam Long idGroup,
-                                                 @RequestParam String type) {
+                                             @RequestParam Long idUser,
+                                             @RequestParam Long idGroup,
+                                             @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idAdminGroup);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

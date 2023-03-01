@@ -432,41 +432,34 @@ public class UserController {
         return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
     }
 
-    @DeleteMapping("/changeStatusUserActive/{idUser}")
-    public ResponseEntity<?> changeStatusUserActive(@PathVariable Long idUser) {
+    @DeleteMapping("/changeStatusUser")
+    public ResponseEntity<?> changeStatusUserActive(@RequestParam Long idUser, @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
-        if (userOptional.get().getStatus().equals(Constants.STATUS_ACTIVE)) {
-            return new ResponseEntity<>(HttpStatus.OK);
+        if ("active".equalsIgnoreCase(type)) {
+            if (userOptional.get().getStatus().equals(Constants.STATUS_ACTIVE)) {
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            if (userOptional.get().getId().equals(idUser)) {
+                userOptional.get().setStatus(Constants.STATUS_ACTIVE);
+                userService.save(userOptional.get());
+                return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+            }
         }
-        if (userOptional.get().getId().equals(idUser)) {
-            userOptional.get().setStatus(Constants.STATUS_ACTIVE);
-            userService.save(userOptional.get());
-            return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+        if ("lock".equalsIgnoreCase(type)) {
+            if (userOptional.get().getStatus().equals(Constants.STATUS_LOCK)) {
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            if (userOptional.get().getId().equals(idUser)) {
+                userOptional.get().setStatus(Constants.STATUS_LOCK);
+                userService.save(userOptional.get());
+                return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+            }
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
-                HttpStatus.BAD_REQUEST);
-    }
 
-    @DeleteMapping("/changeStatusUserLock/{idUser}")
-    public ResponseEntity<?> changeStatusUserLock(@PathVariable Long idUser) {
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        if (userOptional.get().getStatus().equals(Constants.STATUS_LOCK)) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        if (userOptional.get().getId().equals(idUser)) {
-            userOptional.get().setStatus(Constants.STATUS_LOCK);
-            userService.save(userOptional.get());
-            return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
-        }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                 MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);

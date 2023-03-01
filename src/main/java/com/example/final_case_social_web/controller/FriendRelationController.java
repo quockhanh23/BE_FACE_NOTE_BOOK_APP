@@ -189,7 +189,7 @@ public class FriendRelationController {
                     HttpStatus.NOT_FOUND);
         }
         if (Objects.equals(idUser, idFriend)) {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         if (user.get().getStatus().equals(Constants.STATUS_BANED)) {
             return new ResponseEntity<>(HttpStatus.LOCKED);
@@ -225,9 +225,11 @@ public class FriendRelationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Đồng ý kết bạn
-    @DeleteMapping("/acceptRequestFriend")
-    public ResponseEntity<?> acceptRequestFriend(@RequestParam Long idUser, @RequestParam Long idFriend) {
+    // Đồng ý kết bạn, Hủy kết bạn, Hủy yêu cầu kết bạn
+    @DeleteMapping("/actionRequestFriend")
+    public ResponseEntity<?> acceptRequestFriend(@RequestParam Long idUser,
+                                                 @RequestParam Long idFriend,
+                                                 @RequestParam String type) {
         Optional<FriendRelation> optionalFriendRelation = friendRelationService.findByIdUserAndIdFriend(idUser, idFriend);
         Optional<FriendRelation> optionalFriendRelation2 = friendRelationService.findByIdUserAndIdFriend(idFriend, idUser);
         if (!optionalFriendRelation.isPresent()) {
@@ -247,37 +249,23 @@ public class FriendRelationController {
         if (!user2.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (user.get().getStatus().equals(Constants.STATUS_BANED)) {
-            return new ResponseEntity<>(HttpStatus.LOCKED);
+        if ("accept".equalsIgnoreCase(type)) {
+            if (user.get().getStatus().equals(Constants.STATUS_BANED)) {
+                return new ResponseEntity<>(HttpStatus.LOCKED);
+            }
+            friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.FRIEND);
+            List<FollowWatching> followWatchingList = followWatchingRepository.findOne(idUser, idFriend);
+            if (!CollectionUtils.isEmpty(followWatchingList)) {
+                followWatchingList.get(0).setStatus(Constants.FRIEND);
+            }
+            String title = Constants.Notification.TITLE_AGREE_FRIEND;
+            String typeNotification = Constants.Notification.TYPE_FRIEND;
+            Notification notification = notificationService.createDefault(user.get(), user2.get(), title, idFriend, typeNotification);
+            notificationService.save(notification);
         }
-        friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.FRIEND);
-        List<FollowWatching> followWatchingList = followWatchingRepository.findOne(idUser, idFriend);
-        if (!CollectionUtils.isEmpty(followWatchingList)) {
-            followWatchingList.get(0).setStatus(Constants.FRIEND);
+        if ("delete".equalsIgnoreCase(type)) {
+            friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.NO_FRIEND);
         }
-        String title = Constants.Notification.TITLE_AGREE_FRIEND;
-        String type = Constants.Notification.TYPE_FRIEND;
-        Notification notification = notificationService.createDefault(user.get(), user2.get(), title, idFriend, type);
-        notificationService.save(notification);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // Hủy kết bạn, Hủy yêu cầu kết bạn
-    @DeleteMapping("/deleteFriendRelation")
-    public ResponseEntity<?> deleteFriendRelation(@RequestParam Long idUser,
-                                                  @RequestParam Long idFriend) {
-        Optional<FriendRelation> optionalFriendRelation = friendRelationService.findByIdUserAndIdFriend(idUser, idFriend);
-        Optional<FriendRelation> optionalFriendRelation2 = friendRelationService.findByIdUserAndIdFriend(idFriend, idUser);
-        if (!optionalFriendRelation.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (!optionalFriendRelation2.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (Objects.equals(idUser, idFriend)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.NO_FRIEND);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
