@@ -343,8 +343,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUserByEmailAndUserName(userName, email);
     }
 
-    @Override
-    public ResponseEntity<?> errorToken(String authorization, Long idUser) {
+    private ResponseEntity<?> errorToken(String authorization, Long idUser) {
         if (StringUtils.isEmpty(authorization)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
@@ -369,5 +368,10 @@ public class UserServiceImpl implements UserService {
                     "Username", "Username không hợp lệ"), HttpStatus.UNAUTHORIZED);
         }
         return null;
+    }
+
+    @Override
+    public void checkToken(String authorization, Long idUser) {
+        errorToken(authorization, idUser);
     }
 }

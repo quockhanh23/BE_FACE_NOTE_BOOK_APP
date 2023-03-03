@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.service;
 
 import com.example.final_case_social_web.dto.PostDTO;
+import com.example.final_case_social_web.model.Comment;
 import com.example.final_case_social_web.model.Post2;
 import org.springframework.data.repository.query.Param;
 
@@ -27,4 +28,6 @@ public interface PostService extends GeneralService<Post2> {
     List<Post2> findAllByUserIdAndDeleteTrue(Long user_id);
 
     List<PostDTO> filterListPost(List<Post2> post2List);
+
+    void deleteRelateOfComment(List<Comment> comments);
 }

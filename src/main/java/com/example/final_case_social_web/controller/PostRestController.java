@@ -8,7 +8,7 @@ import com.example.final_case_social_web.dto.PostDTO;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
-import com.example.final_case_social_web.repository.HidePostRepository;
+import com.example.final_case_social_web.repository.*;
 import com.example.final_case_social_web.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -48,9 +49,24 @@ public class PostRestController {
     private ImageService imageService;
     @Autowired
     private HidePostRepository hidePostRepository;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private LikePostRepository likePostRepository;
+    @Autowired
+    private DisLikePostRepository disLikePostRepository;
+    @Autowired
+    private IconHeartRepository iconHeartRepository;
+    @Autowired
+    PostRepository postRepository;
 
     @GetMapping("/allPostPublic")
-    public ResponseEntity<?> allPostPublic(@RequestParam Long idUser, @RequestParam String type) {
+    public ResponseEntity<?> allPostPublic(@RequestParam Long idUser,
+                                           @RequestParam String type,
+                                           @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         List<Post2> post2List = postService.allPost(idUser);
         if (!CollectionUtils.isEmpty(post2List)) {
             if (type.equals("detailUser")) {
@@ -80,7 +96,10 @@ public class PostRestController {
     }
 
     @PostMapping("/createHidePost")
-    public ResponseEntity<?> createHidePost(@RequestParam Long idUser, @RequestParam Long idPost) {
+    public ResponseEntity<?> createHidePost(@RequestParam Long idUser,
+                                            @RequestParam Long idPost,
+                                            @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         List<HidePost> list = hidePostRepository.findAll();
         if (!CollectionUtils.isEmpty(list)) {
             for (HidePost post : list) {
@@ -98,7 +117,10 @@ public class PostRestController {
     }
 
     @DeleteMapping("/undoHidePost")
-    public ResponseEntity<?> undoHidePost(@RequestParam Long idUser, @RequestParam Long idPost) {
+    public ResponseEntity<?> undoHidePost(@RequestParam Long idUser,
+                                          @RequestParam Long idPost,
+                                          @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         List<HidePost> list = hidePostRepository.findAll();
         if (!CollectionUtils.isEmpty(list)) {
             for (HidePost hidePost : list) {
@@ -113,7 +135,9 @@ public class PostRestController {
 
     // Tạo mới bài viết
     @PostMapping("/createPost")
-    public ResponseEntity<?> createPost(@RequestBody Post2 post, @RequestParam Long idUser) {
+    public ResponseEntity<?> createPost(@RequestBody Post2 post,
+                                        @RequestParam Long idUser,
+                                        @RequestHeader("Authorization") String authorization) {
         if ((post.getContent().trim().equals(Constants.BLANK) || post.getContent() == null) && post.getImage() == null) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
@@ -131,6 +155,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         postService.create(post);
         post.setUser(userOptional.get());
         postService.save(post);
@@ -141,7 +166,10 @@ public class PostRestController {
 
     // Chỉnh sửa post
     @PutMapping("/updatePost")
-    public ResponseEntity<?> updatePost(@RequestParam Long idPost, @RequestParam Long idUser, @RequestBody Post2 post) {
+    public ResponseEntity<?> updatePost(@RequestParam Long idPost,
+                                        @RequestParam Long idUser,
+                                        @RequestBody Post2 post,
+                                        @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
@@ -152,6 +180,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         if (postOptional.get().getUser().getId().equals(userOptional.get().getId())) {
             postOptional.get().setEditAt(new Date());
             if (post.getContent() != null || post.getContent().trim().equals(Constants.BLANK)) {
@@ -168,12 +197,15 @@ public class PostRestController {
 
     // update like
     @DeleteMapping("/updateReflectPost")
-    public ResponseEntity<?> updateLikePost(@RequestParam Long idPost, @RequestParam String type) {
+    public ResponseEntity<?> updateLikePost(@RequestParam Long idPost,
+                                            @RequestParam String type,
+                                            @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, postOptional.get().getUser().getId());
         if ("like".equalsIgnoreCase(type)) {
             List<LikePost> likePost = likePostService.findAllLikeByPostId(idPost);
             if (!CollectionUtils.isEmpty(likePost)) {
@@ -214,7 +246,8 @@ public class PostRestController {
     @DeleteMapping("/changeStatusPost")
     public ResponseEntity<?> changeStatusPost(@RequestParam Long idPost,
                                               @RequestParam Long idUser,
-                                              @RequestParam String type) {
+                                              @RequestParam String type,
+                                              @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
@@ -225,6 +258,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         if ("Public".equals(type)) {
             postOptional.get().setStatus(Constants.STATUS_PUBLIC);
         }
@@ -235,7 +269,7 @@ public class PostRestController {
             postOptional.get().setStatus(Constants.STATUS_DELETE);
             postOptional.get().setDelete(true);
         }
-        if (!StringUtils.isEmpty(type)) {
+        if (!StringUtils.isEmpty(type) && ("Public".equals(type) || "Private".equals(type) || "Delete".equals(type))) {
             postService.save(postOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -247,9 +281,11 @@ public class PostRestController {
     }
 
     // Xoá hẳn post khỏi database
+    @Transactional
     @DeleteMapping("/deletePost")
     public ResponseEntity<?> deletePost(@RequestParam Long idPost,
-                                        @RequestParam Long idUser) {
+                                        @RequestParam Long idUser,
+                                        @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
@@ -260,9 +296,19 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         if (postOptional.get().getStatus().equals(Constants.STATUS_DELETE)) {
             if (postOptional.get().isDelete()) {
                 if (postOptional.get().getUser().getId().equals(userOptional.get().getId())) {
+                    List<Comment> comments = commentService.getCommentByIdPost(postOptional.get().getId());
+                    List<LikePost> likePosts = likePostService.findAllLikeByPostId(postOptional.get().getId());
+                    List<DisLikePost> disLikePosts = disLikePostService.findAllDisLikeByPostId(postOptional.get().getId());
+                    List<IconHeart> iconHearts = iconHeartService.findAllHeartByPostId(postOptional.get().getId());
+                    postService.deleteRelateOfComment(comments);
+                    likePostRepository.deleteInBatch(likePosts);
+                    disLikePostRepository.deleteInBatch(disLikePosts);
+                    iconHeartRepository.deleteInBatch(iconHearts);
+                    commentRepository.deleteInBatch(comments);
                     postService.delete(postOptional.get());
                     return new ResponseEntity<>(HttpStatus.OK);
                 }
@@ -273,13 +319,55 @@ public class PostRestController {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @Transactional
+    @DeleteMapping("/actionAllPost")
+    public ResponseEntity<?> deleteAllPost(@RequestParam List<Long> listIdPost,
+                                           @RequestParam Long idUser,
+                                           @RequestParam String type,
+                                           @RequestHeader("Authorization") String authorization) {
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+                    HttpStatus.NOT_FOUND);
+        }
+        userService.checkToken(authorization, idUser);
+        List<Post2> post2List = postRepository.findAllById(listIdPost);
+        if ("deleteAll".equalsIgnoreCase(type)) {
+            List<Long> listIdPosts = post2List.stream().map(Post2::getId).collect(Collectors.toList());
+            List<Comment> comments = commentRepository.findAllByPostIdInAndDeleteAtIsNull(listIdPosts);
+            List<LikePost> likePosts = likePostService.findAllByPostIdIn(listIdPosts);
+            List<DisLikePost> disLikePosts = disLikePostService.findAllByPostIdIn(listIdPosts);
+            List<IconHeart> iconHearts = iconHeartService.findAllByPostIdIn(listIdPosts);
+            postService.deleteRelateOfComment(comments);
+            commentRepository.deleteInBatch(comments);
+            likePostRepository.deleteInBatch(likePosts);
+            disLikePostRepository.deleteInBatch(disLikePosts);
+            iconHeartRepository.deleteInBatch(iconHearts);
+            postRepository.deleteInBatch(post2List);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        if ("restoreAll".equalsIgnoreCase(type)) {
+            post2List.forEach(post2 -> {
+                post2.setStatus(Constants.STATUS_PUBLIC);
+                post2.setDelete(false);
+            });
+            postRepository.saveAll(post2List);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping("findOnePostById")
-    public ResponseEntity<?> findOnePostById(@RequestParam Long idPost) {
+    public ResponseEntity<?> findOnePostById(@RequestParam Long idPost,
+                                             @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, postOptional.get().getUser().getId());
         PostDTO postDTO = modelMapper.map(postOptional.get(), PostDTO.class);
         UserDTO userDTO = modelMapper.map(postOptional.get().getUser(), UserDTO.class);
         postDTO.setUserDTO(userDTO);
@@ -288,7 +376,9 @@ public class PostRestController {
 
     // Tất cả bài viết trong thùng rác
     @GetMapping("/allPostInTrash")
-    public ResponseEntity<?> allPostInTrash(@RequestParam Long idUser) {
+    public ResponseEntity<?> allPostInTrash(@RequestParam Long idUser,
+                                            @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         List<Post2> post2List = postService.findAllByUserIdAndDeleteTrue(idUser);
         List<PostDTO> postDTOList = postService.filterListPost(post2List);
         return new ResponseEntity<>(postDTOList, HttpStatus.OK);

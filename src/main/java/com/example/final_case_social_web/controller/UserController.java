@@ -228,7 +228,8 @@ public class UserController {
     // Lấy lại mật khẩu
     @Transactional
     @PostMapping("/passwordRetrieval")
-    public ResponseEntity<?> passwordRetrieval(@RequestBody PasswordRetrieval passwordRetrieval) {
+    public ResponseEntity<?> passwordRetrieval(@RequestBody PasswordRetrieval passwordRetrieval,
+                                               @RequestHeader("Authorization") String authorization) {
         if (passwordRetrieval == null) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.NO_VALID), HttpStatus.BAD_REQUEST);
@@ -241,6 +242,7 @@ public class UserController {
                         MessageResponse.RegisterMessage.PASSWORD_RETRIEVAL_FAIL),
                         HttpStatus.NOT_FOUND);
             }
+            userService.checkToken(authorization, userOptional.get().getId());
             String newPassword = RandomStringUtils.randomAscii(6);
             userOptional.get().setPassword(passwordEncoder.encode(newPassword));
             userService.save(userOptional.get());
@@ -258,12 +260,15 @@ public class UserController {
     // Đổi mật khẩu
     @Transactional
     @PostMapping("/matchPassword")
-    public ResponseEntity<?> matches(@RequestBody UserChangePassword userChangePassword, @RequestParam Long idUser) {
+    public ResponseEntity<?> matches(@RequestBody UserChangePassword userChangePassword,
+                                     @RequestParam Long idUser,
+                                     @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         if (passwordEncoder.matches(userChangePassword.getPasswordOld(), userOptional.get().getPassword())) {
             if (userChangePassword.getPasswordNew().equals(userChangePassword.getConfirmPasswordNew())) {
                 userOptional.get().setPassword(passwordEncoder.encode(userChangePassword.getPasswordNew()));
@@ -379,7 +384,9 @@ public class UserController {
     // Sửa thông tin
     @Transactional
     @PutMapping("/users/{idUser}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable Long idUser, @RequestBody User user) {
+    public ResponseEntity<?> updateUserProfile(@PathVariable Long idUser,
+                                               @RequestBody User user,
+                                               @RequestHeader("Authorization") String authorization) {
         if (StringUtils.isEmpty(user.getFullName()) || StringUtils.isEmpty(user.getPhone())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.DESCRIPTION_BLANK),
@@ -390,6 +397,7 @@ public class UserController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         String avatarName = "";
         List<ListAvatarDefault> listAvatarDefaults = userService.listAvatar();
         for (ListAvatarDefault listAvatarDefault : listAvatarDefaults) {
@@ -433,12 +441,15 @@ public class UserController {
     }
 
     @DeleteMapping("/changeStatusUser")
-    public ResponseEntity<?> changeStatusUserActive(@RequestParam Long idUser, @RequestParam String type) {
+    public ResponseEntity<?> changeStatusUserActive(@RequestParam Long idUser,
+                                                    @RequestParam String type,
+                                                    @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         if ("active".equalsIgnoreCase(type)) {
             if (userOptional.get().getStatus().equals(Constants.STATUS_ACTIVE)) {
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -473,12 +484,14 @@ public class UserController {
     @DeleteMapping("/changeImage")
     public ResponseEntity<?> changeImage(@RequestParam Long idUser,
                                          @RequestParam Long idImage,
-                                         @RequestParam String type) {
+                                         @RequestParam String type,
+                                         @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
+        userService.checkToken(authorization, idUser);
         Optional<Image> imageOptional = imageService.findById(idImage);
         if (!imageOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_IMAGE, idImage),

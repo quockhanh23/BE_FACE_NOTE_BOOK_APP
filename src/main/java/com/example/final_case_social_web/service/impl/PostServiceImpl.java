@@ -4,6 +4,9 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.dto.PostDTO;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.*;
+import com.example.final_case_social_web.repository.AnswerCommentRepository;
+import com.example.final_case_social_web.repository.DisLikeCommentRepository;
+import com.example.final_case_social_web.repository.LikeCommentRepository;
 import com.example.final_case_social_web.repository.PostRepository;
 import com.example.final_case_social_web.service.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,6 +37,12 @@ public class PostServiceImpl implements PostService {
     private CommentService commentService;
     @Autowired
     private AnswerCommentService answerCommentService;
+    @Autowired
+    private LikeCommentRepository likeCommentRepository;
+    @Autowired
+    DisLikeCommentRepository disLikeCommentRepository;
+    @Autowired
+    private AnswerCommentRepository answerCommentRepository;
     @Autowired
     ModelMapper modelMapper;
 
@@ -147,6 +156,17 @@ public class PostServiceImpl implements PostService {
             }
         }
         return postDTOList;
+    }
+
+    @Override
+    public void deleteRelateOfComment(List<Comment> comments) {
+        List<Long> listIdComment = comments.stream().map(Comment::getId).collect(Collectors.toList());
+        List<LikeComment> likeComments = likeCommentRepository.findAllByCommentIdIn(listIdComment);
+        List<DisLikeComment> disLikeComments = disLikeCommentRepository.findAllByCommentIdIn(listIdComment);
+        List<AnswerComment> answerCommentList = answerCommentService.findAllByCommentIdIn(listIdComment);
+        likeCommentRepository.deleteInBatch(likeComments);
+        disLikeCommentRepository.deleteInBatch(disLikeComments);
+        answerCommentRepository.deleteInBatch(answerCommentList);
     }
 
 //    public List<Post2> getListLCReFile(String lcRef, String requestCode, Integer productType) {

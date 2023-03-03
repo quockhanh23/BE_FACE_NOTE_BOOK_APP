@@ -68,5 +68,5 @@ public interface UserService extends UserDetailsService {
 
     Optional<User> findUserByEmailAndUserName(@Param("userName") String userName, @Param("email") String email);
 
-    ResponseEntity<?> errorToken(String authorization, Long idUser);
+    void checkToken(String authorization, Long idUser);
 }

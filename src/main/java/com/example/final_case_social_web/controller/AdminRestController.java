@@ -35,15 +35,12 @@ public class AdminRestController {
     // Xem tất cả user
     @GetMapping("/adminAction")
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
-                                        @RequestParam String type,
-                                        @RequestHeader("Authorization") String authorization) {
+                                         @RequestParam String type,
+                                         @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idAdmin);
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idAdmin);
-        if (responseEntity != null) {
-            return responseEntity;
         }
         if ("user".equals(type)) {
             List<User> users = userService.findAllRoleUser();
@@ -79,16 +76,13 @@ public class AdminRestController {
     // Cấm user, Kích hoạt tài khoản
     @DeleteMapping("/actionUser")
     public ResponseEntity<?> actionUser(@RequestParam Long idAdmin,
-                                                 @RequestParam Long idUser,
-                                                 @RequestParam String type,
-                                                 @RequestHeader("Authorization") String authorization) {
+                                        @RequestParam Long idUser,
+                                        @RequestParam String type,
+                                        @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idAdmin);
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idAdmin);
-        if (responseEntity != null) {
-            return responseEntity;
         }
         Optional<User> optionalUser = userService.findById(idUser);
         if (!optionalUser.isPresent()) {
@@ -116,13 +110,10 @@ public class AdminRestController {
                                         @RequestParam Long idPost,
                                         @RequestParam String type,
                                         @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idAdmin);
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idAdmin);
-        if (responseEntity != null) {
-            return responseEntity;
         }
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
