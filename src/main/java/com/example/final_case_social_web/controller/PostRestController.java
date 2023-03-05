@@ -277,7 +277,6 @@ public class PostRestController {
                     MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
                     HttpStatus.BAD_REQUEST);
         }
-
     }
 
     // Xoá hẳn post khỏi database
@@ -332,7 +331,7 @@ public class PostRestController {
         }
         userService.checkToken(authorization, idUser);
         List<Post2> post2List = postRepository.findAllById(listIdPost);
-        if ("deleteAll".equalsIgnoreCase(type)) {
+        if (Constants.DELETE_ALL.equalsIgnoreCase(type)) {
             List<Long> listIdPosts = post2List.stream().map(Post2::getId).collect(Collectors.toList());
             List<Comment> comments = commentRepository.findAllByPostIdInAndDeleteAtIsNull(listIdPosts);
             List<LikePost> likePosts = likePostService.findAllByPostIdIn(listIdPosts);
@@ -346,7 +345,7 @@ public class PostRestController {
             postRepository.deleteInBatch(post2List);
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        if ("restoreAll".equalsIgnoreCase(type)) {
+        if (Constants.RESTORE_ALL.equalsIgnoreCase(type)) {
             post2List.forEach(post2 -> {
                 post2.setStatus(Constants.STATUS_PUBLIC);
                 post2.setDelete(false);

@@ -311,11 +311,11 @@ public class ShortNewsRestController {
         }
         userService.checkToken(authorization, idUser);
         List<ShortNews> shortNews = shortNewsService.getListShortNewInTrash(idUser);
-        if ("deleteAll".equalsIgnoreCase(type)) {
+        if (Constants.DELETE_ALL.equalsIgnoreCase(type)) {
             shortNewsRepository.deleteInBatch(shortNews);
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        if ("restoreAll".equalsIgnoreCase(type)) {
+        if (Constants.RESTORE_ALL.equalsIgnoreCase(type)) {
             shortNews.forEach(shortNews1 -> {
                 shortNews1.setDelete(false);
             });

@@ -159,4 +159,6 @@ public class Constants {
     public static final String AVATAR = "Avatar";
     public static final String COVER = "Cover";
     public static final String TOKEN = "Token";
+    public static final String DELETE_ALL = "deleteAll";
+    public static final String RESTORE_ALL = "restoreAll";
 }

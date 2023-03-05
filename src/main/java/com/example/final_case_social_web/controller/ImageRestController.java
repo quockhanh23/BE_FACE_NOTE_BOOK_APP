@@ -162,8 +162,9 @@ public class ImageRestController {
     }
 
     // Xóa tất cả ảnh trong thùng rác
-    @DeleteMapping("/deleteAllImage")
+    @DeleteMapping("/actionAllImage")
     public ResponseEntity<?> deleteAllImage(@RequestParam Long idUser,
+                                            @RequestParam String type,
                                             @RequestHeader("Authorization") String authorization) {
         userService.checkToken(authorization, idUser);
         Optional<User> userOptional = userService.findById(idUser);
@@ -173,8 +174,21 @@ public class ImageRestController {
         }
         List<Image> imageListDeleted = imageService.findAllImageDeletedByUserId(idUser);
         if (!CollectionUtils.isEmpty(imageListDeleted)) {
-            imageRepository.deleteInBatch(imageListDeleted);
+            if (Constants.DELETE_ALL.equalsIgnoreCase(type)) {
+                imageRepository.deleteInBatch(imageListDeleted);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            if (Constants.RESTORE_ALL.equalsIgnoreCase(type)) {
+                imageListDeleted.forEach(image -> {
+                    image.setStatus(Constants.STATUS_PUBLIC);
+                    image.setDeleteAt(null);
+                });
+                imageRepository.saveAll(imageListDeleted);
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
     }
 }
