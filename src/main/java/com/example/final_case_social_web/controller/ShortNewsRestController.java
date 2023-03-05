@@ -4,9 +4,9 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.ShortNewsDTO;
 import com.example.final_case_social_web.dto.UserDTO;
-import com.example.final_case_social_web.model.ShortNews;
-import com.example.final_case_social_web.model.User;
+import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.repository.ShortNewsRepository;
 import com.example.final_case_social_web.service.ShortNewsService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -37,6 +39,8 @@ public class ShortNewsRestController {
     private UserService userService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private ShortNewsRepository shortNewsRepository;
 
     // Lưu ngày mới
     @GetMapping("/newDay")
@@ -294,6 +298,35 @@ public class ShortNewsRestController {
                 HttpStatus.BAD_REQUEST);
     }
 
+    // Xóa tất cả, khôi phục tất cả
+    @Transactional
+    @DeleteMapping("/actionShortNews")
+    public ResponseEntity<?> actionShortNews(@RequestParam Long idUser,
+                                             @RequestParam String type,
+                                             @RequestHeader("Authorization") String authorization) {
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+                    HttpStatus.NOT_FOUND);
+        }
+        userService.checkToken(authorization, idUser);
+        List<ShortNews> shortNews = shortNewsService.getListShortNewInTrash(idUser);
+        if ("deleteAll".equalsIgnoreCase(type)) {
+            shortNewsRepository.deleteInBatch(shortNews);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        if ("restoreAll".equalsIgnoreCase(type)) {
+            shortNews.forEach(shortNews1 -> {
+                shortNews1.setDelete(false);
+            });
+            shortNewsRepository.saveAll(shortNews);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                HttpStatus.BAD_REQUEST);
+    }
+
     // Các tin đã xóa
     @GetMapping("/shortNewsInTrash")
     public ResponseEntity<?> shortNewsInTrash(@RequestParam Long idUser) {
@@ -307,5 +340,21 @@ public class ShortNewsRestController {
             shortNews = new ArrayList<>();
         }
         return new ResponseEntity<>(shortNews, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteAllShortNews")
+    public ResponseEntity<?> deleteAllShortNews(@RequestParam Long idUser,
+                                                @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+                    HttpStatus.NOT_FOUND);
+        }
+        List<ShortNews> shortNews = shortNewsService.getListShortNewInTrash(idUser);
+        if (!CollectionUtils.isEmpty(shortNews)) {
+            shortNewsRepository.deleteInBatch(shortNews);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

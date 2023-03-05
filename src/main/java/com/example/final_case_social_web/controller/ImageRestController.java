@@ -5,6 +5,7 @@ import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.model.Image;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.repository.ImageRepository;
 import com.example.final_case_social_web.service.ImageService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +31,14 @@ public class ImageRestController {
     private ImageService imageService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ImageRepository imageRepository;
 
     @GetMapping("/findAllImages")
-    public ResponseEntity<?> findAllImages(@RequestParam Long idUser, @RequestParam String type) {
+    public ResponseEntity<?> findAllImages(@RequestParam Long idUser,
+                                           @RequestParam String type,
+                                           @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         List<Image> imageList = imageService.findAllImageByIdUser(idUser);
         if (CollectionUtils.isEmpty(imageList)) {
             imageList = new ArrayList<>();
@@ -43,11 +49,21 @@ public class ImageRestController {
         return new ResponseEntity<>(imageList, HttpStatus.OK);
     }
 
+    @GetMapping("/findById")
+    public ResponseEntity<?> findById(@RequestParam Long idImage) {
+        Optional<Image> imageOptional = imageService.findById(idImage);
+        if (!imageOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(imageOptional.get(), HttpStatus.OK);
+    }
+
     // Thêm ảnh
     @PostMapping("/addPhoto")
     public ResponseEntity<?> addPhoto(@RequestBody Image image,
                                       @RequestParam Long idUser,
                                       @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         if (userService.checkUser(idUser) == null) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
@@ -62,6 +78,7 @@ public class ImageRestController {
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -131,6 +148,7 @@ public class ImageRestController {
     @GetMapping("/getAllImageDeleted")
     public ResponseEntity<?> getAllImageDeleted(@RequestParam Long idUser,
                                                 @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -141,5 +159,22 @@ public class ImageRestController {
             imageListDeleted = new ArrayList<>();
         }
         return new ResponseEntity<>(imageListDeleted, HttpStatus.OK);
+    }
+
+    // Xóa tất cả ảnh trong thùng rác
+    @DeleteMapping("/deleteAllImage")
+    public ResponseEntity<?> deleteAllImage(@RequestParam Long idUser,
+                                            @RequestHeader("Authorization") String authorization) {
+        userService.checkToken(authorization, idUser);
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+                    HttpStatus.NOT_FOUND);
+        }
+        List<Image> imageListDeleted = imageService.findAllImageDeletedByUserId(idUser);
+        if (!CollectionUtils.isEmpty(imageListDeleted)) {
+            imageRepository.deleteInBatch(imageListDeleted);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

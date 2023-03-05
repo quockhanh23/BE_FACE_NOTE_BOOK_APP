@@ -158,4 +158,5 @@ public class Constants {
     public static final String UPDATE = "Update";
     public static final String AVATAR = "Avatar";
     public static final String COVER = "Cover";
+    public static final String TOKEN = "Token";
 }

@@ -346,13 +346,15 @@ public class UserServiceImpl implements UserService {
     private ResponseEntity<?> errorToken(String authorization, Long idUser) {
         if (StringUtils.isEmpty(authorization)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         String tokenRequest = Common.formatToken(authorization);
         boolean checkToken = jwtService.validateJwtToken(tokenRequest);
         if (!checkToken) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         String userName = jwtService.getUserNameFromJwtToken(tokenRequest);
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(idUser);
@@ -361,11 +363,13 @@ public class UserServiceImpl implements UserService {
         }
         if (!tokenRequest.equals(verificationToken.get().getToken())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    "Token", "Token không hợp lệ"), HttpStatus.UNAUTHORIZED);
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         if (!userName.equals(verificationToken.get().getUser().getUsername())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    "Username", "Username không hợp lệ"), HttpStatus.UNAUTHORIZED);
+                    "Username", "Username " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         return null;
     }
