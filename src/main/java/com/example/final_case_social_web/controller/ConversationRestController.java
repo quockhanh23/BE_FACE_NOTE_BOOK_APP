@@ -184,9 +184,10 @@ public class ConversationRestController {
             Messenger messenger1 = messengerService.createDefaultMessage(messenger, userOptional.get(),
                     Constants.RESPONSE, Constants.ConversationStatus.STATUS_TWO);
             messengerService.save(messenger1);
-            Notification notification = notificationService.createDefault(messenger.getConversation().getIdReceiver(),
-                    messenger.getConversation().getIdSender(),
-                    Constants.Notification.TITLE_SEND_MESSAGE, idConversation, Constants.Notification.TYPE_CONVERSATION);
+            Notification notification = notificationService.createDefault(messenger.getConversation().getIdSender(),
+                    messenger.getConversation().getIdReceiver(),
+                    Constants.Notification.TITLE_SEND_MESSAGE, idConversation,
+                    Constants.Notification.TYPE_CONVERSATION);
             notificationService.save(notification);
             return new ResponseEntity<>(messenger, HttpStatus.OK);
         }
@@ -195,9 +196,10 @@ public class ConversationRestController {
             Messenger messenger1 = messengerService.createDefaultMessage(messenger, userOptional.get(),
                     Constants.REQUEST, Constants.ConversationStatus.STATUS_TWO);
             messengerService.save(messenger1);
-            Notification notification = notificationService.createDefault(messenger.getConversation().getIdSender(),
-                    messenger.getConversation().getIdReceiver(),
-                    Constants.Notification.TITLE_SEND_MESSAGE, idConversation, Constants.Notification.TYPE_CONVERSATION);
+            Notification notification = notificationService.createDefault(messenger.getConversation().getIdReceiver(),
+                    messenger.getConversation().getIdSender(),
+                    Constants.Notification.TITLE_SEND_MESSAGE, idConversation,
+                    Constants.Notification.TYPE_CONVERSATION);
             notificationService.save(notification);
             return new ResponseEntity<>(messenger, HttpStatus.OK);
         }
