@@ -253,25 +253,17 @@ public class ConversationRestController {
 
     // Xem link đã gửi ở cuộc trò truyện
     @GetMapping("/getAllMessageHaveLink")
-    public ResponseEntity<?> findAllByConversation_IdAndContentNotNull(@RequestParam Long idConversation) {
-        Set<String> messengersHaveLink = new HashSet<>();
+    public ResponseEntity<?> getAllMessageHaveLink(@RequestParam Long idConversation) {
+        Set<String> list = new HashSet<>();
         List<Messenger> messengers = messengerService.findAllByConversation_IdAndContentNotNullOrderByIdDesc(idConversation);
         if (!CollectionUtils.isEmpty(messengers)) {
-            int count = 0;
-            for (Messenger messenger : messengers) {
-                if (messenger.getContent().length() > 8) {
-                    if (messenger.getContent().substring(0, 8).equals(Constants.Link.CHECK_LINK)
-                            || messenger.getContent().substring(0, 5).equals(Constants.Link.CHECK_LINK_2)) {
-                        messengersHaveLink.add(messenger.getContent());
-                        count++;
-                    }
-                }
-                if (count == 10) {
-                    break;
-                }
-            }
+            list = messengers.stream()
+                    .filter(i -> i.getContent().length() > 8
+                            && (i.getContent().substring(0, 8).equals(Constants.Link.CHECK_LINK)
+                            || i.getContent().substring(0, 5).equals(Constants.Link.CHECK_LINK_2)))
+                    .map(Messenger::getContent).collect(Collectors.toSet());
         }
-        return new ResponseEntity<>(messengersHaveLink, HttpStatus.OK);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     // Nhắn tin với người không có trong danh sách bạn bè

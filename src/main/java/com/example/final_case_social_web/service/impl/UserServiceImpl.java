@@ -16,6 +16,7 @@ import com.example.final_case_social_web.service.UserService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -323,8 +324,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseNotification checkExistUserNameAndEmail(User user) {
-        Iterable<User> users = userRepository.findAll();
-        List<User> list = (List<User>) users;
+        List<User> list = userRepository.findAll();
         List<String> userName = list.stream().map(User::getUsername).collect(Collectors.toList());
         if (userName.stream().anyMatch(item -> item.equals(user.getUsername()))) {
             return new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -343,7 +343,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUserByEmailAndUserName(userName, email);
     }
 
-    private ResponseEntity<?> errorToken(String authorization, Long idUser) {
+    public ResponseEntity<?> errorToken(String authorization, Long idUser) {
         if (StringUtils.isEmpty(authorization)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
@@ -366,6 +366,11 @@ public class UserServiceImpl implements UserService {
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
+        if ("no token".equals(verificationToken.get().getToken())) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
         if (!userName.equals(verificationToken.get().getUser().getUsername())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     "Username", "Username " + MessageResponse.NO_VALID.toLowerCase()),
@@ -375,7 +380,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void checkToken(String authorization, Long idUser) {
-        errorToken(authorization, idUser);
+    public List<UserDTO> listFriend(Long idUser) {
+        List<User> listFriend = allFriendByUserId(idUser);
+        List<UserDTO> userDTOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(listFriend)) {
+            listFriend.forEach(user -> {
+                Long idFriend = user.getId();
+                UserDTO userDTO = new UserDTO();
+                BeanUtils.copyProperties(user, userDTO);
+                List<User> friendOfFriend = allFriendByUserId(idFriend);
+                List<User> mutualFriends = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(friendOfFriend)) {
+                    List<Long> listId = userDTOList.stream().map(UserDTO::getId).collect(Collectors.toList());
+                    for (Long id : listId) {
+                        friendOfFriend.stream().filter(item -> item.getId().equals(id))
+                                .findFirst().ifPresent(mutualFriends::add);
+                    }
+                }
+                userDTO.setMutualFriends(mutualFriends.size());
+                userDTOList.add(userDTO);
+            });
+        }
+        return userDTOList;
     }
 }

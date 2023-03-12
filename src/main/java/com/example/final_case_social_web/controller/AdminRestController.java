@@ -2,6 +2,7 @@ package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.Post2;
 import com.example.final_case_social_web.model.User;
@@ -37,7 +38,10 @@ public class AdminRestController {
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idAdmin);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idAdmin);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
@@ -57,8 +61,16 @@ public class AdminRestController {
         if ("post".equals(type)) {
             Iterable<Post2> post2List = postService.findAll();
             List<Post2> list = (List<Post2>) post2List;
-            list.sort((p1, p2) -> (p2.getCreateAt().compareTo(p1.getCreateAt())));
-            return new ResponseEntity<>(list, HttpStatus.OK);
+            List<PostCheck> postChecks = new ArrayList<>();
+            list.forEach(post2 -> {
+                PostCheck postCheck = new PostCheck();
+                BeanUtils.copyProperties(post2, postCheck);
+                postCheck.setIdUser(post2.getUser().getId());
+                postCheck.setFullName(post2.getUser().getFullName());
+                postChecks.add(postCheck);
+            });
+            postChecks.sort((p1, p2) -> (p2.getCreateAt().compareTo(p1.getCreateAt())));
+            return new ResponseEntity<>(postChecks, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -70,7 +82,9 @@ public class AdminRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(userOptional.get(), userDTO);
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     // Cấm user, Kích hoạt tài khoản
@@ -79,7 +93,10 @@ public class AdminRestController {
                                         @RequestParam Long idUser,
                                         @RequestParam String type,
                                         @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idAdmin);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idAdmin);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
@@ -110,7 +127,10 @@ public class AdminRestController {
                                         @RequestParam Long idPost,
                                         @RequestParam String type,
                                         @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idAdmin);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idAdmin);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);

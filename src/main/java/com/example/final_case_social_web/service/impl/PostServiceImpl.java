@@ -99,12 +99,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post2 checkPost(Long idPost) {
-        Optional<Post2> post2Optional = postRepository.findById(idPost);
-        return post2Optional.orElse(null);
-    }
-
-    @Override
     public void saveAll(List<Post2> post2List) {
         postRepository.saveAll(post2List);
     }

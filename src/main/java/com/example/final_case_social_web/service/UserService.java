@@ -68,5 +68,7 @@ public interface UserService extends UserDetailsService {
 
     Optional<User> findUserByEmailAndUserName(@Param("userName") String userName, @Param("email") String email);
 
-    void checkToken(String authorization, Long idUser);
+    List<UserDTO> listFriend(Long idUser);
+
+    ResponseEntity<?> errorToken(String authorization, Long idUser);
 }

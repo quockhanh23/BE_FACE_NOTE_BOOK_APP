@@ -19,8 +19,6 @@ public interface PostService extends GeneralService<Post2> {
 
     void create(Post2 post2);
 
-    Post2 checkPost(Long idPost);
-
     void saveAll(List<Post2> post2List);
 
     List<PostDTO> changeDTO(List<Post2> post2List);

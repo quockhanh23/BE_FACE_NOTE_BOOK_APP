@@ -15,8 +15,6 @@ import com.example.final_case_social_web.service.NotificationService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -39,8 +37,6 @@ public class FriendRelationController {
     private FriendRelationService friendRelationService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private ModelMapper modelMapper;
     @Autowired
     private FollowWatchingRepository followWatchingRepository;
     @Autowired
@@ -66,18 +62,18 @@ public class FriendRelationController {
         return new ResponseEntity<>(friendRelations, HttpStatus.OK);
     }
 
-    @GetMapping("/agree")
-    public ResponseEntity<?> agree(@RequestParam Long idFriend, @RequestParam Long idLogin) {
-        List<FriendRelation> friendRelations = friendRelationService.agreeFriend(idFriend, idLogin);
+    @GetMapping("/friendWaiting")
+    public ResponseEntity<?> friendWaiting(@RequestParam Long idFriend, @RequestParam Long idLogin) {
+        List<FriendRelation> friendRelations = friendRelationService.friendWaiting(idFriend, idLogin);
         if (CollectionUtils.isEmpty(friendRelations)) {
             friendRelations = new ArrayList<>();
         }
         return new ResponseEntity<>(friendRelations, HttpStatus.OK);
     }
 
-    @GetMapping("/friend")
-    public ResponseEntity<?> friend(@RequestParam Long idFriend, @RequestParam Long idLogin) {
-        List<FriendRelation> friendRelations = friendRelationService.friend(idFriend, idLogin);
+    @GetMapping("/allFriend")
+    public ResponseEntity<?> allFriend(@RequestParam Long idFriend, @RequestParam Long idLogin) {
+        List<FriendRelation> friendRelations = friendRelationService.allFriend(idFriend, idLogin);
         if (CollectionUtils.isEmpty(friendRelations)) {
             friendRelations = new ArrayList<>();
         }
@@ -120,27 +116,7 @@ public class FriendRelationController {
     // Danh sách bạn bè
     @GetMapping("/listFriend")
     public ResponseEntity<?> listFriend(@RequestParam Long idUser) {
-        List<User> listFriend = userService.allFriendByUserId(idUser);
-        List<UserDTO> userDTOList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(listFriend)) {
-            listFriend.forEach(user -> {
-                UserDTO userDTO = new UserDTO();
-                BeanUtils.copyProperties(user, userDTO);
-                userDTOList.add(userDTO);
-            });
-            for (int i = 0; i < userDTOList.size(); i++) {
-                List<User> friendOfFriend = userService.allFriendByUserId(userDTOList.get(i).getId());
-                List<User> mutualFriends = new ArrayList<>();
-                if (!CollectionUtils.isEmpty(friendOfFriend)) {
-                    List<Long> listId = userDTOList.stream().map(UserDTO::getId).collect(Collectors.toList());
-                    for (Long id : listId) {
-                        friendOfFriend.stream().filter(item -> item.getId().equals(id))
-                                .findFirst().ifPresent(mutualFriends::add);
-                    }
-                }
-                userDTOList.get(i).setMutualFriends(mutualFriends.size());
-            }
-        }
+        List<UserDTO> userDTOList = userService.listFriend(idUser);
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
     }
 
@@ -195,7 +171,7 @@ public class FriendRelationController {
             return new ResponseEntity<>(HttpStatus.LOCKED);
         }
         if (!optionalFriendRelation.isPresent()) {
-            FriendRelation friendRelation = friendRelationService.create();
+            FriendRelation friendRelation = friendRelationService.createDefaultStatusWaiting();
             friendRelation.setUserLogin(user2.get());
             friendRelation.setIdFriend(idFriend);
             friendRelation.setIdUser(idUser);
@@ -207,7 +183,7 @@ public class FriendRelationController {
             friendRelationService.save(optionalFriendRelation.get());
         }
         if (!optionalFriendRelation2.isPresent()) {
-            FriendRelation friendRelation = friendRelationService.create();
+            FriendRelation friendRelation = friendRelationService.createDefaultStatusWaiting();
             friendRelation.setFriend(user2.get());
             friendRelation.setIdUser(idFriend);
             friendRelation.setIdFriend(idUser);

@@ -19,11 +19,11 @@ public interface FriendRelationService extends GeneralService<FriendRelation> {
 
     List<FriendRelation> listRequest2(@Param("idUser") Long idUser);
 
-    List<FriendRelation> agreeFriend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
+    List<FriendRelation> friendWaiting(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
 
-    List<FriendRelation> friend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
+    List<FriendRelation> allFriend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
 
-    FriendRelation create();
+    FriendRelation createDefaultStatusWaiting();
 
     List<UserNotificationDTO> listUser(List<User> userList);
 

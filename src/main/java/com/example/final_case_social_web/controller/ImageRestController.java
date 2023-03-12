@@ -38,7 +38,10 @@ public class ImageRestController {
     public ResponseEntity<?> findAllImages(@RequestParam Long idUser,
                                            @RequestParam String type,
                                            @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idUser);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         List<Image> imageList = imageService.findAllImageByIdUser(idUser);
         if (CollectionUtils.isEmpty(imageList)) {
             imageList = new ArrayList<>();
@@ -63,7 +66,10 @@ public class ImageRestController {
     public ResponseEntity<?> addPhoto(@RequestBody Image image,
                                       @RequestParam Long idUser,
                                       @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idUser);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         if (userService.checkUser(idUser) == null) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
@@ -78,7 +84,10 @@ public class ImageRestController {
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idUser);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -148,7 +157,10 @@ public class ImageRestController {
     @GetMapping("/getAllImageDeleted")
     public ResponseEntity<?> getAllImageDeleted(@RequestParam Long idUser,
                                                 @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idUser);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -166,7 +178,10 @@ public class ImageRestController {
     public ResponseEntity<?> deleteAllImage(@RequestParam Long idUser,
                                             @RequestParam String type,
                                             @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idUser);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),

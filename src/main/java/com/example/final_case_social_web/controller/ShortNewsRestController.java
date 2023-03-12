@@ -4,7 +4,8 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.ShortNewsDTO;
 import com.example.final_case_social_web.dto.UserDTO;
-import com.example.final_case_social_web.model.*;
+import com.example.final_case_social_web.model.ShortNews;
+import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.ShortNewsRepository;
 import com.example.final_case_social_web.service.ShortNewsService;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -190,7 +190,6 @@ public class ShortNewsRestController {
                         totalDay = totalDay + getDay;
                     }
                 }
-
                 int dayOfYear = 0;
                 int totalDayOfYear = 0;
                 if (getYear > 0) {
@@ -217,7 +216,6 @@ public class ShortNewsRestController {
                         }
                     }
                 }
-
                 if (getMonth == 0 && getYear == 0) {
                     item.setRemaining(item.getExpired() - getDay);
                 }
@@ -301,7 +299,8 @@ public class ShortNewsRestController {
     // Xóa tất cả, khôi phục tất cả
     @Transactional
     @DeleteMapping("/actionShortNews")
-    public ResponseEntity<?> actionShortNews(@RequestParam Long idUser,
+    public ResponseEntity<?> actionShortNews(@RequestParam List<Long> listIdSortNew,
+                                             @RequestParam Long idUser,
                                              @RequestParam String type,
                                              @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
@@ -309,8 +308,11 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        userService.checkToken(authorization, idUser);
-        List<ShortNews> shortNews = shortNewsService.getListShortNewInTrash(idUser);
+        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
+        if (responseEntity != null) {
+            return responseEntity;
+        }
+        List<ShortNews> shortNews = shortNewsRepository.findAllById(listIdSortNew);
         if (Constants.DELETE_ALL.equalsIgnoreCase(type)) {
             shortNewsRepository.deleteInBatch(shortNews);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -340,21 +342,5 @@ public class ShortNewsRestController {
             shortNews = new ArrayList<>();
         }
         return new ResponseEntity<>(shortNews, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/deleteAllShortNews")
-    public ResponseEntity<?> deleteAllShortNews(@RequestParam Long idUser,
-                                                @RequestHeader("Authorization") String authorization) {
-        userService.checkToken(authorization, idUser);
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
-                    HttpStatus.NOT_FOUND);
-        }
-        List<ShortNews> shortNews = shortNewsService.getListShortNewInTrash(idUser);
-        if (!CollectionUtils.isEmpty(shortNews)) {
-            shortNewsRepository.deleteInBatch(shortNews);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

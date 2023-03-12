@@ -58,17 +58,17 @@ public class FriendRelationServiceImpl implements FriendRelationService {
     }
 
     @Override
-    public List<FriendRelation> agreeFriend(Long idFriend, Long idLogin) {
-        return friendRelationRepository.agreeFriend(idFriend, idLogin);
+    public List<FriendRelation> friendWaiting(Long idFriend, Long idLogin) {
+        return friendRelationRepository.friendWaiting(idFriend, idLogin);
     }
 
     @Override
-    public List<FriendRelation> friend(Long idFriend, Long idLogin) {
-        return friendRelationRepository.friend(idFriend, idLogin);
+    public List<FriendRelation> allFriend(Long idFriend, Long idLogin) {
+        return friendRelationRepository.allFriend(idFriend, idLogin);
     }
 
     @Override
-    public FriendRelation create() {
+    public FriendRelation createDefaultStatusWaiting() {
         FriendRelation friendRelation = new FriendRelation();
         friendRelation.setStatusFriend(Constants.WAITING);
         return friendRelation;

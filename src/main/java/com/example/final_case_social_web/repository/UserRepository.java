@@ -25,7 +25,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByEmailAndUserName(@Param("userName") String userName, @Param("email") String email);
 
     @Modifying
-    @Query(value = "select * from user_table join user_role on user_table.id = user_role.user_id where role_id = 1", nativeQuery = true)
+    @Query(value = "select * from user_table join user_role on user_table.id = user_role.user_id where role_id = 1",
+            nativeQuery = true)
     List<User> findAllRoleUser();
 
     @Modifying
@@ -35,9 +36,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "select *\n" +
             "from user_table\n" +
-            "where id not in (select id_friend from friend_relation where id_user = :idUser)\n" +
+            "where id not in (select id_friend from friend_relation where id_user = :idUser " +
+            "  and status_friend not like 'No friend')\n" +
             "  and id not in (select user_id from user_role where role_id = 2)\n" +
-            "  and user_table.status like 'Active'\n" +
+            "  and user_table.status like 'Active' and id != :idUser\n" +
             "order by id desc limit 12;", nativeQuery = true)
     List<User> friendSuggestion(@Param("idUser") Long idUser);
 
@@ -63,7 +65,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "select *\n" +
             "from user_table\n" +
-            "where id in (select id_friend from friend_relation where id_user = :idUser and status_friend = 'Friend')", nativeQuery = true)
+            "where id in (select id_friend from friend_relation where id_user = :idUser and status_friend = 'Friend')",
+            nativeQuery = true)
     List<User> allFriendByUserId(@Param("idUser") Long idUser);
 
 
@@ -91,7 +94,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "select *\n" +
             "from user_table ut\n" +
             "where (id in (select id_friend from friend_relation where id_user = :idUser and status_friend = 'Friend'))\n" +
-            "  and (ut.full_name LIKE concat('%', :searchText, '%') or ut.email LIKE concat('%', :searchText, '%'))", nativeQuery = true)
+            "  and (ut.full_name LIKE concat('%', :searchText, '%') or ut.email LIKE concat('%', :searchText, '%'))",
+            nativeQuery = true)
     List<User> searchFriend(@Param("searchText") String searchText, @Param("idUser") Long idUser);
 
     @Modifying

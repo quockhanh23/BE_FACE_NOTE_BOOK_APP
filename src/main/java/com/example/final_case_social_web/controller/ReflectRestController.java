@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -88,16 +89,10 @@ public class ReflectRestController {
         return new ResponseEntity<>(disLikePosts, HttpStatus.OK);
     }
 
-    // Tạo, xóa like
-    @PostMapping("/createLike")
-    public ResponseEntity<?> createLike(@RequestBody LikePost likePost,
-                                        @RequestParam Long idPost,
-                                        @RequestParam Long idUser) {
-        List<LikePost> likePostIterable = likePostService.findLike(idPost, idUser);
-        if (likePostIterable.size() == 1) {
-            likePostService.delete(likePostIterable.get(0));
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @DeleteMapping("/actionReflectPost")
+    public ResponseEntity<?> createLike(@RequestParam Long idPost,
+                                        @RequestParam Long idUser,
+                                        @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -108,99 +103,67 @@ public class ReflectRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
-        likePost.setUserLike(userService.checkUser(idUser));
-        likePost.setCreateAt(LocalDateTime.now());
-        likePost.setPost(postService.checkPost(idPost));
-        likePostService.save(likePost);
+        if ("like".equalsIgnoreCase(type)) {
+            List<LikePost> likePostIterable = likePostService.findLike(idPost, idUser);
+            if (likePostIterable.size() == 1) {
+                likePostService.delete(likePostIterable.get(0));
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            LikePost likePost = new LikePost();
+            likePost.setUserLike(userService.checkUser(idUser));
+            likePost.setCreateAt(LocalDateTime.now());
+            likePost.setPost(postOptional.get());
+            likePostService.save(likePost);
+        }
+        if ("heart".equalsIgnoreCase(type)) {
+            List<IconHeart> iconHearts = iconHeartService.findHeart(idPost, idUser);
+            if (iconHearts.size() == 1) {
+                iconHeartService.delete(iconHearts.get(0));
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            IconHeart iconHeart = new IconHeart();
+            iconHeart.setUser(userOptional.get());
+            iconHeart.setCreateAt(new Date());
+            iconHeart.setPost(postOptional.get());
+            iconHeartService.save(iconHeart);
+        }
+        if ("disLike".equalsIgnoreCase(type)) {
+            List<DisLikePost> disLikePosts = disLikePostService.findDisLike(idPost, idUser);
+            if (disLikePosts.size() == 1) {
+                disLikePosts.get(0).setUserDisLike(null);
+                disLikePostService.save(disLikePosts.get(0));
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            DisLikePost disLikePost = new DisLikePost();
+            disLikePost.setUserDisLike(userService.checkUser(idUser));
+            disLikePost.setCreateAt(new Date());
+            disLikePost.setPost(postOptional.get());
+            disLikePostService.save(disLikePost);
+        }
         if (!postOptional.get().getUser().getId().equals(idUser)) {
-            String title = Constants.Notification.TITLE_LIKE_POST;
-            String type = Constants.Notification.TYPE_POST;
+            String title = "";
+            if ("like".equalsIgnoreCase(type)) {
+                title = Constants.Notification.TITLE_LIKE_POST;
+            }
+            if ("heart".equalsIgnoreCase(type)) {
+                title = Constants.Notification.TITLE_HEART_POST;
+            }
+            if ("disLike".equalsIgnoreCase(type)) {
+                title = Constants.Notification.TITLE_DISLIKE_POST;
+            }
+            String typeNotification = Constants.Notification.TYPE_POST;
             Notification notification = notificationService.
-                    createDefault(postOptional.get().getUser(), userOptional.get(), title, idPost, type);
+                    createDefault(postOptional.get().getUser(), userOptional.get(), title, idPost, typeNotification);
             notificationService.save(notification);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Tạo, xóa dislike
-    @PostMapping("/createDisLike")
-    public ResponseEntity<?> createDisLike(@RequestBody DisLikePost disLikePost,
-                                           @RequestParam Long idPost,
-                                           @RequestParam Long idUser) {
-        List<DisLikePost> disLikePosts = disLikePostService.findDisLike(idPost, idUser);
-        if (disLikePosts.size() == 1) {
-            disLikePosts.get(0).setUserDisLike(null);
-            disLikePostService.save(disLikePosts.get(0));
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        Optional<Post2> postOptional = postService.findById(idPost);
-        if (!postOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
-                    HttpStatus.NOT_FOUND);
-        }
-        disLikePost.setUserDisLike(userService.checkUser(idUser));
-        disLikePost.setCreateAt(new Date());
-        disLikePost.setPost(postService.checkPost(idPost));
-        disLikePostService.save(disLikePost);
-        if (!postOptional.get().getUser().getId().equals(idUser)) {
-            String title = Constants.Notification.TITLE_DISLIKE_POST;
-            String type = Constants.Notification.TYPE_POST;
-            Notification notification = notificationService.
-                    createDefault(postOptional.get().getUser(), userOptional.get(), title, idPost, type);
-            notificationService.save(notification);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // Tạo, xóa heart
-    @PostMapping("/createHeart")
-    public ResponseEntity<?> createHeart(@RequestBody IconHeart iconHeart,
-                                         @RequestParam Long idPost,
-                                         @RequestParam Long idUser) {
-        List<IconHeart> iconHearts = iconHeartService.findHeart(idPost, idUser);
-        if (iconHearts.size() == 1) {
-            iconHeartService.delete(iconHearts.get(0));
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        Optional<Post2> postOptional = postService.findById(idPost);
-        if (!postOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
-                    HttpStatus.NOT_FOUND);
-        }
-        iconHeart.setUser(userOptional.get());
-        iconHeart.setCreateAt(new Date());
-        iconHeart.setPost(postService.checkPost(idPost));
-        iconHeartService.save(iconHeart);
-        if (!postOptional.get().getUser().getId().equals(idUser)) {
-            String title = Constants.Notification.TITLE_HEART_POST;
-            String type = Constants.Notification.TYPE_POST;
-            Notification notification = notificationService.
-                    createDefault(postOptional.get().getUser(), userOptional.get(), title, idPost, type);
-            notificationService.save(notification);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // Tạo, xóa like comment
-    @PostMapping("/createLikeComment")
-    public ResponseEntity<?> createLikeComment(@RequestBody LikeComment likeComment,
-                                               @RequestParam Long idComment,
-                                               @RequestParam Long idUser) {
-        List<LikeComment> likeComments = likeCommentService.findLikeComment(idComment, idUser);
-        if (likeComments.size() == 1) {
-            likeCommentService.delete(likeComments.get(0));
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @Transactional
+    @DeleteMapping("/actionReflectComment")
+    public ResponseEntity<?> createLikeComment(@RequestParam Long idComment,
+                                               @RequestParam Long idUser,
+                                               @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -211,49 +174,41 @@ public class ReflectRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_COMMENT, idComment),
                     HttpStatus.NOT_FOUND);
         }
-        likeComment.setUserLike(userService.checkUser(idUser));
-        likeComment.setCreateAt(new Date());
-        likeComment.setComment(commentOptional.get());
-        likeCommentService.save(likeComment);
+        if ("like".equalsIgnoreCase(type)) {
+            List<LikeComment> likeComments = likeCommentService.findLikeComment(idComment, idUser);
+            if (likeComments.size() == 1) {
+                likeCommentService.delete(likeComments.get(0));
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            LikeComment likeComment = new LikeComment();
+            likeComment.setUserLike(userOptional.get());
+            likeComment.setCreateAt(new Date());
+            likeComment.setComment(commentOptional.get());
+            likeCommentService.save(likeComment);
+        }
+        if ("disLike".equalsIgnoreCase(type)) {
+            List<DisLikeComment> disLikeComments = disLikeCommentService.findDisLikeComment(idComment, idUser);
+            if (disLikeComments.size() == 1) {
+                disLikeCommentService.delete(disLikeComments.get(0));
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            DisLikeComment disLikeComment = new DisLikeComment();
+            disLikeComment.setUserDisLike(userOptional.get());
+            disLikeComment.setCreateAt(new Date());
+            disLikeComment.setComment(commentOptional.get());
+            disLikeCommentService.save(disLikeComment);
+        }
         if (!commentOptional.get().getUser().getId().equals(idUser)) {
-            String title = Constants.Notification.TITLE_LIKE_COMMENT;
-            String type = Constants.Notification.TYPE_COMMENT;
+            String title = "";
+            if ("like".equalsIgnoreCase(type)) {
+                title = Constants.Notification.TITLE_LIKE_COMMENT;
+            }
+            if ("disLike".equalsIgnoreCase(type)) {
+                title = Constants.Notification.TITLE_DISLIKE_COMMENT;
+            }
+            String typeNotification = Constants.Notification.TYPE_COMMENT;
             Notification notification = notificationService.
-                    createDefault(commentOptional.get().getUser(), userOptional.get(), title, idComment, type);
-            notificationService.save(notification);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // Tạo, xóa dislike comment
-    @PostMapping("/createDisLikeComment")
-    public ResponseEntity<?> createDisLikeComment(@RequestBody DisLikeComment disLikeComment,
-                                                  @RequestParam Long idComment,
-                                                  @RequestParam Long idUser) {
-        List<DisLikeComment> disLikeComments = disLikeCommentService.findDisLikeComment(idComment, idUser);
-        if (disLikeComments.size() == 1) {
-            disLikeCommentService.delete(disLikeComments.get(0));
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        Optional<Comment> commentOptional = commentService.findById(idComment);
-        if (!commentOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_COMMENT, idComment),
-                    HttpStatus.NOT_FOUND);
-        }
-        disLikeComment.setUserDisLike(userService.checkUser(idUser));
-        disLikeComment.setCreateAt(new Date());
-        disLikeComment.setComment(commentOptional.get());
-        disLikeCommentService.save(disLikeComment);
-        if (!commentOptional.get().getUser().getId().equals(idUser)) {
-            String title = Constants.Notification.TITLE_DISLIKE_COMMENT;
-            String type = Constants.Notification.TYPE_COMMENT;
-            Notification notification = notificationService.
-                    createDefault(commentOptional.get().getUser(), userOptional.get(), title, idComment, type);
+                    createDefault(commentOptional.get().getUser(), userOptional.get(), title, idComment, typeNotification);
             notificationService.save(notification);
         }
         return new ResponseEntity<>(HttpStatus.OK);

@@ -29,9 +29,9 @@ public interface FriendRelationRepository extends JpaRepository<FriendRelation, 
 
     @Modifying
     @Query(value = "select * from friend_relation where id_friend= :idFriend and user_login_id= :idLogin and friend_relation.status_friend = 'waiting'", nativeQuery = true)
-    List<FriendRelation> agreeFriend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
+    List<FriendRelation> friendWaiting(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
 
     @Modifying
     @Query(value = "select * from friend_relation where id_friend= :idFriend and user_login_id= :idLogin and friend_relation.status_friend = 'Friend'", nativeQuery = true)
-    List<FriendRelation> friend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
+    List<FriendRelation> allFriend(@Param("idFriend") Long idFriend, @Param("idLogin") Long idLogin);
 }
