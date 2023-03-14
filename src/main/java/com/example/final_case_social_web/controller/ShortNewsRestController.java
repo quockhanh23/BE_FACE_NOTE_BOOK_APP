@@ -308,9 +308,11 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         List<ShortNews> shortNews = shortNewsRepository.findAllById(listIdSortNew);
         if (Constants.DELETE_ALL.equalsIgnoreCase(type)) {

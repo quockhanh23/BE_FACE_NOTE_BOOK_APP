@@ -343,40 +343,20 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUserByEmailAndUserName(userName, email);
     }
 
-    public ResponseEntity<?> errorToken(String authorization, Long idUser) {
+    public boolean errorToken(String authorization, Long idUser) {
         if (StringUtils.isEmpty(authorization)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
+            return false;
         }
         String tokenRequest = Common.formatToken(authorization);
         boolean checkToken = jwtService.validateJwtToken(tokenRequest);
         if (!checkToken) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
+           return false;
         }
         String userName = jwtService.getUserNameFromJwtToken(tokenRequest);
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(idUser);
-        if (!verificationToken.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (!tokenRequest.equals(verificationToken.get().getToken())) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        if ("no token".equals(verificationToken.get().getToken())) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        if (!userName.equals(verificationToken.get().getUser().getUsername())) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    "Username", "Username " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        return null;
+        return verificationToken.filter(token -> tokenRequest.equals(token.getToken())
+                && !"no token".equals(token.getToken())
+                && userName.equals(token.getUser().getUsername())).isPresent();
     }
 
     @Override

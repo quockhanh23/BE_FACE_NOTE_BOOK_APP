@@ -38,9 +38,11 @@ public class ImageRestController {
     public ResponseEntity<?> findAllImages(@RequestParam Long idUser,
                                            @RequestParam String type,
                                            @RequestHeader("Authorization") String authorization) {
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         List<Image> imageList = imageService.findAllImageByIdUser(idUser);
         if (CollectionUtils.isEmpty(imageList)) {
@@ -66,9 +68,11 @@ public class ImageRestController {
     public ResponseEntity<?> addPhoto(@RequestBody Image image,
                                       @RequestParam Long idUser,
                                       @RequestHeader("Authorization") String authorization) {
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         if (userService.checkUser(idUser) == null) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -84,9 +88,11 @@ public class ImageRestController {
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
@@ -157,9 +163,11 @@ public class ImageRestController {
     @GetMapping("/getAllImageDeleted")
     public ResponseEntity<?> getAllImageDeleted(@RequestParam Long idUser,
                                                 @RequestHeader("Authorization") String authorization) {
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
@@ -178,9 +186,11 @@ public class ImageRestController {
     public ResponseEntity<?> deleteAllImage(@RequestParam Long idUser,
                                             @RequestParam String type,
                                             @RequestHeader("Authorization") String authorization) {
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {

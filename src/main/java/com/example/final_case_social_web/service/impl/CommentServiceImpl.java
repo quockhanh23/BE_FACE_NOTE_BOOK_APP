@@ -14,9 +14,9 @@ import java.util.Optional;
 
 @Service
 public class CommentServiceImpl implements CommentService {
+
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     ModelMapper modelMapper;
 

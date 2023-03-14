@@ -65,10 +65,17 @@ public class AnswerCommentRestController {
     @PostMapping("/createAnswerComment")
     public ResponseEntity<?> createAnswerComment(@RequestBody AnswerComment answerComment,
                                                  @RequestParam Long idUser,
-                                                 @RequestParam Long idComment) {
+                                                 @RequestParam Long idComment,
+                                                 @RequestHeader("Authorization") String authorization) {
         if (answerComment.getContent() == null || answerComment.getContent().trim().equals(Constants.BLANK)) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
+        }
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
@@ -102,7 +109,14 @@ public class AnswerCommentRestController {
     @DeleteMapping("/deleteAnswerComment")
     public ResponseEntity<?> deleteAnswerComment(@RequestParam Long idUser,
                                                  @RequestParam Long idComment,
-                                                 @RequestParam Long idAnswerComment) {
+                                                 @RequestParam Long idAnswerComment,
+                                                 @RequestHeader("Authorization") String authorization) {
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

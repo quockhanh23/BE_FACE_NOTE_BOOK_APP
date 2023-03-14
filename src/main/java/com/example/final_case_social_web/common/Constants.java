@@ -46,7 +46,7 @@ public class Constants {
         public static final String DEFAULT_BACKGROUND = "assets/images/hinhnen.png";
         public static final String DEFAULT_BACKGROUND_2 = "assets/images/defaultAva.png";
         public static final String DEFAULT_BACKGROUND_3 = "assets/images/face-map_ccexpress.png";
-        public static final String DEFAULT_IMAGE_SHORT_NEW = "https://loanthehongnhan.vn/hinh-nen-don-gian/imager_28148.jpg";
+        public static final String DEFAULT_IMAGE_SHORT_NEW = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2F1706_hinh-nen-dien-thoai-4k62.jpg?alt=media&token=92af4669-624c-4193-bdf4-9d27a471fdbe";
         public static final String DEFAULT_AVATAR_GROUP = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fbg2.jpg?alt=media&token=ed98cff4-0ddd-402b-81f9-a18db3b3c50e";
         public static final String DEFAULT_COVER_GROUP = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fbg1.jpg?alt=media&token=4a648a76-8187-4598-8f54-e131b73d16c8";
     }

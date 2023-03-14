@@ -70,5 +70,5 @@ public interface UserService extends UserDetailsService {
 
     List<UserDTO> listFriend(Long idUser);
 
-    ResponseEntity<?> errorToken(String authorization, Long idUser);
+    boolean errorToken(String authorization, Long idUser);
 }

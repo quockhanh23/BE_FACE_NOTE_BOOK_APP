@@ -4,6 +4,7 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.model.ShortNews;
 import com.example.final_case_social_web.repository.ShortNewsRepository;
 import com.example.final_case_social_web.service.ShortNewsService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class ShortNewsServiceImpl implements ShortNewsService {
         shortNews.setToDay(new Date());
         shortNews.setExpired(3);
         shortNews.setRemaining(3);
-        if (shortNews.getImage() == null || shortNews.getImage().equals(Constants.BLANK)) {
+        if (StringUtils.isEmpty(shortNews.getImage())) {
             shortNews.setImage(Constants.ImageDefault.DEFAULT_IMAGE_SHORT_NEW);
         }
     }

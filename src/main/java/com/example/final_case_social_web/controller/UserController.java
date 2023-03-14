@@ -212,18 +212,20 @@ public class UserController {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.NO_VALID), HttpStatus.BAD_REQUEST);
         }
+        Optional<User> userOptional = userService
+                .findUserByEmailAndUserName(passwordRetrieval.getUserName(), passwordRetrieval.getEmail());
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.NOT_FOUND.toString(),
+                    MessageResponse.RegisterMessage.PASSWORD_RETRIEVAL_FAIL),
+                    HttpStatus.NOT_FOUND);
+        }
+        boolean check = userService.errorToken(authorization, userOptional.get().getId());
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
         try {
-            Optional<User> userOptional = userService
-                    .findUserByEmailAndUserName(passwordRetrieval.getUserName(), passwordRetrieval.getEmail());
-            if (!userOptional.isPresent()) {
-                return new ResponseEntity<>(new ResponseNotification(HttpStatus.NOT_FOUND.toString(),
-                        MessageResponse.RegisterMessage.PASSWORD_RETRIEVAL_FAIL),
-                        HttpStatus.NOT_FOUND);
-            }
-            ResponseEntity<?> responseEntity = userService.errorToken(authorization, userOptional.get().getId());
-            if (responseEntity != null) {
-                return responseEntity;
-            }
             String newPassword = RandomStringUtils.randomAscii(6);
             userOptional.get().setPassword(passwordEncoder.encode(newPassword));
             userService.save(userOptional.get());
@@ -244,14 +246,16 @@ public class UserController {
     public ResponseEntity<?> matchPassword(@RequestBody UserChangePassword userChangePassword,
                                            @RequestParam Long idUser,
                                            @RequestHeader("Authorization") String authorization) {
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
         }
         if (passwordEncoder.matches(userChangePassword.getPasswordOld(), userOptional.get().getPassword())) {
             if (userChangePassword.getPasswordNew().equals(userChangePassword.getConfirmPasswordNew())) {
@@ -382,9 +386,11 @@ public class UserController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
         }
         String avatarName = "";
         List<ListAvatarDefault> listAvatarDefaults = userService.listAvatar();
@@ -432,14 +438,16 @@ public class UserController {
     public ResponseEntity<?> changeStatusUser(@RequestParam Long idUser,
                                               @RequestParam String type,
                                               @RequestHeader("Authorization") String authorization) {
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
         }
         if ("active".equalsIgnoreCase(type)) {
             if (userOptional.get().getStatus().equals(Constants.STATUS_ACTIVE)) {
@@ -476,14 +484,16 @@ public class UserController {
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        ResponseEntity<?> responseEntity = userService.errorToken(authorization, idUser);
-        if (responseEntity != null) {
-            return responseEntity;
         }
         Optional<Image> imageOptional = imageService.findById(idImage);
         if (!imageOptional.isPresent()) {

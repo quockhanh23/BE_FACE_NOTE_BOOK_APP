@@ -81,8 +81,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDTO mapper(Post2 post2) {
-        PostDTO postDTO = modelMapper.map(post2, PostDTO.class);
-        return postDTO;
+        return modelMapper.map(post2, PostDTO.class);
     }
 
     @Override

@@ -19,7 +19,6 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         verificationTokenRepository.save(token);
     }
 
-
     @Override
     public List<VerificationToken> findAll() {
         return verificationTokenRepository.findAll();

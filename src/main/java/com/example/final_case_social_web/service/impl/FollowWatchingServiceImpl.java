@@ -61,11 +61,11 @@ public class FollowWatchingServiceImpl implements FollowWatchingService {
         Optional<User> userOptionalFollow = userRepository.findById(idUserFollow);
         if (!userOptionalLogin.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, userOptionalLogin.get().getId()), HttpStatus.NOT_FOUND);
+                    responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
         }
         if (!userOptionalFollow.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, userOptionalFollow.get().getId()), HttpStatus.NOT_FOUND);
+                    responseMessage(Constants.IdCheck.ID_USER, idUserFollow), HttpStatus.NOT_FOUND);
         }
         List<FollowWatching> followWatchingList = followWatchingRepository.findOne(idUserLogin, idUserFollow);
         if (!CollectionUtils.isEmpty(followWatchingList)) {
