@@ -16,18 +16,30 @@ import java.util.List;
 
 public class Excel {
 
-    public XSSFWorkbook createCustomerSheet(List<Object> objects) throws IllegalAccessException {
+    public byte[] exportDataToExcel(List<Object> objects) {
+        byte[] bytes = new byte[0];
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            if (!CollectionUtils.isEmpty(objects)) {
+                XSSFWorkbook xssfWorkbook = createDataSheet(objects);
+                xssfWorkbook.write(outputStream);
+                bytes = outputStream.toByteArray();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bytes;
+    }
+
+    public XSSFWorkbook createDataSheet(List<Object> objects) throws IllegalAccessException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet(Constants.Excel.USER_SHEET);
         int rowCount = 0;
-        //create header
         Row headerRow = sheet.createRow(rowCount);
         for (int col = 0; col < Constants.Excel.EXCEL_USER_HEADER.length; col++) {
-            createCellStyle(workbook, sheet, headerRow, col, Constants.Excel.EXCEL_USER_HEADER[col], Constants.Excel.HEADER);
+            createCellStyle(workbook, headerRow, col, Constants.Excel.EXCEL_USER_HEADER[col], Constants.Excel.HEADER);
         }
-        //create content
         Field[] fieldsOfFieldClass = Object.class.getDeclaredFields();
-
         for (Object entity : objects) {
             Row row = sheet.createRow(++rowCount);
             int columnCount = 0;
@@ -35,17 +47,16 @@ public class Excel {
                 if (field.getName().equals("Id"))
                     continue;
                 Object value = field.get(entity);
-                createCellStyle(workbook, sheet, row, columnCount++, value, Constants.Excel.CONTENT);
+                createCellStyle(workbook, row, columnCount++, value, Constants.Excel.CONTENT);
             }
         }
         sheet.autoSizeColumn(30);
         return workbook;
     }
 
-    public void createCellStyle(XSSFWorkbook workbook, XSSFSheet sheet, Row row, int columnCount, Object value, String type) {
+    public void createCellStyle(XSSFWorkbook workbook, Row row, int columnCount, Object value, String type) {
         Cell cell = row.createCell(columnCount);
         cellCheck(cell, value);
-        //set style for a cell
         XSSFCellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         if (Constants.Excel.HEADER.equals(type)) {
@@ -58,27 +69,6 @@ public class Excel {
         style.setFont(font);
         setDefaultStyle(style);
         cell.setCellStyle(style);
-    }
-
-    public byte[] exportDataToExcel(List<Object> objects) {
-        byte[] bytes = new byte[0];
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            if (!CollectionUtils.isEmpty(objects)) {
-                XSSFWorkbook xssfWorkbook = createCustomerSheet(objects);
-                xssfWorkbook.write(outputStream);
-                bytes = outputStream.toByteArray();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                outputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return bytes;
     }
 
     private void setDefaultStyle(XSSFCellStyle style) {

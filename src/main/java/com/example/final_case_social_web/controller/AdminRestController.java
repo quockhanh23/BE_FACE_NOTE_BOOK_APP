@@ -4,9 +4,13 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.model.GroupPost;
 import com.example.final_case_social_web.model.Post2;
+import com.example.final_case_social_web.model.TheGroup;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.repository.GroupPostRepository;
+import com.example.final_case_social_web.repository.TheGroupRepository;
 import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +39,10 @@ public class AdminRestController {
     private UserService userService;
     @Autowired
     private PostService postService;
+    @Autowired
+    private TheGroupRepository theGroupRepository;
+    @Autowired
+    private GroupPostRepository groupPostRepository;
 
     // Xem tất cả user
     @GetMapping("/adminAction")
@@ -76,6 +84,20 @@ public class AdminRestController {
             });
             postChecks.sort((p1, p2) -> (p2.getCreateAt().compareTo(p1.getCreateAt())));
             return new ResponseEntity<>(postChecks, HttpStatus.OK);
+        }
+        if ("group".equals(type)) {
+            List<TheGroup> theGroupList = theGroupRepository.findAll();
+            if (CollectionUtils.isEmpty(theGroupList)) {
+                theGroupList = new ArrayList<>();
+            }
+            return new ResponseEntity<>(theGroupList, HttpStatus.OK);
+        }
+        if ("groupPost".equals(type)) {
+            List<GroupPost> groupPostList = groupPostRepository.findAll();
+            if (CollectionUtils.isEmpty(groupPostList)) {
+                groupPostList = new ArrayList<>();
+            }
+            return new ResponseEntity<>(groupPostList, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
