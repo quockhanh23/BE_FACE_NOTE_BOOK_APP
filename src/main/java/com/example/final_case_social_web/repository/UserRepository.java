@@ -24,6 +24,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "select * from user_table where (username =:userName) and (email =:email)", nativeQuery = true)
     Optional<User> findUserByEmailAndUserName(@Param("userName") String userName, @Param("email") String email);
 
+    @Query(value = "select *\n" +
+            "from user_table\n" +
+            "where email LIKE concat('%', :searchText, '%') or full_name LIKE concat('%', :searchText, '%')", nativeQuery = true)
+    List<User> findAllByEmailOrUsername(@Param("searchText") String searchText);
+
     @Modifying
     @Query(value = "select * from user_table join user_role on user_table.id = user_role.user_id where role_id = 1",
             nativeQuery = true)

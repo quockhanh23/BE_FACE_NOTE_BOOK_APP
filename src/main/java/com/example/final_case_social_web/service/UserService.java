@@ -71,4 +71,6 @@ public interface UserService extends UserDetailsService {
     List<UserDTO> listFriend(Long idUser);
 
     boolean errorToken(String authorization, Long idUser);
+
+    List<User> findAllByEmailOrUsername(String searchText);
 }

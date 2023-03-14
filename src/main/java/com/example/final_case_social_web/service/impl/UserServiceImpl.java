@@ -19,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -350,13 +349,18 @@ public class UserServiceImpl implements UserService {
         String tokenRequest = Common.formatToken(authorization);
         boolean checkToken = jwtService.validateJwtToken(tokenRequest);
         if (!checkToken) {
-           return false;
+            return false;
         }
         String userName = jwtService.getUserNameFromJwtToken(tokenRequest);
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(idUser);
         return verificationToken.filter(token -> tokenRequest.equals(token.getToken())
                 && !"no token".equals(token.getToken())
                 && userName.equals(token.getUser().getUsername())).isPresent();
+    }
+
+    @Override
+    public List<User> findAllByEmailOrUsername(String searchText) {
+        return userRepository.findAllByEmailOrUsername(searchText);
     }
 
     @Override

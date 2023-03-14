@@ -186,6 +186,32 @@ public class AdminRestController {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @GetMapping("/searchAllPeople")
+    public ResponseEntity<?> searchAllPeople(@RequestParam Long idUser,
+                                             @RequestParam(required = false) String searchText,
+                                             @RequestHeader("Authorization") String authorization) {
+        boolean check = userService.errorToken(authorization, idUser);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (userService.checkAdmin(idUser) == null) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
+        }
+        List<User> users = userService.findAllByEmailOrUsername(searchText);
+        List<UserDTO> userDTOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(users)) {
+            for (User user : users) {
+                UserDTO userDTO = new UserDTO();
+                BeanUtils.copyProperties(user, userDTO);
+                userDTOList.add(userDTO);
+            }
+        }
+        return new ResponseEntity<>(userDTOList, HttpStatus.OK);
+    }
+
     @GetMapping("/getFileTxt")
     public ResponseEntity<?> getFileTxt(@RequestParam Long idUser,
                                         @RequestHeader("Authorization") String authorization) throws IOException {
