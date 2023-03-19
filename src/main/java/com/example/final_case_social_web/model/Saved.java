@@ -18,7 +18,10 @@ public class Saved {
     private Long idUser;
     private String status;
     private Date saveDate;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "post_id")
-    private Post2 post2;
+    private String type;
+    private Long idPost;
+    private String userCreate;
+    private String groupName;
+    private String imagePost;
+    private String content;
 }

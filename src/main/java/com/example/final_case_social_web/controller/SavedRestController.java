@@ -2,18 +2,16 @@ package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
-import com.example.final_case_social_web.dto.PostDTO;
-import com.example.final_case_social_web.dto.SavedDTO;
-import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.model.GroupPost;
 import com.example.final_case_social_web.model.Post2;
 import com.example.final_case_social_web.model.Saved;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.repository.SavedRepository;
+import com.example.final_case_social_web.service.GroupPostService;
 import com.example.final_case_social_web.service.PostService;
-import com.example.final_case_social_web.service.SavedService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -33,70 +31,82 @@ import java.util.Optional;
 @Slf4j
 public class SavedRestController {
     @Autowired
-    private SavedService savedService;
+    private SavedRepository savedRepository;
+    @Autowired
+    private GroupPostService groupPostService;
     @Autowired
     private UserService userService;
     @Autowired
     private PostService postService;
-    @Autowired
-    private ModelMapper modelMapper;
 
     // Danh sách đã lưu
     @GetMapping("/listSavedPost")
-    public ResponseEntity<List<SavedDTO>> listSavedPost(@RequestParam Long idUser) {
-        List<Saved> savedList = savedService.findAllSavedPost(idUser);
-        List<SavedDTO> savedDTOS = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(savedList)) {
-            for (Saved saved : savedList) {
-                UserDTO userDTO = modelMapper.map(saved.getPost2().getUser(), UserDTO.class);
-                PostDTO postDTO = modelMapper.map(saved.getPost2(), PostDTO.class);
-                SavedDTO savedDTO = modelMapper.map(saved, SavedDTO.class);
-                postDTO.setUserDTO(userDTO);
-                savedDTO.setPostDTO(postDTO);
-                savedDTOS.add(savedDTO);
-            }
+    public ResponseEntity<?> listSavedPost(@RequestParam Long idUser) {
+        List<Saved> savedList = savedRepository.findAllSavedPost(idUser);
+        if (CollectionUtils.isEmpty(savedList)) {
+            savedList = new ArrayList<>();
         }
-        return new ResponseEntity<>(savedDTOS, HttpStatus.OK);
+        return new ResponseEntity<>(savedList, HttpStatus.OK);
     }
 
     // Lưu trữ bài viết
     @GetMapping("/savePost")
-    public ResponseEntity<?> savePost(@RequestParam Long idPost, @RequestParam Long idUser) {
+    public ResponseEntity<?> savePost(@RequestParam Long idPost, @RequestParam Long idUser, @RequestParam String type) {
         Optional<Post2> postOptional = postService.findById(idPost);
-        if (!postOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
+        Optional<GroupPost> groupPost = groupPostService.findById(idPost);
+        if ("post".equalsIgnoreCase(type)) {
+            if (!postOptional.isPresent()) {
+                return new ResponseEntity<>(ResponseNotification.
+                        responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
+            }
+        }
+        if ("groupPost".equalsIgnoreCase(type)) {
+            if (!groupPost.isPresent()) {
+                return new ResponseEntity<>(ResponseNotification.
+                        responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
+            }
         }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        Iterable<Saved> savedIterable = savedService.findAll();
-        List<Saved> savedList = (List<Saved>) savedIterable;
-        if (!CollectionUtils.isEmpty(savedList)) {
-            for (Saved saved : savedList) {
-                if (saved.getIdUser().equals(userOptional.get().getId())
-                        && saved.getPost2().getId().equals(postOptional.get().getId())) {
-                    if (saved.getStatus().equals(Constants.STATUS_SAVED)) {
-                        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                                MessageResponse.TipMessage.SAVED),
-                                HttpStatus.BAD_REQUEST);
-                    }
-                    if (saved.getStatus().equals(Constants.STATUS_DELETE)) {
-                        saved.setStatus(Constants.STATUS_SAVED);
-                        savedService.save(saved);
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    }
+        List<Saved> savedList = savedRepository.findAll();
+        for (int i = 0; i < savedList.size(); i++) {
+            if (savedList.get(i).getIdUser().equals(userOptional.get().getId())
+                    && savedList.get(i).getIdPost().equals(idPost)) {
+                if (savedList.get(i).getStatus().equals(Constants.STATUS_SAVED)) {
+                    return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                            MessageResponse.TipMessage.SAVED),
+                            HttpStatus.BAD_REQUEST);
+                }
+                if (savedList.get(i).getStatus().equals(Constants.STATUS_DELETE)) {
+                    savedList.get(i).setStatus(Constants.STATUS_SAVED);
+                    savedList.get(i).setSaveDate(new Date());
+                    savedRepository.save(savedList.get(i));
+                    return new ResponseEntity<>(HttpStatus.OK);
                 }
             }
         }
         Saved saved = new Saved();
+        if ("post".equalsIgnoreCase(type)) {
+            saved.setType("Post");
+            saved.setUserCreate(postOptional.get().getUser().getFullName());
+            saved.setImagePost(postOptional.get().getImage());
+            saved.setContent(postOptional.get().getContent());
+        }
+        if ("groupPost".equalsIgnoreCase(type)) {
+            saved.setType("Group post");
+            saved.setGroupName(groupPost.get().getTheGroup().getGroupName());
+            saved.setUserCreate(groupPost.get().getCreateBy());
+            saved.setImagePost(groupPost.get().getImage());
+            saved.setContent(groupPost.get().getContent());
+        }
+        saved.setIdPost(idPost);
         saved.setSaveDate(new Date());
         saved.setStatus(Constants.STATUS_SAVED);
         saved.setIdUser(idUser);
-        saved.setPost2(postOptional.get());
-        savedService.save(saved);
+        savedRepository.save(saved);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -108,14 +118,14 @@ public class SavedRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
         }
-        Optional<Saved> savedOptional = savedService.findById(idSaved);
+        Optional<Saved> savedOptional = savedRepository.findById(idSaved);
         if (!savedOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_SAVE, idSaved),
                     HttpStatus.NOT_FOUND);
         }
-        if (savedOptional.get().getPost2().getId().equals(postOptional.get().getId())) {
+        if (savedOptional.get().getIdPost().equals(postOptional.get().getId())) {
             savedOptional.get().setStatus(Constants.STATUS_DELETE);
-            savedService.save(savedOptional.get());
+            savedRepository.save(savedOptional.get());
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
