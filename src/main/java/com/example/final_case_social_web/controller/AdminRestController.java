@@ -2,6 +2,7 @@ package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.dto.GroupPostDTO;
 import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.GroupPost;
@@ -92,14 +93,32 @@ public class AdminRestController {
             }
             return new ResponseEntity<>(theGroupList, HttpStatus.OK);
         }
-        if ("groupPost".equals(type)) {
-            List<GroupPost> groupPostList = groupPostRepository.findAll();
-            if (CollectionUtils.isEmpty(groupPostList)) {
-                groupPostList = new ArrayList<>();
-            }
-            return new ResponseEntity<>(groupPostList, HttpStatus.OK);
-        }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/getAllGroupPost")
+    public ResponseEntity<?> getAllGroupPost(@RequestParam Long idGroup, @RequestParam Long idAdmin,
+                                             @RequestHeader("Authorization") String authorization) {
+        boolean check = userService.errorToken(authorization, idAdmin);
+        if (!check) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (userService.checkAdmin(idAdmin) == null) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
+        }
+        List<GroupPost> list = groupPostRepository.findAllByTheGroupId(idGroup);
+        List<GroupPostDTO> groupPostDTOList = new ArrayList<>();
+        for (GroupPost groupPost : list) {
+            GroupPostDTO groupPostDTO = new GroupPostDTO();
+            BeanUtils.copyProperties(groupPostDTO, groupPost);
+            groupPostDTO.setGroupName(groupPost.getTheGroup().getGroupName());
+            groupPostDTO.setUserName(groupPost.getUser().getUsername());
+            groupPostDTOList.add(groupPostDTO);
+        }
+        return new ResponseEntity<>(groupPostDTOList, HttpStatus.OK);
     }
 
     @GetMapping("/findById")

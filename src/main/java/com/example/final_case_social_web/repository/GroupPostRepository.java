@@ -18,4 +18,6 @@ public interface GroupPostRepository extends JpaRepository<GroupPost, Long> {
     @Modifying
     @Query(value = "select * from group_post where the_group_id = :idGroup and status like 'Pending approval'", nativeQuery = true)
     List<GroupPost> findAllPostWaiting(@Param("idGroup") Long idGroup);
+
+    List<GroupPost> findAllByTheGroupId(@Param("idGroup") Long idGroup);
 }

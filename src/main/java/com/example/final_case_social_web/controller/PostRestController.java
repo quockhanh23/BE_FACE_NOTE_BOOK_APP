@@ -63,8 +63,14 @@ public class PostRestController {
     @GetMapping("/allPostPublic")
     public ResponseEntity<?> allPostPublic(@RequestParam Long idUser,
                                            @RequestParam String type,
+                                           @RequestParam(required = false) Long idUserVisit,
                                            @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
+        boolean check;
+        if (idUserVisit != null) {
+            check = userService.errorToken(authorization, idUserVisit);
+        } else {
+            check = userService.errorToken(authorization, idUser);
+        }
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),

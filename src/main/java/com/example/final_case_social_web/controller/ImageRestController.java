@@ -10,6 +10,7 @@ import com.example.final_case_social_web.service.ImageService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -37,8 +38,14 @@ public class ImageRestController {
     @GetMapping("/findAllImages")
     public ResponseEntity<?> findAllImages(@RequestParam Long idUser,
                                            @RequestParam String type,
+                                           @RequestParam Long idUserVisit,
                                            @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
+        boolean check;
+        if (idUserVisit != null && "visit".equals(type)) {
+            check = userService.errorToken(authorization, idUserVisit);
+        } else {
+            check = userService.errorToken(authorization, idUser);
+        }
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
@@ -49,7 +56,7 @@ public class ImageRestController {
             imageList = new ArrayList<>();
         }
         if ("visit".equals(type)) {
-            imageList.removeIf(item -> item.getStatus().equals("Private"));
+            imageList.removeIf(item -> item.getStatus().equals(Constants.STATUS_PRIVATE));
         }
         return new ResponseEntity<>(imageList, HttpStatus.OK);
     }
