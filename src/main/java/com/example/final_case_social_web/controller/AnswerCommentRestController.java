@@ -14,6 +14,7 @@ import com.example.final_case_social_web.service.NotificationService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -67,7 +68,7 @@ public class AnswerCommentRestController {
                                                  @RequestParam Long idUser,
                                                  @RequestParam Long idComment,
                                                  @RequestHeader("Authorization") String authorization) {
-        if (answerComment.getContent() == null || answerComment.getContent().trim().equals(Constants.BLANK)) {
+        if (StringUtils.isEmpty(answerComment.getContent().trim())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }

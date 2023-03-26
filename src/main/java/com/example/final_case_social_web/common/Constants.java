@@ -161,4 +161,6 @@ public class Constants {
     public static final String TOKEN = "Token";
     public static final String DELETE_ALL = "deleteAll";
     public static final String RESTORE_ALL = "restoreAll";
+    public static final String ACCEPT = "accept";
+    public static final String REJECT = "reject";
 }

@@ -114,17 +114,19 @@ public class GroupRestController {
         theGroup.setCreateAt(new Date());
         theGroup.setNumberUser(0L);
         theGroup.setStatus(Constants.STATUS_PUBLIC);
-        if (theGroup.getAvatarGroup() == null) {
+        if (StringUtils.isEmpty(theGroup.getAvatarGroup())) {
             theGroup.setAvatarGroup(Constants.ImageDefault.DEFAULT_AVATAR_GROUP);
         }
-        if (theGroup.getCoverGroup() == null) {
+        if (StringUtils.isEmpty(theGroup.getCoverGroup())) {
             theGroup.setCoverGroup(Constants.ImageDefault.DEFAULT_COVER_GROUP);
         }
         if (StringUtils.isEmpty(theGroup.getGroupName())) {
-            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("groupName"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("groupName"),
+                    HttpStatus.BAD_REQUEST);
         }
         if (StringUtils.isEmpty(theGroup.getType())) {
-            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("type"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("type"),
+                    HttpStatus.BAD_REQUEST);
         }
         theGroupService.save(theGroup);
         ImageGroup coverGroup = imageGroupService
@@ -235,7 +237,7 @@ public class GroupRestController {
         if (!user.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if ("accept".equals(type)) {
+        if (Constants.ACCEPT.equals(type)) {
             if (userOptional.get().getId().equals(groupParticipant.get().getTheGroup().getIdUserCreate())) {
                 groupParticipant.get().setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
                 groupParticipantService.save(groupParticipant.get());
@@ -246,7 +248,7 @@ public class GroupRestController {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
         }
-        if ("reject".equals(type)) {
+        if (Constants.REJECT.equals(type)) {
             if (userOptional.get().getId().equals(groupParticipant.get().getTheGroup().getIdUserCreate())) {
                 groupParticipant.get().setStatus(Constants.GroupStatus.STATUS_GROUP_REFUSE);
                 groupParticipantService.save(groupParticipant.get());
@@ -285,7 +287,7 @@ public class GroupRestController {
         if (!groupPost.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if ("accept".equals(type)) {
+        if (Constants.ACCEPT.equals(type)) {
             groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
             groupPostService.save(groupPost.get());
             Notification notification = notificationService.createDefault(groupPost.get().getUser(), userOptional.get(),
@@ -293,7 +295,7 @@ public class GroupRestController {
             notificationService.save(notification);
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        if ("reject".equals(type)) {
+        if (Constants.REJECT.equals(type)) {
             groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_REFUSE);
             groupPostService.save(groupPost.get());
             Notification notification = notificationService.createDefault(groupPost.get().getUser(), userOptional.get(),
