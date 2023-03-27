@@ -159,8 +159,10 @@ public class Constants {
     public static final String AVATAR = "Avatar";
     public static final String COVER = "Cover";
     public static final String TOKEN = "Token";
-    public static final String DELETE_ALL = "deleteAll";
-    public static final String RESTORE_ALL = "restoreAll";
+    public static final String DELETE_ALL = "1";
+    public static final String RESTORE_ALL = "0";
     public static final String ACCEPT = "accept";
     public static final String REJECT = "reject";
+    public static final String HIDE = "1";
+    public static final String UN_HIDE = "0";
 }

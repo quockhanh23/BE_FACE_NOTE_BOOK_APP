@@ -104,10 +104,11 @@ public class PostRestController {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 
-    @PostMapping("/createHidePost")
-    public ResponseEntity<?> createHidePost(@RequestParam Long idUser,
-                                            @RequestParam Long idPost,
-                                            @RequestHeader("Authorization") String authorization) {
+    @DeleteMapping("/hidePost")
+    public ResponseEntity<?> hidePost(@RequestParam Long idUser,
+                                      @RequestParam Long idPost,
+                                      @RequestParam String type,
+                                      @RequestHeader("Authorization") String authorization) {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
@@ -115,37 +116,27 @@ public class PostRestController {
                     HttpStatus.UNAUTHORIZED);
         }
         List<HidePost> list = hidePostRepository.findAll();
-        if (!CollectionUtils.isEmpty(list)) {
-            for (HidePost post : list) {
-                if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
-                    return new ResponseEntity<>(HttpStatus.OK);
+        if (Constants.HIDE.equalsIgnoreCase(type)) {
+            if (!CollectionUtils.isEmpty(list)) {
+                for (HidePost post : list) {
+                    if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    }
                 }
             }
+            HidePost hidePost = new HidePost();
+            hidePost.setCreateAt(new Date());
+            hidePost.setIdUser(idUser);
+            hidePost.setIdPost(idPost);
+            hidePostRepository.save(hidePost);
         }
-        HidePost hidePost = new HidePost();
-        hidePost.setCreateAt(new Date());
-        hidePost.setIdUser(idUser);
-        hidePost.setIdPost(idPost);
-        hidePostRepository.save(hidePost);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @DeleteMapping("/undoHidePost")
-    public ResponseEntity<?> undoHidePost(@RequestParam Long idUser,
-                                          @RequestParam Long idPost,
-                                          @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        List<HidePost> list = hidePostRepository.findAll();
-        if (!CollectionUtils.isEmpty(list)) {
-            for (HidePost hidePost : list) {
-                if (hidePost.getIdPost().equals(idPost) && hidePost.getIdUser().equals(idUser)) {
-                    hidePostRepository.delete(hidePost);
-                    break;
+        if (Constants.UN_HIDE.equalsIgnoreCase(type)) {
+            if (!CollectionUtils.isEmpty(list)) {
+                for (HidePost post : list) {
+                    if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
+                        hidePostRepository.delete(post);
+                        break;
+                    }
                 }
             }
         }
@@ -183,9 +174,7 @@ public class PostRestController {
         postService.create(post);
         post.setUser(userOptional.get());
         postService.save(post);
-        PostDTO postDTO = postService.mapper(post);
-        postDTO.setUserDTO(userService.mapper(userOptional.get()));
-        return new ResponseEntity<>(postDTO, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // Chỉnh sửa post
@@ -216,8 +205,7 @@ public class PostRestController {
                 postOptional.get().setContent(post.getContent());
             }
             postService.save(postOptional.get());
-            PostDTO postDTO = postService.mapper(postOptional.get());
-            return new ResponseEntity<>(postDTO, HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                 MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),

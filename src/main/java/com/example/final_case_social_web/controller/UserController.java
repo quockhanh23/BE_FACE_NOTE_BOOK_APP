@@ -427,9 +427,16 @@ public class UserController {
             Image image = imageService.createImageDefault(user.getCover(), user);
             imageService.save(image);
         }
+        if (!StringUtils.isEmpty(user.getGender())) {
+            userOptional.get().setGender(user.getGender());
+        }
+        if (user.getDateOfBirth() != null) {
+            userOptional.get().setDateOfBirth(user.getDateOfBirth());
+        }
         userOptional.get().setAddress(user.getAddress());
         userOptional.get().setPhone(user.getPhone());
         userOptional.get().setFavorite(user.getFavorite());
+        userOptional.get().setEducation(user.getEducation());
         userService.save(userOptional.get());
         return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
     }
