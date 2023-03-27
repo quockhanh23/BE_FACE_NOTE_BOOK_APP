@@ -62,14 +62,7 @@ public class AdminRestController {
         }
         if ("user".equals(type)) {
             List<User> users = userService.findAllRoleUser();
-            List<UserDTO> userDTOList = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(users)) {
-                for (User user : users) {
-                    UserDTO userDTO = new UserDTO();
-                    BeanUtils.copyProperties(user, userDTO);
-                    userDTOList.add(userDTO);
-                }
-            }
+            List<UserDTO> userDTOList = userService.copyListDTO(users);
             return new ResponseEntity<>(userDTOList, HttpStatus.OK);
         }
         if ("post".equals(type)) {
@@ -220,14 +213,7 @@ public class AdminRestController {
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
         }
         List<User> users = userService.findAllByEmailOrUsername(searchText);
-        List<UserDTO> userDTOList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(users)) {
-            for (User user : users) {
-                UserDTO userDTO = new UserDTO();
-                BeanUtils.copyProperties(user, userDTO);
-                userDTOList.add(userDTO);
-            }
-        }
+        List<UserDTO> userDTOList = userService.copyListDTO(users);
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
     }
 

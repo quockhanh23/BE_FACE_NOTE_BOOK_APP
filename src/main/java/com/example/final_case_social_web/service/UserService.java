@@ -72,4 +72,6 @@ public interface UserService extends UserDetailsService {
     boolean errorToken(String authorization, Long idUser);
 
     List<User> findAllByEmailOrUsername(String searchText);
+
+    List<UserDTO> copyListDTO(List<User> users);
 }

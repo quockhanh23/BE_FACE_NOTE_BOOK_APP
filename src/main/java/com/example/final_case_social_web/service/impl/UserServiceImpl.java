@@ -364,6 +364,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDTO> copyListDTO(List<User> users) {
+        List<UserDTO> userDTOList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(users)) {
+            for (User user : users) {
+                UserDTO userDTO = new UserDTO();
+                BeanUtils.copyProperties(user, userDTO);
+                userDTOList.add(userDTO);
+            }
+        }
+        return userDTOList;
+    }
+
+    @Override
     public List<UserDTO> listFriend(Long idUser) {
         List<User> listFriend = allFriendByUserId(idUser);
         List<UserDTO> userDTOList = new ArrayList<>();
