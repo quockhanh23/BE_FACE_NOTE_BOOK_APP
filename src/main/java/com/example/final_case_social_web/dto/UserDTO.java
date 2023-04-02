@@ -28,6 +28,7 @@ public class UserDTO {
     private long mutualFriends;
     private Boolean sendRequestFriend = false;
     private Boolean peopleSendRequestFriend = false;
+    private long numberRepost;
 
     public UserDTO(Long id, String fullName, String avatar, String cover) {
         this.id = id;

@@ -4,6 +4,7 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.repository.GroupParticipantRepository;
 import com.example.final_case_social_web.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,6 +39,8 @@ public class GroupRestController {
     private ImageGroupService imageGroupService;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private GroupParticipantRepository groupParticipantRepository;
 
     // Danh sách nhóm đã vào
     @GetMapping("/groupJoined")
@@ -87,6 +90,15 @@ public class GroupRestController {
         List<TheGroup> listGroupByIdUserCreate = theGroupService.findByIdUserCreate(idUserCreate);
         if (CollectionUtils.isEmpty(listGroupByIdUserCreate)) {
             listGroupByIdUserCreate = new ArrayList<>();
+        } else {
+            List<Long> ids = listGroupByIdUserCreate.stream().map(TheGroup::getId).collect(Collectors.toList());
+            List<GroupParticipant> groupParticipants = groupParticipantRepository.findAllUserStatusApprovedInList(ids);
+            for (int i = 0; i < listGroupByIdUserCreate.size(); i++) {
+                Long id = listGroupByIdUserCreate.get(i).getId();
+                List<GroupParticipant> groupParticipantList = groupParticipants
+                        .stream().filter(item -> item.getTheGroup().getId().equals(id)).collect(Collectors.toList());
+                listGroupByIdUserCreate.get(i).setNumberUser((long) groupParticipantList.size());
+            }
         }
         return new ResponseEntity<>(listGroupByIdUserCreate, HttpStatus.OK);
     }

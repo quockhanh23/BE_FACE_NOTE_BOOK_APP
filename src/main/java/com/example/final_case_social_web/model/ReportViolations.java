@@ -3,7 +3,10 @@ package com.example.final_case_social_web.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Date;
 
 @Data
@@ -19,20 +22,6 @@ public class ReportViolations {
     private String status;
     private Date createAt;
     private Date editAt;
-
-    @ManyToOne
-    @JoinColumn(name = "userReport_id")
-    private User userReport;
-
-    @ManyToOne
-    @JoinColumn(name = "userViolate_id")
-    private User userViolate;
-
-    @ManyToOne
-    @JoinColumn(name = "postViolate_id")
-    private Post2 postViolate;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "theGroupViolate_id")
-    private TheGroup theGroupViolate;
+    private Long idUserReport;
+    private Long idViolate;
 }

@@ -203,7 +203,7 @@ public class FriendRelationController {
 
     // Đồng ý kết bạn, Hủy kết bạn, Hủy yêu cầu kết bạn
     @DeleteMapping("/actionRequestFriend")
-    public ResponseEntity<?> acceptRequestFriend(@RequestParam Long idUser,
+    public ResponseEntity<?> actionRequestFriend(@RequestParam Long idUser,
                                                  @RequestParam Long idFriend,
                                                  @RequestParam String type) {
         Optional<FriendRelation> optionalFriendRelation = friendRelationService.findByIdUserAndIdFriend(idUser, idFriend);
@@ -229,25 +229,28 @@ public class FriendRelationController {
             if (user.get().getStatus().equals(Constants.STATUS_BANED)) {
                 return new ResponseEntity<>(HttpStatus.LOCKED);
             }
-            friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.FRIEND);
+            friendRelationService.saveAction(optionalFriendRelation.get(),
+                    optionalFriendRelation2.get(), Constants.FRIEND);
             List<FollowWatching> followWatchingList = followWatchingRepository.findOne(idUser, idFriend);
             if (!CollectionUtils.isEmpty(followWatchingList)) {
                 followWatchingList.get(0).setStatus(Constants.FRIEND);
             }
             String title = Constants.Notification.TITLE_AGREE_FRIEND;
             String typeNotification = Constants.Notification.TYPE_FRIEND;
-            Notification notification = notificationService.createDefault(user.get(), user2.get(), title, idFriend, typeNotification);
+            Notification notification = notificationService.createDefault(user.get(),
+                    user2.get(), title, idFriend, typeNotification);
             notificationService.save(notification);
         }
         if ("delete".equalsIgnoreCase(type)) {
-            friendRelationService.saveAction(optionalFriendRelation.get(), optionalFriendRelation2.get(), Constants.NO_FRIEND);
+            friendRelationService.saveAction(optionalFriendRelation.get(),
+                    optionalFriendRelation2.get(), Constants.NO_FRIEND);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 10 gợi ý kết bạn
     @GetMapping("/friendSuggestion")
-    public ResponseEntity<?> everyone(@RequestParam Long idUser) {
+    public ResponseEntity<?> friendSuggestion(@RequestParam Long idUser) {
         List<User> listSuggestion = userService.friendSuggestion(idUser);
         List<UserNotificationDTO> list = friendRelationService.listUser(listSuggestion);
         return new ResponseEntity<>(list, HttpStatus.OK);

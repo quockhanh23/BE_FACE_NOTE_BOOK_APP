@@ -165,4 +165,7 @@ public class Constants {
     public static final String REJECT = "reject";
     public static final String HIDE = "1";
     public static final String UN_HIDE = "0";
+    public static final String REPOST_TYPE_USER = "0";
+    public static final String REPOST_TYPE_POST = "1";
+    public static final String REPOST_TYPE_GROUP = "2";
 }

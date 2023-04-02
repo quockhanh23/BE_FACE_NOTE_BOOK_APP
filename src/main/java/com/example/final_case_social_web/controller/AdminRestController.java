@@ -5,12 +5,10 @@ import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.GroupPostDTO;
 import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
-import com.example.final_case_social_web.model.GroupPost;
-import com.example.final_case_social_web.model.Post2;
-import com.example.final_case_social_web.model.TheGroup;
-import com.example.final_case_social_web.model.User;
+import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.GroupPostRepository;
+import com.example.final_case_social_web.repository.ReportRepository;
 import com.example.final_case_social_web.repository.TheGroupRepository;
 import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
@@ -44,6 +42,8 @@ public class AdminRestController {
     private TheGroupRepository theGroupRepository;
     @Autowired
     private GroupPostRepository groupPostRepository;
+    @Autowired
+    private ReportRepository reportRepository;
 
     // Xem tất cả user
     @GetMapping("/adminAction")
@@ -123,6 +123,9 @@ public class AdminRestController {
         }
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(userOptional.get(), userDTO);
+        List<ReportViolations> violations = reportRepository
+                .findAllByIdViolateAndType(userOptional.get().getId(), Constants.REPOST_TYPE_USER);
+        userDTO.setNumberRepost(violations.size());
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
@@ -217,8 +220,9 @@ public class AdminRestController {
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
     }
 
-    @GetMapping("/getFileTxt")
+    @GetMapping("/getFile")
     public ResponseEntity<?> getFileTxt(@RequestParam Long idUser,
+                                        @RequestParam String typeFile,
                                         @RequestHeader("Authorization") String authorization) throws IOException {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
@@ -230,26 +234,16 @@ public class AdminRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
         }
-        FileWriter fileWriter = new FileWriter("alo.txt");
-        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        bufferedWriter.write("alo");
-        bufferedWriter.close();
-        fileWriter.close();
-        return new ResponseEntity<>(fileWriter, HttpStatus.OK);
-    }
-
-    @GetMapping("/getExcelFile")
-    public ResponseEntity<?> getExcelFile(@RequestParam Long idUser,
-                                          @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
+        if ("txt".equalsIgnoreCase(typeFile)) {
+            FileWriter fileWriter = new FileWriter("alo.txt");
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write("alo");
+            bufferedWriter.close();
+            fileWriter.close();
         }
-        if (userService.checkAdmin(idUser) == null) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
+        if ("csv".equalsIgnoreCase(typeFile)) {
+        }
+        if ("excel".equalsIgnoreCase(typeFile)) {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

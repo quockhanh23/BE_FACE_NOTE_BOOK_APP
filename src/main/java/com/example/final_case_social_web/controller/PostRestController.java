@@ -212,7 +212,7 @@ public class PostRestController {
                 HttpStatus.BAD_REQUEST);
     }
 
-    // update like
+    // Update like
     @DeleteMapping("/updateReflectPost")
     public ResponseEntity<?> updateLikePost(@RequestParam Long idPost,
                                             @RequestParam String type,

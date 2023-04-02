@@ -23,6 +23,10 @@ public interface GroupParticipantRepository extends JpaRepository<GroupParticipa
     @Query(value = "select * from group_participant where status = 'Approved' and the_group_id = :idGroup", nativeQuery = true)
     List<GroupParticipant> findAllUserStatusApproved(@Param("idGroup") Long idGroup);
 
+    @Modifying
+    @Query(value = "select * from group_participant where status = 'Approved' and the_group_id in :idGroup", nativeQuery = true)
+    List<GroupParticipant> findAllUserStatusApprovedInList(@Param("idGroup") List<Long> idGroup);
+
     @Query(value = "select * from group_participant where user_id =:idUser and status = 'Approved'", nativeQuery = true)
     List<GroupParticipant> groupJoined(@Param("idUser") Long idUser);
 }
