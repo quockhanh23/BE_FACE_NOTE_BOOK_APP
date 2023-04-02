@@ -393,27 +393,23 @@ public class UserController {
                     HttpStatus.UNAUTHORIZED);
         }
         String avatarName = "";
+        boolean checkCover = false;
         List<ListAvatarDefault> listAvatarDefaults = userService.listAvatar();
         for (ListAvatarDefault listAvatarDefault : listAvatarDefaults) {
-            if (user.getAvatar().equals(listAvatarDefault.getName())) {
+            if (user.getAvatar().equalsIgnoreCase(listAvatarDefault.getName())) {
                 avatarName = listAvatarDefault.getName();
-                break;
+            }
+            if (user.getCover().equalsIgnoreCase(listAvatarDefault.getName())) {
+                checkCover = true;
             }
         }
         if (avatarName.equals("")) {
             if (user.getAvatar() != null || !user.getAvatar().equals(Constants.BLANK)) {
                 userOptional.get().setAvatar(user.getAvatar());
-                if (!userOptional.get().getAvatar().equals(user.getAvatar())) {
-                    Image image = imageService.createImageDefault(user.getAvatar(), user);
-                    imageService.save(image);
-                }
+                Image image = imageService.createImageDefault(user.getAvatar(), user);
+                imageService.save(image);
                 Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
                 lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(user.getAvatar()));
-            }
-            if (user.getCover() != null || !(user.getCover().equals(Constants.BLANK))
-                    || !(userOptional.get().getCover().equals(Constants.ImageDefault.DEFAULT_BACKGROUND_3))) {
-                Image image = imageService.createImageDefault(user.getCover(), user);
-                imageService.save(image);
             }
         } else {
             userOptional.get().setAvatar(avatarName);
@@ -422,7 +418,9 @@ public class UserController {
                 lastUserLogin.get().setAvatar(avatarName);
             }
         }
-        if (!userOptional.get().getCover().equals(user.getCover())) {
+        if (!StringUtils.isEmpty(user.getCover())
+                && !userOptional.get().getCover().equals(user.getCover())
+                && !checkCover) {
             userOptional.get().setCover(user.getCover());
             Image image = imageService.createImageDefault(user.getCover(), user);
             imageService.save(image);
