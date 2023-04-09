@@ -214,19 +214,12 @@ public class PostRestController {
 
     // Update like
     @DeleteMapping("/updateReflectPost")
-    public ResponseEntity<?> updateLikePost(@RequestParam Long idPost,
-                                            @RequestParam String type,
-                                            @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> updateReflectPost(@RequestParam Long idPost,
+                                               @RequestParam String type) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
-        }
-        boolean check = userService.errorToken(authorization, postOptional.get().getUser().getId());
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
         }
         if ("like".equalsIgnoreCase(type)) {
             List<LikePost> likePost = likePostService.findAllLikeByPostId(idPost);
@@ -308,7 +301,7 @@ public class PostRestController {
 
     @Transactional
     @DeleteMapping("/actionAllPost")
-    public ResponseEntity<?> deleteAllPost(@RequestParam List<Long> listIdPost,
+    public ResponseEntity<?> actionAllPost(@RequestParam List<Long> listIdPost,
                                            @RequestParam Long idUser,
                                            @RequestParam String type,
                                            @RequestHeader("Authorization") String authorization) {

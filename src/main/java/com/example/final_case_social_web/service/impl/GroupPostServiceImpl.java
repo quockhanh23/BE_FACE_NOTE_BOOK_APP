@@ -38,4 +38,9 @@ public class GroupPostServiceImpl implements GroupPostService {
     public List<GroupPost> findAllPostWaiting(Long idGroup) {
         return groupPostRepository.findAllPostWaiting(idGroup);
     }
+
+    @Override
+    public void deleteGroupPost(GroupPost groupPost) {
+        groupPostRepository.delete(groupPost);
+    }
 }

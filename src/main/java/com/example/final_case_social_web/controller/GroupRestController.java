@@ -318,6 +318,26 @@ public class GroupRestController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @DeleteMapping("/deleteGroupPost")
+    public ResponseEntity<?> deleteGroupPost(@RequestParam Long idUser,
+                                             @RequestParam Long idGroupPost) {
+        Optional<User> userOptional = userService.findById(idUser);
+        if (!userOptional.isPresent()) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
+        }
+        Optional<GroupPost> groupPost = groupPostService.findById(idGroupPost);
+        if (!groupPost.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (groupPost.get().getUser().getId().equals(idUser)
+                || groupPost.get().getTheGroup().getIdUserCreate().equals(idUser)) {
+            groupPostService.deleteGroupPost(groupPost.get());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     // Tạo bài viết trong nhóm
     @PostMapping("/createGroupPost")
     public ResponseEntity<?> createGroupPost(@RequestParam Long idUser,

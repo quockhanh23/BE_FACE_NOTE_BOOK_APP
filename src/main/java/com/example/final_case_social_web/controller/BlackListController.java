@@ -35,7 +35,7 @@ public class BlackListController {
 
     // Danh sách những người đã chặn
     @GetMapping("/listBlockedByUser")
-    public ResponseEntity<?> listBlocked(@RequestParam Long idUserLogin) {
+    public ResponseEntity<?> listBlockedByUser(@RequestParam Long idUserLogin) {
         List<BlackList> blackLists = blackListService.listBlockedByIdUser(idUserLogin);
         List<UserBlackListDTO> userBlackListDTOS = new ArrayList<>();
         if (!CollectionUtils.isEmpty(blackLists)) {

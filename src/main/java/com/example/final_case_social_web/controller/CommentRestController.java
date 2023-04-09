@@ -84,9 +84,9 @@ public class CommentRestController {
 
     // Tạo mới comment
     @PostMapping("/createComment")
-    public ResponseEntity<?> creatComment(@RequestBody Comment comment,
-                                          @RequestParam Long idUser,
-                                          @RequestParam Long idPost) {
+    public ResponseEntity<?> createComment(@RequestBody Comment comment,
+                                           @RequestParam Long idUser,
+                                           @RequestParam Long idPost) {
         if (StringUtils.isEmpty(comment.getContent().trim())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);

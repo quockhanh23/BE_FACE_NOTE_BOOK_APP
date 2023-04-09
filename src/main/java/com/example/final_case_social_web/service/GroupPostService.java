@@ -10,4 +10,6 @@ public interface GroupPostService extends GeneralService<GroupPost> {
     List<GroupPost> findAllPostByIdGroup(@Param("idGroup") Long idGroup);
 
     List<GroupPost> findAllPostWaiting(@Param("idGroup") Long idGroup);
+
+    void deleteGroupPost(GroupPost groupPost);
 }

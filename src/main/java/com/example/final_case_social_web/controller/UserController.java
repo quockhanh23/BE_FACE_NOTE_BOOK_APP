@@ -404,12 +404,14 @@ public class UserController {
             }
         }
         if (avatarName.equals("")) {
-            if (user.getAvatar() != null || !user.getAvatar().equals(Constants.BLANK)) {
-                userOptional.get().setAvatar(user.getAvatar());
-                Image image = imageService.createImageDefault(user.getAvatar(), user);
-                imageService.save(image);
-                Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
-                lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(user.getAvatar()));
+            if (!StringUtils.isEmpty(user.getAvatar())) {
+                if (!user.getAvatar().equalsIgnoreCase(userOptional.get().getAvatar())) {
+                    userOptional.get().setAvatar(user.getAvatar());
+                    Image image = imageService.createImageDefault(user.getAvatar(), user);
+                    imageService.save(image);
+                    Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
+                    lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(user.getAvatar()));
+                }
             }
         } else {
             userOptional.get().setAvatar(avatarName);

@@ -221,15 +221,8 @@ public class AdminRestController {
     }
 
     @GetMapping("/getFile")
-    public ResponseEntity<?> getFileTxt(@RequestParam Long idUser,
-                                        @RequestParam String typeFile,
-                                        @RequestHeader("Authorization") String authorization) throws IOException {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<?> getFile(@RequestParam Long idUser,
+                                        @RequestParam String typeFile) throws IOException {
         if (userService.checkAdmin(idUser) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);

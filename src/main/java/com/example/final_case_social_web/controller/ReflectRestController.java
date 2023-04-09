@@ -90,9 +90,9 @@ public class ReflectRestController {
     }
 
     @DeleteMapping("/actionReflectPost")
-    public ResponseEntity<?> createLike(@RequestParam Long idPost,
-                                        @RequestParam Long idUser,
-                                        @RequestParam String type) {
+    public ResponseEntity<?> actionReflectPost(@RequestParam Long idPost,
+                                               @RequestParam Long idUser,
+                                               @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -110,7 +110,7 @@ public class ReflectRestController {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             LikePost likePost = new LikePost();
-            likePost.setUserLike(userService.checkUser(idUser));
+            likePost.setUserLike(userOptional.get());
             likePost.setCreateAt(LocalDateTime.now());
             likePost.setPost(postOptional.get());
             likePostService.save(likePost);
@@ -135,7 +135,7 @@ public class ReflectRestController {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             DisLikePost disLikePost = new DisLikePost();
-            disLikePost.setUserDisLike(userService.checkUser(idUser));
+            disLikePost.setUserDisLike(userOptional.get());
             disLikePost.setCreateAt(new Date());
             disLikePost.setPost(postOptional.get());
             disLikePostService.save(disLikePost);
@@ -161,9 +161,9 @@ public class ReflectRestController {
 
     @Transactional
     @DeleteMapping("/actionReflectComment")
-    public ResponseEntity<?> createLikeComment(@RequestParam Long idComment,
-                                               @RequestParam Long idUser,
-                                               @RequestParam String type) {
+    public ResponseEntity<?> actionReflectComment(@RequestParam Long idComment,
+                                                  @RequestParam Long idUser,
+                                                  @RequestParam String type) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
