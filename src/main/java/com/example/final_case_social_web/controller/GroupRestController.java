@@ -207,7 +207,8 @@ public class GroupRestController {
         }
         Optional<User> optionalUser = userService.findById(theGroupOptional.get().getIdUserCreate());
         if (!optionalUser.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER,
+                    theGroupOptional.get().getIdUserCreate()),
                     HttpStatus.NOT_FOUND);
         }
         Iterable<GroupParticipant> groupParticipants = groupParticipantService.findAll();
@@ -247,7 +248,8 @@ public class GroupRestController {
         }
         Optional<User> user = userService.findById(idUser);
         if (!user.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+                    HttpStatus.NOT_FOUND);
         }
         if (Constants.ACCEPT.equals(type)) {
             if (userOptional.get().getId().equals(groupParticipant.get().getTheGroup().getIdUserCreate())) {
@@ -297,7 +299,8 @@ public class GroupRestController {
         }
         Optional<GroupPost> groupPost = groupPostService.findById(idGroupPost);
         if (!groupPost.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_THE_GROUP_POST,
+                    idGroupPost), HttpStatus.NOT_FOUND);
         }
         if (Constants.ACCEPT.equals(type)) {
             groupPost.get().setStatus(Constants.GroupStatus.STATUS_GROUP_APPROVED);
@@ -328,7 +331,8 @@ public class GroupRestController {
         }
         Optional<GroupPost> groupPost = groupPostService.findById(idGroupPost);
         if (!groupPost.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_THE_GROUP_POST,
+                    idGroupPost), HttpStatus.NOT_FOUND);
         }
         if (groupPost.get().getUser().getId().equals(idUser)
                 || groupPost.get().getTheGroup().getIdUserCreate().equals(idUser)) {
@@ -367,14 +371,14 @@ public class GroupRestController {
         }
         groupPostService.save(groupPost);
         if (!StringUtils.isEmpty(groupPost.getImage())) {
-            ImageGroup imageGroup = imageGroupService
-                    .createImageGroupDefault(groupPost.getImage(), theGroupOptional.get().getId(), userOptional.get().getId());
+            ImageGroup imageGroup = imageGroupService.createImageGroupDefault(groupPost.getImage(),
+                    theGroupOptional.get().getId(), userOptional.get().getId());
             imageGroupService.save(imageGroup);
         }
         Optional<User> user = userService.findById(theGroupOptional.get().getIdUserCreate());
         if (!user.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, theGroupOptional.get().getIdUserCreate()), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER,
+                    theGroupOptional.get().getIdUserCreate()), HttpStatus.NOT_FOUND);
         }
         Notification notification = notificationService.createDefault(user.get(), userOptional.get(),
                 Constants.Notification.TITLE_REQUEST_CREATE_POST, idTheGroup, Constants.Notification.TYPE_GROUP_POST);
@@ -414,8 +418,10 @@ public class GroupRestController {
         }
         List<GroupParticipant> groupParticipants = groupParticipantService.findAllUserStatusApproved(idGroup);
         List<GroupParticipant> groupParticipantList = groupParticipants.stream()
-                .filter(item -> item.getUser().getId().equals(idUser)
-                        && item.getStatus().equals(Constants.GroupStatus.STATUS_GROUP_APPROVED)).collect(Collectors.toList());
+                .filter(item -> item.getUser().getId()
+                        .equals(idUser) && item.getStatus()
+                        .equals(Constants.GroupStatus.STATUS_GROUP_APPROVED))
+                .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(groupParticipantList)) {
             groupParticipantList = new ArrayList<>();
         }

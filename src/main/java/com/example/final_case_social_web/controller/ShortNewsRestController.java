@@ -55,7 +55,7 @@ public class ShortNewsRestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 5 tin mới nhất
+    // 4 tin mới nhất
     @GetMapping("/shortNewsLimit")
     public ResponseEntity<List<ShortNews>> shortNewsLimit() {
         List<ShortNews> shortNews = shortNewsService.findAllShortNews();

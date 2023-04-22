@@ -45,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "  and status_friend not like 'No friend')\n" +
             "  and id not in (select user_id from user_role where role_id = 2)\n" +
             "  and user_table.status like 'Active' and id != :idUser\n" +
-            "order by id desc limit 12;", nativeQuery = true)
+            "order by id desc", nativeQuery = true)
     List<User> friendSuggestion(@Param("idUser") Long idUser);
 
     @Modifying

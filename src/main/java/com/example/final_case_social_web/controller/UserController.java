@@ -208,7 +208,7 @@ public class UserController {
     @PostMapping("/passwordRetrieval")
     public ResponseEntity<?> passwordRetrieval(@RequestBody PasswordRetrieval passwordRetrieval,
                                                @RequestHeader("Authorization") String authorization) {
-        if (passwordRetrieval == null) {
+        if (StringUtils.isEmpty(passwordRetrieval.getUserName()) || StringUtils.isEmpty(passwordRetrieval.getEmail())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.NO_VALID), HttpStatus.BAD_REQUEST);
         }

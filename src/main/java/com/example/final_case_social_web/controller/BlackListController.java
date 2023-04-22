@@ -62,7 +62,7 @@ public class BlackListController {
             Optional<User> userBlock = this.userService.findById(idUserBlock);
             if (!userBlock.isPresent()) {
                 return new ResponseEntity<>(ResponseNotification.
-                        responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
+                        responseMessage(Constants.IdCheck.ID_USER, idUserBlock), HttpStatus.NOT_FOUND);
             }
             Optional<BlackList> blackListOptional = blackListService.findBlock(userLogin.get().getId(), userBlock.get().getId());
             if (!blackListOptional.isPresent()) {

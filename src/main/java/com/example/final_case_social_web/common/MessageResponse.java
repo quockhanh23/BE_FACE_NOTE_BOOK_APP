@@ -8,8 +8,6 @@ public class MessageResponse {
     }
 
     public static class TipMessage {
-        public static final String USER_NAME = "Tên đăng nhập không có kí tự đặc biệt từ 3 đến 16 kí tự";
-        public static final String PASSWORD = "Mật khẩu từ 3 đến 10 kí tự";
         public static final String SAVED = "Bạn đã lưu bài viết này rồi";
     }
 
@@ -41,8 +39,6 @@ public class MessageResponse {
     public static final String DESCRIPTION = "";
     public static final String DESCRIPTION2 = "Không có dữ liệu";
     public static final String LIST_BLANK = "Danh sách trống";
-
-    public static final String NOT_MODIFIED = "Dữ liệu chưa thay đổi";
     public static final String DESCRIPTION_REQUEST = "Trường dữ liệu không hợp lệ: ";
 
     public static final String DESCRIPTION_DUPLICATE = "Trường dữ liệu đã trùng lặp: ";

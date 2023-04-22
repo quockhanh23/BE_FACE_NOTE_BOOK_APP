@@ -21,10 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -137,7 +134,7 @@ public class FriendRelationController {
         List<User> listFriend = userService.allFriendByUserId(idUserLogin);
         List<User> friendOfFriend = userService.allFriendByUserId(idUser);
         List<Long> mutualFriends = new ArrayList<>();
-        if (listFriend != null && friendOfFriend != null) {
+        if (!CollectionUtils.isEmpty(listFriend) && !CollectionUtils.isEmpty(friendOfFriend)) {
             for (User value : listFriend) {
                 for (User user : friendOfFriend) {
                     if (value.getId().equals(user.getId())) {
@@ -157,7 +154,7 @@ public class FriendRelationController {
         Optional<User> user = userService.findById(idFriend);
         Optional<User> user2 = userService.findById(idUser);
         if (!user.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
+            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idFriend),
                     HttpStatus.NOT_FOUND);
         }
         if (!user2.isPresent()) {
@@ -208,21 +205,15 @@ public class FriendRelationController {
                                                  @RequestParam String type) {
         Optional<FriendRelation> optionalFriendRelation = friendRelationService.findByIdUserAndIdFriend(idUser, idFriend);
         Optional<FriendRelation> optionalFriendRelation2 = friendRelationService.findByIdUserAndIdFriend(idFriend, idUser);
-        if (!optionalFriendRelation.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (!optionalFriendRelation2.isPresent()) {
+        if (!optionalFriendRelation.isPresent() || !optionalFriendRelation2.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         if (Objects.equals(idUser, idFriend)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Optional<User> user = userService.findById(idFriend);
-        if (!user.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         Optional<User> user2 = userService.findById(idUser);
-        if (!user2.isPresent()) {
+        if (!user.isPresent() || !user2.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         if ("accept".equalsIgnoreCase(type)) {
@@ -248,11 +239,19 @@ public class FriendRelationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 10 gợi ý kết bạn
+    // 12 gợi ý kết bạn
     @GetMapping("/friendSuggestion")
     public ResponseEntity<?> friendSuggestion(@RequestParam Long idUser) {
         List<User> listSuggestion = userService.friendSuggestion(idUser);
         List<UserNotificationDTO> list = friendRelationService.listUser(listSuggestion);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        Collections.shuffle(list);
+        int maxIndex;
+        if (list.size() >= 13) {
+            maxIndex = 12;
+        } else {
+            maxIndex = list.size();
+        }
+        List<UserNotificationDTO> newList = list.subList(0, maxIndex);
+        return new ResponseEntity<>(newList, HttpStatus.OK);
     }
 }

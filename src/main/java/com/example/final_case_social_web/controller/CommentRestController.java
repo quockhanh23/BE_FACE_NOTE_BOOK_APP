@@ -87,11 +87,8 @@ public class CommentRestController {
     public ResponseEntity<?> createComment(@RequestBody Comment comment,
                                            @RequestParam Long idUser,
                                            @RequestParam Long idPost) {
-        if (StringUtils.isEmpty(comment.getContent().trim())) {
-            return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
-                    HttpStatus.BAD_REQUEST);
-        }
-        if (!Common.checkRegex(comment.getContent(), Regex.CHECK_LENGTH_COMMENT)) {
+        if (StringUtils.isEmpty(comment.getContent().trim())
+                || !Common.checkRegex(comment.getContent(), Regex.CHECK_LENGTH_COMMENT)) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
