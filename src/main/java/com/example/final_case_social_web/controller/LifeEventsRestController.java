@@ -62,6 +62,7 @@ public class LifeEventsRestController {
         }
         lifeEvents.setCreateAt(new Date());
         lifeEvents.setUser(userOptional.get());
+        lifeEvents.setStatus(Constants.STATUS_PUBLIC);
         if (StringUtils.isEmpty(lifeEvents.getWork())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.WORK),
                     HttpStatus.BAD_REQUEST);

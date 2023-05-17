@@ -129,7 +129,7 @@ public class AdminRestController {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    // Cấm user, Kích hoạt tài khoản
+    // Cấm user, kích hoạt tài khoản
     @DeleteMapping("/actionUser")
     public ResponseEntity<?> actionUser(@RequestParam Long idAdmin,
                                         @RequestParam Long idUser,
