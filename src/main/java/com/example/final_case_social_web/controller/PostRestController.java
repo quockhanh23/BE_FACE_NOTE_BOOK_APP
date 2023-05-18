@@ -63,10 +63,10 @@ public class PostRestController {
     @GetMapping("/allPostPublic")
     public ResponseEntity<?> allPostPublic(@RequestParam Long idUser,
                                            @RequestParam String type,
-                                           @RequestParam(required = false) Long idUserVisit,
+                                           @RequestParam Long idUserVisit,
                                            @RequestHeader("Authorization") String authorization) {
         boolean check;
-        if (idUserVisit != null) {
+        if (idUserVisit != -1) {
             check = userService.errorToken(authorization, idUserVisit);
         } else {
             check = userService.errorToken(authorization, idUser);
