@@ -103,7 +103,9 @@ public class ReflectRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
+        String title = "";
         if ("like".equalsIgnoreCase(type)) {
+            title = Constants.Notification.TITLE_LIKE_POST;
             List<LikePost> likePostIterable = likePostService.findLike(idPost, idUser);
             if (likePostIterable.size() == 1) {
                 likePostService.delete(likePostIterable.get(0));
@@ -116,6 +118,7 @@ public class ReflectRestController {
             likePostService.save(likePost);
         }
         if ("heart".equalsIgnoreCase(type)) {
+            title = Constants.Notification.TITLE_HEART_POST;
             List<IconHeart> iconHearts = iconHeartService.findHeart(idPost, idUser);
             if (iconHearts.size() == 1) {
                 iconHeartService.delete(iconHearts.get(0));
@@ -128,6 +131,7 @@ public class ReflectRestController {
             iconHeartService.save(iconHeart);
         }
         if ("disLike".equalsIgnoreCase(type)) {
+            title = Constants.Notification.TITLE_DISLIKE_POST;
             List<DisLikePost> disLikePosts = disLikePostService.findDisLike(idPost, idUser);
             if (disLikePosts.size() == 1) {
                 disLikePosts.get(0).setUserDisLike(null);
@@ -141,16 +145,6 @@ public class ReflectRestController {
             disLikePostService.save(disLikePost);
         }
         if (!postOptional.get().getUser().getId().equals(idUser)) {
-            String title = "";
-            if ("like".equalsIgnoreCase(type)) {
-                title = Constants.Notification.TITLE_LIKE_POST;
-            }
-            if ("heart".equalsIgnoreCase(type)) {
-                title = Constants.Notification.TITLE_HEART_POST;
-            }
-            if ("disLike".equalsIgnoreCase(type)) {
-                title = Constants.Notification.TITLE_DISLIKE_POST;
-            }
             String typeNotification = Constants.Notification.TYPE_POST;
             Notification notification = notificationService.
                     createDefault(postOptional.get().getUser(), userOptional.get(), title, idPost, typeNotification);
@@ -174,7 +168,9 @@ public class ReflectRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_COMMENT, idComment),
                     HttpStatus.NOT_FOUND);
         }
+        String title = "";
         if ("like".equalsIgnoreCase(type)) {
+            title = Constants.Notification.TITLE_LIKE_COMMENT;
             List<LikeComment> likeComments = likeCommentService.findLikeComment(idComment, idUser);
             if (likeComments.size() == 1) {
                 likeCommentService.delete(likeComments.get(0));
@@ -187,6 +183,7 @@ public class ReflectRestController {
             likeCommentService.save(likeComment);
         }
         if ("disLike".equalsIgnoreCase(type)) {
+            title = Constants.Notification.TITLE_DISLIKE_COMMENT;
             List<DisLikeComment> disLikeComments = disLikeCommentService.findDisLikeComment(idComment, idUser);
             if (disLikeComments.size() == 1) {
                 disLikeCommentService.delete(disLikeComments.get(0));
@@ -199,13 +196,6 @@ public class ReflectRestController {
             disLikeCommentService.save(disLikeComment);
         }
         if (!commentOptional.get().getUser().getId().equals(idUser)) {
-            String title = "";
-            if ("like".equalsIgnoreCase(type)) {
-                title = Constants.Notification.TITLE_LIKE_COMMENT;
-            }
-            if ("disLike".equalsIgnoreCase(type)) {
-                title = Constants.Notification.TITLE_DISLIKE_COMMENT;
-            }
             String typeNotification = Constants.Notification.TYPE_COMMENT;
             Notification notification = notificationService.
                     createDefault(commentOptional.get().getUser(), userOptional.get(), title, idComment, typeNotification);

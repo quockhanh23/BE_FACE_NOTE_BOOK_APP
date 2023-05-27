@@ -65,41 +65,45 @@ public class PostRestController {
                                            @RequestParam String type,
                                            @RequestParam(required = false) Long idUserVisit,
                                            @RequestHeader("Authorization") String authorization) {
-        boolean check;
-        if (idUserVisit != null) {
-            check = userService.errorToken(authorization, idUserVisit);
-        } else {
-            check = userService.errorToken(authorization, idUser);
-        }
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        List<Post2> post2List = postService.allPost(idUser);
-        if (!CollectionUtils.isEmpty(post2List)) {
-            if (type.equals("detailUser")) {
-                post2List = postService.findAllPostByUser(idUser);
-                List<PostDTO> postDTOList = postService.filterListPost(post2List);
-                return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+        try {
+            boolean check;
+            if (idUserVisit != null) {
+                check = userService.errorToken(authorization, idUserVisit);
+            } else {
+                check = userService.errorToken(authorization, idUser);
             }
-            if (type.equals("getAll")) {
-                List<PostDTO> postDTOList = postService.filterListPost(post2List);
-                return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+            if (!check) {
+                return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                        HttpStatus.UNAUTHORIZED);
             }
-            if (type.equals("getAllByUser")) {
-                List<PostDTO> postDTOList = postService.filterListPost(post2List);
-                List<HidePost> hidePosts = hidePostRepository.findAllByIdUser(idUser);
-                if (!CollectionUtils.isEmpty(hidePosts)) {
-                    List<Long> listIdPost = hidePosts.stream().map(HidePost::getIdPost).collect(Collectors.toList());
-                    for (Long id : listIdPost) {
-                        postDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(post2 -> {
-                            post2.setContent(null);
-                        });
-                    }
+            List<Post2> post2List = postService.allPost(idUser);
+            if (!CollectionUtils.isEmpty(post2List)) {
+                if (type.equals("detailUser")) {
+                    post2List = postService.findAllPostByUser(idUser);
+                    List<PostDTO> postDTOList = postService.filterListPost(post2List);
+                    return new ResponseEntity<>(postDTOList, HttpStatus.OK);
                 }
-                return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+                if (type.equals("getAll")) {
+                    List<PostDTO> postDTOList = postService.filterListPost(post2List);
+                    return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+                }
+                if (type.equals("getAllByUser")) {
+                    List<PostDTO> postDTOList = postService.filterListPost(post2List);
+                    List<HidePost> hidePosts = hidePostRepository.findAllByIdUser(idUser);
+                    if (!CollectionUtils.isEmpty(hidePosts)) {
+                        List<Long> listIdPost = hidePosts.stream().map(HidePost::getIdPost).collect(Collectors.toList());
+                        for (Long id : listIdPost) {
+                            postDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(post2 -> {
+                                post2.setContent(null);
+                            });
+                        }
+                    }
+                    return new ResponseEntity<>(postDTOList, HttpStatus.OK);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }

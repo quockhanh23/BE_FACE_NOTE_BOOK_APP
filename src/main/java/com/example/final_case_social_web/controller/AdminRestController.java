@@ -228,16 +228,16 @@ public class AdminRestController {
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
         }
         if ("txt".equalsIgnoreCase(typeFile)) {
-            FileWriter fileWriter = new FileWriter("alo.txt");
+            FileWriter fileWriter = new FileWriter("test.txt");
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("alo");
+            bufferedWriter.write("test");
             bufferedWriter.close();
             fileWriter.close();
         }
         if ("csv".equalsIgnoreCase(typeFile)) {
-            FileWriter fileWriter = new FileWriter("alo.csv");
+            FileWriter fileWriter = new FileWriter("test.csv");
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("alo");
+            bufferedWriter.write("test");
             bufferedWriter.close();
             fileWriter.close();
         }

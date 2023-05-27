@@ -184,18 +184,15 @@ public class UserController {
         user.setConfirmPassword(passwordEncoder.encode(user.getConfirmPassword()));
         user.setStatus(Constants.STATUS_ACTIVE);
         userService.save(user);
-
-        if ((user.getAvatar().equals(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE))
-                || (user.getAvatar().equals(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT))
-                || (user.getAvatar().equals(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE))) {
-        } else {
+        List<String> listAvatar = Arrays.asList(Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE,
+                Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE);
+        List<String> listCover = Arrays.asList(Constants.ImageDefault.DEFAULT_BACKGROUND,
+                Constants.ImageDefault.DEFAULT_BACKGROUND_2, Constants.ImageDefault.DEFAULT_BACKGROUND_3);
+        if (!listAvatar.contains(user.getAvatar())) {
             Image image = imageService.createImageDefault(user.getAvatar(), user);
             imageService.save(image);
         }
-        if ((user.getCover().equals(Constants.ImageDefault.DEFAULT_BACKGROUND))
-                || (user.getCover().equals(Constants.ImageDefault.DEFAULT_BACKGROUND_2))
-                || (user.getCover().equals(Constants.ImageDefault.DEFAULT_BACKGROUND_3))) {
-        } else {
+        if (!listCover.contains(user.getCover())) {
             Image image = imageService.createImageDefault(user.getCover(), user);
             imageService.save(image);
         }

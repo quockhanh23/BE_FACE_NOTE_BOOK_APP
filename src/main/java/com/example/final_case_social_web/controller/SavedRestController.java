@@ -54,18 +54,6 @@ public class SavedRestController {
     public ResponseEntity<?> savePost(@RequestParam Long idPost, @RequestParam Long idUser, @RequestParam String type) {
         Optional<Post2> postOptional = postService.findById(idPost);
         Optional<GroupPost> groupPost = groupPostService.findById(idPost);
-        if ("post".equalsIgnoreCase(type)) {
-            if (!postOptional.isPresent()) {
-                return new ResponseEntity<>(ResponseNotification.
-                        responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
-            }
-        }
-        if ("groupPost".equalsIgnoreCase(type)) {
-            if (!groupPost.isPresent()) {
-                return new ResponseEntity<>(ResponseNotification.
-                        responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
-            }
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -90,12 +78,20 @@ public class SavedRestController {
         }
         Saved saved = new Saved();
         if ("post".equalsIgnoreCase(type)) {
+            if (!postOptional.isPresent()) {
+                return new ResponseEntity<>(ResponseNotification.
+                        responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
+            }
             saved.setType("Post");
             saved.setUserCreate(postOptional.get().getUser().getFullName());
             saved.setImagePost(postOptional.get().getImage());
             saved.setContent(postOptional.get().getContent());
         }
         if ("groupPost".equalsIgnoreCase(type)) {
+            if (!groupPost.isPresent()) {
+                return new ResponseEntity<>(ResponseNotification.
+                        responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
+            }
             saved.setType("Group post");
             saved.setGroupName(groupPost.get().getTheGroup().getGroupName());
             saved.setUserCreate(groupPost.get().getCreateBy());
