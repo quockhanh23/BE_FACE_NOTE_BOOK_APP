@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -53,7 +54,7 @@ public class FollowWatchingController {
     @GetMapping("/getOne")
     public ResponseEntity<?> getOne(@RequestParam Long idUserLogin, @RequestParam Long idUserFollow) {
         Object user = followWatchingService.checkUserHadFollow(idUserLogin, idUserFollow);
-        if (user != null) {
+        if (Objects.nonNull(user)) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.OK);

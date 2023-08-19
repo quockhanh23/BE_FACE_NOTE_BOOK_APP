@@ -67,29 +67,33 @@ public class UserController {
 
     @GetMapping("/saveHistoryLogin")
     public ResponseEntity<?> saveHistoryLogin(@RequestParam Long idUserLogin, @RequestHeader("IP") String IP) {
-        Optional<User> userOptional = userService.findById(idUserLogin);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
-        }
-        Optional<LastUserLogin> userLoginOptional = lastUserLoginRepository.findAllByIdUser(userOptional.get().getId());
-        if (userLoginOptional.isPresent()) {
-            userLoginOptional.get().setIdUser(userOptional.get().getId());
-            userLoginOptional.get().setLoginTime(new Date());
-            userLoginOptional.get().setUserName(userOptional.get().getUsername());
-            userLoginOptional.get().setAvatar(userOptional.get().getAvatar());
-            userLoginOptional.get().setFullName(userOptional.get().getFullName());
-            userLoginOptional.get().setIpAddress(IP);
-            lastUserLoginRepository.save(userLoginOptional.get());
-        } else {
-            LastUserLogin userLogin = new LastUserLogin();
-            userLogin.setIdUser(userOptional.get().getId());
-            userLogin.setUserName(userOptional.get().getUsername());
-            userLogin.setLoginTime(new Date());
-            userLogin.setAvatar(userOptional.get().getAvatar());
-            userLogin.setFullName(userOptional.get().getFullName());
-            userLogin.setIpAddress(IP);
-            lastUserLoginRepository.save(userLogin);
+        try {
+            Optional<User> userOptional = userService.findById(idUserLogin);
+            if (!userOptional.isPresent()) {
+                return new ResponseEntity<>(ResponseNotification.
+                        responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
+            }
+            Optional<LastUserLogin> userLoginOptional = lastUserLoginRepository.findAllByIdUser(userOptional.get().getId());
+            if (userLoginOptional.isPresent()) {
+                userLoginOptional.get().setIdUser(userOptional.get().getId());
+                userLoginOptional.get().setLoginTime(new Date());
+                userLoginOptional.get().setUserName(userOptional.get().getUsername());
+                userLoginOptional.get().setAvatar(userOptional.get().getAvatar());
+                userLoginOptional.get().setFullName(userOptional.get().getFullName());
+                userLoginOptional.get().setIpAddress(IP);
+                lastUserLoginRepository.save(userLoginOptional.get());
+            } else {
+                LastUserLogin userLogin = new LastUserLogin();
+                userLogin.setIdUser(userOptional.get().getId());
+                userLogin.setUserName(userOptional.get().getUsername());
+                userLogin.setLoginTime(new Date());
+                userLogin.setAvatar(userOptional.get().getAvatar());
+                userLogin.setFullName(userOptional.get().getFullName());
+                userLogin.setIpAddress(IP);
+                lastUserLoginRepository.save(userLogin);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -230,7 +234,8 @@ public class UserController {
                     MessageResponse.Email.RESET_PASSWORD + MessageResponse.Email.SPACE + MessageResponse.Email.APP,
                     MessageResponse.Email.NEW_PASSWORD + newPassword);
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.OK.toString(),
+                    e.getMessage()), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.OK.toString(),
                 MessageResponse.RegisterMessage.PASSWORD_RETRIEVAL + passwordRetrieval.getEmail()),
@@ -243,31 +248,35 @@ public class UserController {
     public ResponseEntity<?> matchPassword(@RequestBody UserChangePassword userChangePassword,
                                            @RequestParam Long idUser,
                                            @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        Optional<User> userOptional = userService.findById(idUser);
-        if (!userOptional.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        if (passwordEncoder.matches(userChangePassword.getPasswordOld(), userOptional.get().getPassword())) {
-            if (userChangePassword.getPasswordNew().equals(userChangePassword.getConfirmPasswordNew())) {
-                userOptional.get().setPassword(passwordEncoder.encode(userChangePassword.getPasswordNew()));
-                userService.save(userOptional.get());
-                return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                        MessageResponse.RegisterMessage.WRONG_CONFIRM_PASSWORD),
-                        HttpStatus.BAD_REQUEST);
+        try {
+            if (!userService.errorToken(authorization, idUser)) {
+                return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
+                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                        HttpStatus.UNAUTHORIZED);
             }
-        } else {
+            Optional<User> userOptional = userService.findById(idUser);
+            if (!userOptional.isPresent()) {
+                return new ResponseEntity<>(ResponseNotification.
+                        responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
+            }
+            if (passwordEncoder.matches(userChangePassword.getPasswordOld(), userOptional.get().getPassword())) {
+                if (userChangePassword.getPasswordNew().equals(userChangePassword.getConfirmPasswordNew())) {
+                    userOptional.get().setPassword(passwordEncoder.encode(userChangePassword.getPasswordNew()));
+                    userService.save(userOptional.get());
+                    return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                            MessageResponse.RegisterMessage.WRONG_CONFIRM_PASSWORD),
+                            HttpStatus.BAD_REQUEST);
+                }
+            }
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.RegisterMessage.WRONG_PASSWORD),
                     HttpStatus.BAD_REQUEST);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -331,11 +340,9 @@ public class UserController {
             return ResponseEntity.ok(new JwtResponse(jwt, currentUser.getId(),
                     userDetails.getUsername(), userDetails.getAuthorities()));
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    e.getMessage()), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.RegisterMessage.WRONG_PASSWORD),
-                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/users/{idUser}")

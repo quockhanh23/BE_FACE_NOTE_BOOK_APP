@@ -60,6 +60,7 @@ public class ResponseNotification {
         responseNotificationBadRequest.setDescription(MessageResponse.DESCRIPTION_REQUEST + dataField);
         return responseNotificationBadRequest;
     }
+
     public static ResponseNotification responseMessageDataField(String dataField) {
         responseNotificationBadRequest.setMessage(MessageResponse.WRONG_SOME_THING);
         responseNotificationBadRequest.setDescription(MessageResponse.DESCRIPTION_BLANK + dataField);

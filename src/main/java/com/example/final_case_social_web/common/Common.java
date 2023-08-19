@@ -12,9 +12,14 @@ public class Common {
         if (StringUtils.isEmpty(input) || StringUtils.isEmpty(regex)) {
             return false;
         }
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
-        return matcher.matches();
+        try {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(input);
+            return matcher.matches();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static void executionTime(double startTime, double elapsedTimeMillis) {
@@ -26,8 +31,13 @@ public class Common {
         if (StringUtils.isEmpty(date)) {
             return "";
         }
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        return formatter.format(date);
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            return formatter.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     public static String formatToken(String authorization) {

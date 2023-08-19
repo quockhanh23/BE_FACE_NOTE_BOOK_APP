@@ -21,11 +21,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -50,13 +53,12 @@ public class AdminRestController {
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idAdmin);
-        if (!check) {
+        if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (userService.checkAdmin(idAdmin) == null) {
+        if (Objects.isNull(userService.checkAdmin(idAdmin))) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
         }
@@ -92,8 +94,7 @@ public class AdminRestController {
     @GetMapping("/getAllGroupPost")
     public ResponseEntity<?> getAllGroupPost(@RequestParam Long idGroup, @RequestParam Long idAdmin,
                                              @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idAdmin);
-        if (!check) {
+        if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -135,8 +136,7 @@ public class AdminRestController {
                                         @RequestParam Long idUser,
                                         @RequestParam String type,
                                         @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idAdmin);
-        if (!check) {
+        if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -171,8 +171,7 @@ public class AdminRestController {
                                         @RequestParam Long idPost,
                                         @RequestParam String type,
                                         @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idAdmin);
-        if (!check) {
+        if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -205,8 +204,7 @@ public class AdminRestController {
     public ResponseEntity<?> searchAllPeople(@RequestParam Long idUser,
                                              @RequestParam(required = false) String searchText,
                                              @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -222,11 +220,14 @@ public class AdminRestController {
 
     @GetMapping("/getFile")
     public ResponseEntity<?> getFile(@RequestParam Long idUser,
-                                        @RequestParam String typeFile) throws IOException {
-        if (userService.checkAdmin(idUser) == null) {
+                                     @RequestParam String typeFile, HttpServletResponse response) throws IOException {
+        if (Objects.isNull(userService.checkAdmin(idUser))) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
         }
+        response.setContentType("multipart/octet-stream");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + LocalDateTime.now().toString());
         if ("txt".equalsIgnoreCase(typeFile)) {
             FileWriter fileWriter = new FileWriter("test.txt");
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -240,8 +241,6 @@ public class AdminRestController {
             bufferedWriter.write("test");
             bufferedWriter.close();
             fileWriter.close();
-        }
-        if ("excel".equalsIgnoreCase(typeFile)) {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

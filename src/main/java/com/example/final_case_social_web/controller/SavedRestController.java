@@ -60,19 +60,21 @@ public class SavedRestController {
                     HttpStatus.NOT_FOUND);
         }
         List<Saved> savedList = savedRepository.findAll();
-        for (int i = 0; i < savedList.size(); i++) {
-            if (savedList.get(i).getIdUser().equals(userOptional.get().getId())
-                    && savedList.get(i).getIdPost().equals(idPost)) {
-                if (savedList.get(i).getStatus().equals(Constants.STATUS_SAVED)) {
-                    return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                            MessageResponse.TipMessage.SAVED),
-                            HttpStatus.BAD_REQUEST);
-                }
-                if (savedList.get(i).getStatus().equals(Constants.STATUS_DELETE)) {
-                    savedList.get(i).setStatus(Constants.STATUS_SAVED);
-                    savedList.get(i).setSaveDate(new Date());
-                    savedRepository.save(savedList.get(i));
-                    return new ResponseEntity<>(HttpStatus.OK);
+        if (!CollectionUtils.isEmpty(savedList)) {
+            for (int i = 0; i < savedList.size(); i++) {
+                if (savedList.get(i).getIdUser().equals(userOptional.get().getId())
+                        && savedList.get(i).getIdPost().equals(idPost)) {
+                    if (savedList.get(i).getStatus().equals(Constants.STATUS_SAVED)) {
+                        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                                MessageResponse.TipMessage.SAVED),
+                                HttpStatus.BAD_REQUEST);
+                    }
+                    if (savedList.get(i).getStatus().equals(Constants.STATUS_DELETE)) {
+                        savedList.get(i).setStatus(Constants.STATUS_SAVED);
+                        savedList.get(i).setSaveDate(new Date());
+                        savedRepository.save(savedList.get(i));
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    }
                 }
             }
         }

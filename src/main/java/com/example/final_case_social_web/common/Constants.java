@@ -51,15 +51,6 @@ public class Constants {
         public static final String DEFAULT_COVER_GROUP = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fbg1.jpg?alt=media&token=4a648a76-8187-4598-8f54-e131b73d16c8";
     }
 
-    public static class ListAvatarDefault {
-        public static final String DEFAULT_AVATAR_1 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav1.jpg?alt=media&token=70fb7dd3-c7fa-4264-b7b8-025f6eaca942";
-        public static final String DEFAULT_AVATAR_2 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav2.jpg?alt=media&token=2bd25352-a9e5-4677-98dd-429bbd8d6675";
-        public static final String DEFAULT_AVATAR_3 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav3.jpg?alt=media&token=ed5d02c7-95ff-4271-b677-9504282df1cb";
-        public static final String DEFAULT_AVATAR_4 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav4.jpg?alt=media&token=c5ed9aec-d4c6-4f14-920e-39ee1cd5f4cc";
-        public static final String DEFAULT_AVATAR_5 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav5.jpg?alt=media&token=c1d964e4-457c-42d5-8ff5-6ba499304558";
-        public static final String DEFAULT_AVATAR_6 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav6.jpg?alt=media&token=68da0f00-cc2b-4c9d-81e7-7c7f04bbb614";
-    }
-
     public static class GroupStatus {
         public static final String STATUS_GROUP_PENDING = "Pending approval";
         public static final String STATUS_GROUP_APPROVED = "Approved";
@@ -77,19 +68,6 @@ public class Constants {
         public static final String FOLLOW = "Follow";
         public static final String UNFOLLOW = "Unfollow";
         public static final String WATCHING = "Watching";
-    }
-
-    public static class Excel {
-
-        public static final String HEADER = "Header";
-        public static final String CONTENT = "Content";
-        public static final String USER_SHEET = "Users";
-
-        public static final String[] EXCEL_USER_HEADER = {
-                "Full Name",
-                "Created Date",
-                "Updated Date",
-        };
     }
 
     public static class Notification {
@@ -119,18 +97,6 @@ public class Constants {
         public static final String TITLE_REQUEST_JOIN_GROUP = "muốn tham gia nhóm của bạn";
         public static final String TITLE_REQUEST_CREATE_POST = "muốn đăng bài viết trong nhóm của bạn";
         public static final String TITLE_REJECT_JOIN_GROUP = "đã từ chối đề nghị tham gia nhóm của bạn";
-    }
-
-    public static class GroupType {
-        public static final String TYPE_MUSIC = "Âm nhạc";
-        public static final String TYPE_ENTERTAINMENT = "Giải trí";
-        public static final String TYPE_MOVIE = "Phim";
-        public static final String TYPE_CLOTHES = "Quần áo";
-        public static final String TYPE_FOOTWEAR = "Giày dép";
-        public static final String TYPE_JOB = "Việc làm";
-        public static final String TYPE_FIX = "Sửa chữa";
-        public static final String TYPE_APPLIANCES = "Đồ gia dụng";
-        public static final String TYPE_GAME = "Game";
     }
 
     public static final String MESSAGE_STRIKE_THROUGH = "-------------------------------------------------------------------------";

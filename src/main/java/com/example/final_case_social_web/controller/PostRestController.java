@@ -120,12 +120,11 @@ public class PostRestController {
                     HttpStatus.UNAUTHORIZED);
         }
         List<HidePost> list = hidePostRepository.findAll();
+        if (CollectionUtils.isEmpty(list)) return new ResponseEntity<>(HttpStatus.OK);
         if (Constants.HIDE.equalsIgnoreCase(type)) {
-            if (!CollectionUtils.isEmpty(list)) {
-                for (HidePost post : list) {
-                    if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    }
+            for (HidePost post : list) {
+                if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
+                    return new ResponseEntity<>(HttpStatus.OK);
                 }
             }
             HidePost hidePost = new HidePost();
@@ -135,12 +134,10 @@ public class PostRestController {
             hidePostRepository.save(hidePost);
         }
         if (Constants.UN_HIDE.equalsIgnoreCase(type)) {
-            if (!CollectionUtils.isEmpty(list)) {
-                for (HidePost post : list) {
-                    if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
-                        hidePostRepository.delete(post);
-                        break;
-                    }
+            for (HidePost post : list) {
+                if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
+                    hidePostRepository.delete(post);
+                    break;
                 }
             }
         }
@@ -152,11 +149,9 @@ public class PostRestController {
     public ResponseEntity<?> createPost(@RequestBody Post2 post,
                                         @RequestParam Long idUser,
                                         @RequestHeader("Authorization") String authorization) {
-        if ((post.getContent().trim().equals(Constants.BLANK) || post.getContent() == null) && post.getImage() == null) {
-            return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
-                    HttpStatus.BAD_REQUEST);
-        }
-        if (!Common.checkRegex(post.getContent(), Regex.CHECK_LENGTH_POST)) {
+        if ((post.getContent().trim().equals(Constants.BLANK)
+                || (post.getContent() == null) && post.getImage() == null)
+                || !Common.checkRegex(post.getContent(), Regex.CHECK_LENGTH_POST)) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
@@ -169,8 +164,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -197,8 +191,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -277,8 +270,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -314,8 +306,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -358,8 +349,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_POST, idPost),
                     HttpStatus.NOT_FOUND);
         }
-        boolean check = userService.errorToken(authorization, postOptional.get().getUser().getId());
-        if (!check) {
+        if (!userService.errorToken(authorization, postOptional.get().getUser().getId())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
@@ -374,8 +364,7 @@ public class PostRestController {
     @GetMapping("/allPostInTrash")
     public ResponseEntity<?> allPostInTrash(@RequestParam Long idUser,
                                             @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);

@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.service.impl;
 
 
+import com.example.final_case_social_web.Object.AvatarDefault;
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
@@ -161,9 +162,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Object checkAdmin(Long idAdmin) {
-        if (idAdmin == null) {
-            return null;
-        }
+        if (idAdmin == null) return null;
         Optional<User> adminOptional = userRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
             if (adminOptional.get().getRoles().toString().substring(17, 27).equals(Constants.Roles.ROLE_ADMIN)) {
@@ -182,15 +181,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<ListAvatarDefault> listAvatar() {
         List<ListAvatarDefault> listImageDefault = new ArrayList<>();
-        listImageDefault.add(new ListAvatarDefault(1L, Constants.ListAvatarDefault.DEFAULT_AVATAR_1, Constants.GENDER_MALE));
-        listImageDefault.add(new ListAvatarDefault(2L, Constants.ListAvatarDefault.DEFAULT_AVATAR_2, Constants.GENDER_MALE));
+        AvatarDefault avatarDefault = new AvatarDefault();
+        listImageDefault.add(new ListAvatarDefault(1L, avatarDefault.getDEFAULT_AVATAR_1(), Constants.GENDER_MALE));
+        listImageDefault.add(new ListAvatarDefault(2L, avatarDefault.getDEFAULT_AVATAR_2(), Constants.GENDER_MALE));
         listImageDefault.add(new ListAvatarDefault(3L, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_MALE, Constants.GENDER_MALE));
         listImageDefault.add(new ListAvatarDefault(4L, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_LGBT, Constants.GENDER_DEFAULT));
-        listImageDefault.add(new ListAvatarDefault(5L, Constants.ListAvatarDefault.DEFAULT_AVATAR_3, Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(5L, avatarDefault.getDEFAULT_AVATAR_3(), Constants.GENDER_FEMALE));
         listImageDefault.add(new ListAvatarDefault(6L, Constants.ImageDefault.DEFAULT_IMAGE_AVATAR_FEMALE, Constants.GENDER_FEMALE));
-        listImageDefault.add(new ListAvatarDefault(7L, Constants.ListAvatarDefault.DEFAULT_AVATAR_4, Constants.GENDER_FEMALE));
-        listImageDefault.add(new ListAvatarDefault(8L, Constants.ListAvatarDefault.DEFAULT_AVATAR_5, Constants.GENDER_FEMALE));
-        listImageDefault.add(new ListAvatarDefault(9L, Constants.ListAvatarDefault.DEFAULT_AVATAR_6, Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(7L, avatarDefault.getDEFAULT_AVATAR_4(), Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(8L, avatarDefault.getDEFAULT_AVATAR_5(), Constants.GENDER_FEMALE));
+        listImageDefault.add(new ListAvatarDefault(9L, avatarDefault.getDEFAULT_AVATAR_6(), Constants.GENDER_FEMALE));
         return listImageDefault;
     }
 
@@ -233,69 +233,60 @@ public class UserServiceImpl implements UserService {
         }
         List<User> list = userRepository.listPeopleNoImpact(idUser);
         List<User> listUserFilter = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(longList)) {
-            for (Long id : longList) {
-                list.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(listUserFilter::add);
-            }
-            List<User> listFriend = allFriendByUserId(idUser);
-            if (CollectionUtils.isEmpty(listFriend)) {
-                listFriend = new ArrayList<>();
-            }
-            for (User value : listUserFilter) {
-                UserDTO userDTO = modelMapper.map(value, UserDTO.class);
-                userDTOList.add(userDTO);
-            }
-            for (int i = 0; i < userDTOList.size(); i++) {
-                List<User> friendOfUserFilter = allFriendByUserId(userDTOList.get(i).getId());
-                List<User> mutualFriends = new ArrayList<>();
-                if (!CollectionUtils.isEmpty(friendOfUserFilter)) {
-                    for (int j = 0; j < listFriend.size(); j++) {
-                        Long idUserFriend = listFriend.get(j).getId();
-                        friendOfUserFilter.stream().filter(item -> item.getId().equals(idUserFriend)).
-                                findFirst().ifPresent(mutualFriends::add);
-                    }
-                }
-                userDTOList.get(i).setMutualFriends(mutualFriends.size());
-            }
-            List<FriendRelation> friendRelationList = friendRelationService.listRequest(idUser);
-            if (!CollectionUtils.isEmpty(friendRelationList)) {
-                Set<Long> listUserId = new HashSet<>();
-                for (FriendRelation friendRelation : friendRelationList) {
-                    listUserId.add(friendRelation.getIdFriend());
-                }
-                Set<User> userList = findAllByIdIn(listUserId);
-                if (userList == null) {
-                    userList = new HashSet<>();
-                }
-                List<User> checkUserFollowSendRequestFriend = new ArrayList<>(userList);
-                for (int i = 0; i < checkUserFollowSendRequestFriend.size(); i++) {
-                    Long id = checkUserFollowSendRequestFriend.get(i).getId();
-                    userDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(user -> {
-                        user.setSendRequestFriend(true);
-                    });
+        if (CollectionUtils.isEmpty(longList)) return userDTOList;
+        for (Long id : longList) {
+            list.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(listUserFilter::add);
+        }
+        List<User> listFriend = allFriendByUserId(idUser);
+        if (CollectionUtils.isEmpty(listFriend)) listFriend = new ArrayList<>();
+        for (User value : listUserFilter) {
+            UserDTO userDTO = modelMapper.map(value, UserDTO.class);
+            userDTOList.add(userDTO);
+        }
+        for (int i = 0; i < userDTOList.size(); i++) {
+            List<User> friendOfUserFilter = allFriendByUserId(userDTOList.get(i).getId());
+            List<User> mutualFriends = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(friendOfUserFilter)) {
+                for (int j = 0; j < listFriend.size(); j++) {
+                    Long idUserFriend = listFriend.get(j).getId();
+                    friendOfUserFilter.stream().filter(item -> item.getId().equals(idUserFriend)).
+                            findFirst().ifPresent(mutualFriends::add);
                 }
             }
-            List<FriendRelation> friendRelations = friendRelationService.findAllListRequestAddFriendById(idUser);
-            List<Optional<User>> optionalList = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(friendRelations)) {
-                for (FriendRelation friendRelation : friendRelations) {
-                    Optional<User> userOptional = findById(friendRelation.getFriend().getId());
-                    if (!userOptional.isPresent()) {
-                        continue;
-                    }
-                    if (userOptional.get().getId().equals(idUser)) {
-                        continue;
-                    }
-                    optionalList.add(userOptional);
-                }
+            userDTOList.get(i).setMutualFriends(mutualFriends.size());
+        }
+        List<FriendRelation> friendRelationList = friendRelationService.listRequest(idUser);
+        if (!CollectionUtils.isEmpty(friendRelationList)) {
+            Set<Long> listUserId = new HashSet<>();
+            for (FriendRelation friendRelation : friendRelationList) {
+                listUserId.add(friendRelation.getIdFriend());
             }
-            if (!CollectionUtils.isEmpty(optionalList)) {
-                for (int i = 0; i < optionalList.size(); i++) {
-                    Long id = optionalList.get(i).get().getId();
-                    userDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(user -> {
-                        user.setPeopleSendRequestFriend(true);
-                    });
-                }
+            Set<User> userList = findAllByIdIn(listUserId);
+            if (userList == null) userList = new HashSet<>();
+            List<User> checkUserFollowSendRequestFriend = new ArrayList<>(userList);
+            for (int i = 0; i < checkUserFollowSendRequestFriend.size(); i++) {
+                Long id = checkUserFollowSendRequestFriend.get(i).getId();
+                userDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(user -> {
+                    user.setSendRequestFriend(true);
+                });
+            }
+        }
+        List<FriendRelation> friendRelations = friendRelationService.findAllListRequestAddFriendById(idUser);
+        List<Optional<User>> optionalList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(friendRelations)) {
+            for (FriendRelation friendRelation : friendRelations) {
+                Optional<User> userOptional = findById(friendRelation.getFriend().getId());
+                if (!userOptional.isPresent()) continue;
+                if (userOptional.get().getId().equals(idUser)) continue;
+                optionalList.add(userOptional);
+            }
+        }
+        if (!CollectionUtils.isEmpty(optionalList)) {
+            for (int i = 0; i < optionalList.size(); i++) {
+                Long id = optionalList.get(i).get().getId();
+                userDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(user -> {
+                    user.setPeopleSendRequestFriend(true);
+                });
             }
         }
         return userDTOList;
@@ -343,19 +334,19 @@ public class UserServiceImpl implements UserService {
     }
 
     public boolean errorToken(String authorization, Long idUser) {
-        if (StringUtils.isEmpty(authorization)) {
+        try {
+            if (StringUtils.isEmpty(authorization)) return false;
+            String tokenRequest = Common.formatToken(authorization);
+            if (!jwtService.validateJwtToken(tokenRequest)) return false;
+            String userName = jwtService.getUserNameFromJwtToken(tokenRequest);
+            Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(idUser);
+            return verificationToken.filter(token -> tokenRequest.equals(token.getToken())
+                    && !"no token".equals(token.getToken())
+                    && userName.equals(token.getUser().getUsername())).isPresent();
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
-        String tokenRequest = Common.formatToken(authorization);
-        boolean checkToken = jwtService.validateJwtToken(tokenRequest);
-        if (!checkToken) {
-            return false;
-        }
-        String userName = jwtService.getUserNameFromJwtToken(tokenRequest);
-        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(idUser);
-        return verificationToken.filter(token -> tokenRequest.equals(token.getToken())
-                && !"no token".equals(token.getToken())
-                && userName.equals(token.getUser().getUsername())).isPresent();
     }
 
     @Override
@@ -366,12 +357,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> copyListDTO(List<User> users) {
         List<UserDTO> userDTOList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(users)) {
-            for (User user : users) {
-                UserDTO userDTO = new UserDTO();
-                BeanUtils.copyProperties(user, userDTO);
-                userDTOList.add(userDTO);
-            }
+        if (CollectionUtils.isEmpty(users)) return userDTOList;
+        for (User user : users) {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(user, userDTO);
+            userDTOList.add(userDTO);
         }
         return userDTOList;
     }
@@ -380,24 +370,23 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> listFriend(Long idUser) {
         List<User> listFriend = allFriendByUserId(idUser);
         List<UserDTO> userDTOList = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(listFriend)) {
-            listFriend.forEach(user -> {
-                Long idFriend = user.getId();
-                UserDTO userDTO = new UserDTO();
-                BeanUtils.copyProperties(user, userDTO);
-                List<User> friendOfFriend = allFriendByUserId(idFriend);
-                List<User> mutualFriends = new ArrayList<>();
-                if (!CollectionUtils.isEmpty(friendOfFriend)) {
-                    List<Long> listId = userDTOList.stream().map(UserDTO::getId).collect(Collectors.toList());
-                    for (Long id : listId) {
-                        friendOfFriend.stream().filter(item -> item.getId().equals(id))
-                                .findFirst().ifPresent(mutualFriends::add);
-                    }
+        if (CollectionUtils.isEmpty(listFriend)) return userDTOList;
+        listFriend.forEach(user -> {
+            Long idFriend = user.getId();
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(user, userDTO);
+            List<User> friendOfFriend = allFriendByUserId(idFriend);
+            List<User> mutualFriends = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(friendOfFriend)) {
+                List<Long> listId = userDTOList.stream().map(UserDTO::getId).collect(Collectors.toList());
+                for (Long id : listId) {
+                    friendOfFriend.stream().filter(item -> item.getId().equals(id))
+                            .findFirst().ifPresent(mutualFriends::add);
                 }
-                userDTO.setMutualFriends(mutualFriends.size());
-                userDTOList.add(userDTO);
-            });
-        }
+            }
+            userDTO.setMutualFriends(mutualFriends.size());
+            userDTOList.add(userDTO);
+        });
         return userDTOList;
     }
 }

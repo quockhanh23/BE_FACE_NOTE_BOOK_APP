@@ -17,10 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -75,13 +72,12 @@ public class ImageRestController {
     public ResponseEntity<?> addPhoto(@RequestBody Image image,
                                       @RequestParam Long idUser,
                                       @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (userService.checkUser(idUser) == null) {
+        if (Objects.isNull(userService.checkUser(idUser))) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
@@ -95,8 +91,7 @@ public class ImageRestController {
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
                                          @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
+        if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);

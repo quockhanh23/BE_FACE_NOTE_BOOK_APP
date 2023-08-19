@@ -1,10 +1,13 @@
 package com.example.final_case_social_web.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 public class MessengerDTO {
     private Long id;
     private String content;
