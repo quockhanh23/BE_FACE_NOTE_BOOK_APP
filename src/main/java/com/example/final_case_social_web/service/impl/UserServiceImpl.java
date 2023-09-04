@@ -90,13 +90,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public Optional<User> findByUsername(String username) {
+        return Optional.ofNullable(userRepository.findByUsername(username));
     }
 
     @Override
-    public User getCurrentUser() {
-        User user;
+    public Optional<User> getCurrentUser() {
+        Optional<User> user;
         String userName;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

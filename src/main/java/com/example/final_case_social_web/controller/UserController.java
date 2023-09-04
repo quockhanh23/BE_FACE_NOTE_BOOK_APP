@@ -25,6 +25,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -293,39 +294,35 @@ public class UserController {
                             HttpStatus.BAD_REQUEST);
                 }
             }
-            Iterable<User> list = userService.findAll();
-            List<User> userList = (List<User>) list;
-            List<String> userName = userList.stream().map(User::getUsername).collect(Collectors.toList());
-
-            for (String s : userName) {
-                if (user.getUsername().toUpperCase().equals(s) || user.getUsername().toLowerCase().equals(s)) {
-                    if (!user.getUsername().equals(s)) {
-                        return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                                MessageResponse.LoginMessage.USER_NAME),
-                                HttpStatus.BAD_REQUEST);
-                    }
-                }
-            }
-            if (userName.stream().noneMatch(item -> item.equals(user.getUsername()))) {
+            Optional<User> currentUser = userService.findByUsername(user.getUsername());
+            if (!currentUser.isPresent()) {
                 return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                         MessageResponse.LoginMessage.USER_NAME),
                         HttpStatus.BAD_REQUEST);
             }
-            Authentication authentication = authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+
+            Authentication authentication;
+            try {
+                authentication = authenticationManager
+                        .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            } catch (Exception e) {
+                return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                        MessageResponse.RegisterMessage.WRONG_PASSWORD),
+                        HttpStatus.BAD_REQUEST);
+            }
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = jwtService.generateTokenLogin(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            User currentUser = userService.findByUsername(user.getUsername());
 
-            Optional<VerificationToken> verificationToken = verificationTokenRepository.findByUserId(currentUser.getId());
+            Optional<VerificationToken> verificationToken = verificationTokenRepository
+                    .findByUserId(currentUser.get().getId());
             if (!verificationToken.isPresent()) {
                 VerificationToken verificationToken1 = new VerificationToken();
                 verificationToken1.setToken(jwt);
                 verificationToken1.setCreatedDate(new Date());
-                verificationToken1.setUser(currentUser);
+                verificationToken1.setUser(currentUser.get());
                 verificationTokenRepository.save(verificationToken1);
             } else {
                 verificationToken.get().setCreatedDate(new Date());
@@ -337,7 +334,7 @@ public class UserController {
             log.info(Constants.MESSAGE_STRIKE_THROUGH);
             Common.executionTime(startTime, elapsedTimeMillis);
             log.info(Constants.MESSAGE_STRIKE_THROUGH);
-            return ResponseEntity.ok(new JwtResponse(jwt, currentUser.getId(),
+            return ResponseEntity.ok(new JwtResponse(jwt, currentUser.get().getId(),
                     userDetails.getUsername(), userDetails.getAuthorities()));
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
