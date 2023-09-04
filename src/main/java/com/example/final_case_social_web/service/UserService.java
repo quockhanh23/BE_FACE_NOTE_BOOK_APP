@@ -74,4 +74,8 @@ public interface UserService extends UserDetailsService {
     List<User> findAllByEmailOrUsername(String searchText);
 
     List<UserDTO> copyListDTO(List<User> users);
+
+    List<User> getAllUsersAsync();
+
+    void doTask();
 }

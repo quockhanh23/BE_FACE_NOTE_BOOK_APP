@@ -536,4 +536,10 @@ public class UserController {
         verificationTokenRepository.save(verificationToken.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @GetMapping(path = "/list/async")
+    public List<User> getAllUsersAsync() {
+        userService.doTask();
+        return new ArrayList<>();
+    }
 }

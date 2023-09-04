@@ -42,9 +42,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "select *\n" +
             "from user_table\n" +
             "where id not in (select id_friend from friend_relation where id_user = :idUser " +
-            "  and status_friend not like 'No friend')\n" +
+            "  and status_friend != 'No friend')\n" +
             "  and id not in (select user_id from user_role where role_id = 2)\n" +
-            "  and user_table.status like 'Active' and id != :idUser\n" +
+            "  and user_table.status = 'Active' and id != :idUser\n" +
             "order by id desc", nativeQuery = true)
     List<User> friendSuggestion(@Param("idUser") Long idUser);
 
@@ -64,7 +64,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "                   and id_user != user_login_id)\n" +
             "  and id not in\n" +
             "      (select id_friend from friend_relation where id_user = :idUser and friend_relation.status_friend = 'Friend')\n" +
-            "  and status like 'Active';\n", nativeQuery = true)
+            "  and status = 'Active';\n", nativeQuery = true)
     List<User> listPeople(@Param("idUser") Long idUser);
 
     @Modifying
@@ -90,8 +90,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE (u.email LIKE concat('%', :searchText, '%')\n" +
             "    or u.full_name LIKE concat('%', :searchText, '%'))\n" +
             "  and (u.id not in\n" +
-            "       (select id_user_on_the_list from black_list where id_user_send_block = :idSendBlock and status like 'Blocked'))\n" +
-            "  and (u.id not in (select id from user_table where status like 'Banned'))", nativeQuery = true)
+            "       (select id_user_on_the_list from black_list where id_user_send_block = :idSendBlock and status = 'Blocked'))\n" +
+            "  and (u.id not in (select id from user_table where status = 'Banned'))", nativeQuery = true)
     List<User> findAllByEmailAndFullName(String searchText, @Param("idSendBlock") Long idSendBlock);
 
 
@@ -120,7 +120,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "  and id not in\n" +
             "      (select id_friend from friend_relation where id_user = :idUser and friend_relation.status_friend = 'Friend')\n" +
             "  and id not in (select id from user_table where status = 'Banned')\n" +
-            "  and status like 'Active'\n" +
+            "  and status = 'Active'\n" +
             "  and (email LIKE concat('%', :searchText, '%') or full_name LIKE concat('%', :searchText, '%'));", nativeQuery = true)
     List<User> searchAll(@Param("searchText") String searchText, @Param("idUser") Long idUser);
 }

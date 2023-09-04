@@ -22,8 +22,8 @@ public interface TheGroupRepository extends JpaRepository<TheGroup, Long> {
             "where id not in (select the_group_id\n" +
             "                 from group_participant\n" +
             "                 where user_id = :idUserCreate\n" +
-            "                   and (group_participant.status like 'Approved'\n" +
-            "                     or group_participant.status like 'Group management'))\n" +
+            "                   and (group_participant.status = 'Approved'\n" +
+            "                     or group_participant.status = 'Group management'))\n" +
             "  and status = 'Public'", nativeQuery = true)
     List<TheGroup> findAllGroup(@Param("idUserCreate") Long idUserCreate);
 

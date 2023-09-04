@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -47,6 +48,11 @@ public class AdminRestController {
     private GroupPostRepository groupPostRepository;
     @Autowired
     private ReportRepository reportRepository;
+
+    private CompletableFuture<?> completableFuture() {
+        List<User> users = userService.findAllRoleUser();
+        return CompletableFuture.completedFuture(new ResponseEntity<>(users, HttpStatus.BAD_REQUEST));
+    }
 
     // Xem tất cả user
     @GetMapping("/adminAction")

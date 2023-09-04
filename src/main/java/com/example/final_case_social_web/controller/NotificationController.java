@@ -62,9 +62,7 @@ public class NotificationController {
     public ResponseEntity<?> seenAll(@RequestParam Long idSenTo) {
         List<Notification> notificationList = notificationService.findAllByIdSendTo(idSenTo);
         if (!CollectionUtils.isEmpty(notificationList)) {
-            notificationList.forEach(notification -> {
-                notification.setStatus(Constants.Notification.STATUS_SEEN);
-            });
+            notificationList.forEach(notification -> notification.setStatus(Constants.Notification.STATUS_SEEN));
             notificationService.saveAll(notificationList);
         }
         return new ResponseEntity<>(HttpStatus.OK);

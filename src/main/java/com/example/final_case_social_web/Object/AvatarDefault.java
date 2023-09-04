@@ -2,10 +2,8 @@ package com.example.final_case_social_web.Object;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 public class AvatarDefault {
     private final String DEFAULT_AVATAR_1 = "https://firebasestorage.googleapis.com/v0/b/test2-d8f2d.appspot.com/o/RoomsImages%2Fav1.jpg?alt=media&token=70fb7dd3-c7fa-4264-b7b8-025f6eaca942";

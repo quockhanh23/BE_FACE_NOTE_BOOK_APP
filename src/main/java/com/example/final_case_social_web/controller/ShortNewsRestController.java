@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
@@ -297,7 +296,6 @@ public class ShortNewsRestController {
     }
 
     // Xóa tất cả, khôi phục tất cả
-    @Transactional
     @DeleteMapping("/actionShortNews")
     public ResponseEntity<?> actionShortNews(@RequestParam List<Long> listIdSortNew,
                                              @RequestParam Long idUser,
@@ -320,9 +318,7 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         if (Constants.RESTORE_ALL.equalsIgnoreCase(type)) {
-            shortNews.forEach(shortNews1 -> {
-                shortNews1.setDelete(false);
-            });
+            shortNews.forEach(shortNews1 -> shortNews1.setDelete(false));
             shortNewsRepository.saveAll(shortNews);
             return new ResponseEntity<>(HttpStatus.OK);
         }

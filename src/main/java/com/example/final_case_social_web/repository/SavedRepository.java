@@ -13,6 +13,6 @@ import java.util.List;
 public interface SavedRepository extends JpaRepository<Saved, Long> {
 
     @Modifying
-    @Query(value = "select * from saved where status like 'Saved' and id_user = :idUser", nativeQuery = true)
+    @Query(value = "select * from saved where status = 'Saved' and id_user = :idUser", nativeQuery = true)
     List<Saved> findAllSavedPost(@Param("idUser") Long idUser);
 }

@@ -1,8 +1,6 @@
 package com.example.final_case_social_web.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,7 +8,8 @@ import java.util.Date;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserDescription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

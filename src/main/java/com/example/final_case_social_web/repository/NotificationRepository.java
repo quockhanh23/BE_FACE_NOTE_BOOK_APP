@@ -17,6 +17,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findAllByIdSendTo(@Param("idSendTo") Long idSendTo);
 
     @Modifying
-    @Query(value = "select * from notification where status like 'Not seen' and send_to_id =:idSendTo", nativeQuery = true)
+    @Query(value = "select * from notification where status = 'Not seen' and send_to_id =:idSendTo", nativeQuery = true)
     List<Notification> findAllByIdSendToNotSeen(@Param("idSendTo") Long idSendTo);
 }

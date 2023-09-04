@@ -13,7 +13,10 @@ import com.example.final_case_social_web.repository.FollowWatchingRepository;
 import com.example.final_case_social_web.repository.UserRepository;
 import com.example.final_case_social_web.repository.VerificationTokenRepository;
 import com.example.final_case_social_web.service.FriendRelationService;
+import com.example.final_case_social_web.service.TaskThread;
+import com.example.final_case_social_web.service.ThreadPoolExecutorUtil;
 import com.example.final_case_social_web.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -25,11 +28,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
@@ -43,6 +51,8 @@ public class UserServiceImpl implements UserService {
     private JwtService jwtService;
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
+    @Autowired
+    private ThreadPoolExecutorUtil threadPoolExecutorUtil;
 
     @Override
     @Transactional
@@ -122,6 +132,7 @@ public class UserServiceImpl implements UserService {
                     && user.getPassword().equals(currentUser.getPassword()) &&
                     currentUser.isEnabled()) {
                 isCorrectUser = true;
+                break;
             }
         }
         return isCorrectUser;
@@ -129,11 +140,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isCorrectConfirmPassword(User user) {
-        boolean isCorrentConfirmPassword = false;
-        if (user.getPassword().equals(user.getConfirmPassword())) {
-            isCorrentConfirmPassword = true;
-        }
-        return isCorrentConfirmPassword;
+        return user.getPassword().equals(user.getConfirmPassword());
     }
 
     @Override
@@ -388,5 +395,51 @@ public class UserServiceImpl implements UserService {
             userDTOList.add(userDTO);
         });
         return userDTOList;
+    }
+
+    @Override
+    public List<User> getAllUsersAsync() {
+        for (int i = 0; i < 5; i++) {
+            TaskThread taskThread = new TaskThread(userRepository);
+            threadPoolExecutorUtil.executeTask(taskThread);
+        }
+        TaskThread taskThread = new TaskThread(userRepository);
+        threadPoolExecutorUtil.executeTask(taskThread);
+        taskThread.run();
+        return taskThread.users;
+    }
+
+    public void doTask() {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        CompletableFuture<List<User>> future1 = CompletableFuture.supplyAsync(() -> {
+            log.info(Thread.currentThread().getName() + ">>>>>>>>>>>>>>>>>");
+            return userRepository.findAll();
+        }, executor);
+        CompletableFuture<List<FollowWatching>> future2 = CompletableFuture.supplyAsync(() -> {
+            log.info(Thread.currentThread().getName() + ">>>>>>>>>>>>>>>>>");
+            return followWatchingRepository.findAll();
+        }, executor).exceptionally(ex -> {
+            // Xử lý lỗi ở đây
+            return null;
+        });
+        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(future1, future2);
+        combinedFuture.join();
+
+        List<User> userList = future1.join();
+        List<FollowWatching> followWatchingList = future2.join();
+
+        executor.shutdown();
+        if (!executor.isTerminated()) {
+            log.warn("Executor did not terminate");
+        }
+    }
+
+    private void reactiveProgrammingSpringWebFlux() {
+        Flux<User> userFlux = Flux.defer(() -> Flux.fromIterable(userRepository.findAll()));
+        Flux<FollowWatching> followWatchingFlux = Flux.defer(() -> Flux.fromIterable(followWatchingRepository.findAll()));
+        Flux.zip(userFlux, followWatchingFlux)
+                .collectList()
+                .block();
     }
 }

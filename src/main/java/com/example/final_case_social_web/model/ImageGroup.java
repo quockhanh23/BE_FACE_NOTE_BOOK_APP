@@ -1,15 +1,15 @@
 package com.example.final_case_social_web.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class ImageGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

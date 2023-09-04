@@ -1,10 +1,8 @@
 package com.example.final_case_social_web.Object;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class GroupType {
     private final String TYPE_MUSIC = "Âm nhạc";
     private final String TYPE_ENTERTAINMENT = "Giải trí";

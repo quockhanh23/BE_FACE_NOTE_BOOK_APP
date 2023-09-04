@@ -94,9 +94,8 @@ public class PostRestController {
                     if (!CollectionUtils.isEmpty(hidePosts)) {
                         List<Long> listIdPost = hidePosts.stream().map(HidePost::getIdPost).collect(Collectors.toList());
                         for (Long id : listIdPost) {
-                            postDTOList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(post2 -> {
-                                post2.setContent(null);
-                            });
+                            postDTOList.stream().filter(item -> item.getId().equals(id)).findFirst()
+                                    .ifPresent(post2 -> post2.setContent(null));
                         }
                     }
                     return new ResponseEntity<>(postDTOList, HttpStatus.OK);

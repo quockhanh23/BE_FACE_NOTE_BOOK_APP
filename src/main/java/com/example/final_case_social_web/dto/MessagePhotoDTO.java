@@ -1,6 +1,5 @@
 package com.example.final_case_social_web.dto;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

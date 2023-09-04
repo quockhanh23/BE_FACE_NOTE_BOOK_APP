@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post2, Long> {
     @Modifying
     @Query(value = "select *\n" +
             "from post2\n" +
-            "where (is_delete = false and status like 'Public' and user_id != :id)\n" +
+            "where (status = 'Public' and is_delete = false and user_id != :id)\n" +
             "   or (is_delete = false and user_id = :id)\n" +
             "order by create_at desc", nativeQuery = true)
     List<Post2> AllPost(@Param("id") Long id);

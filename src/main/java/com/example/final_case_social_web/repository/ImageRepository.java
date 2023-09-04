@@ -15,10 +15,10 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     void delete(Image entity);
 
     @Modifying
-    @Query(value = "select * from image where (status like 'Public' or status like 'Private') and (delete_at is null) and user_id = :idUser", nativeQuery = true)
+    @Query(value = "select * from image where (status = 'Public' or status = 'Private') and (delete_at is null) and user_id = :idUser", nativeQuery = true)
     List<Image> findAllImageByIdUser(@Param("idUser") Long idUser);
 
     @Modifying
-    @Query(value = "select * from image where delete_at is not null and status like 'Delete' and user_id = :idUser", nativeQuery = true)
+    @Query(value = "select * from image where delete_at is not null and status = 'Delete' and user_id = :idUser", nativeQuery = true)
     List<Image> findAllImageDeletedByUserId(@Param("idUser") Long idUser);
 }
