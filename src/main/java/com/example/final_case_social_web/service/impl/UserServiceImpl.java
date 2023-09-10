@@ -283,8 +283,7 @@ public class UserServiceImpl implements UserService {
         if (!CollectionUtils.isEmpty(friendRelations)) {
             for (FriendRelation friendRelation : friendRelations) {
                 Optional<User> userOptional = findById(friendRelation.getFriend().getId());
-                if (!userOptional.isPresent()) continue;
-                if (userOptional.get().getId().equals(idUser)) continue;
+                if (!userOptional.isPresent() || userOptional.get().getId().equals(idUser)) continue;
                 optionalList.add(userOptional);
             }
         }
@@ -379,10 +378,9 @@ public class UserServiceImpl implements UserService {
         List<UserDTO> userDTOList = new ArrayList<>();
         if (CollectionUtils.isEmpty(listFriend)) return userDTOList;
         listFriend.forEach(user -> {
-            Long idFriend = user.getId();
             UserDTO userDTO = new UserDTO();
             BeanUtils.copyProperties(user, userDTO);
-            List<User> friendOfFriend = allFriendByUserId(idFriend);
+            List<User> friendOfFriend = allFriendByUserId(user.getId());
             List<User> mutualFriends = new ArrayList<>();
             if (!CollectionUtils.isEmpty(friendOfFriend)) {
                 List<Long> listId = userDTOList.stream().map(UserDTO::getId).collect(Collectors.toList());

@@ -1,36 +1,54 @@
 package com.example.final_case_social_web.controller;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.metadata.style.WriteFont;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.GroupPostDTO;
 import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.excel.ExcelTest;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.GroupPostRepository;
 import com.example.final_case_social_web.repository.ReportRepository;
+import com.example.final_case_social_web.repository.TestDataRepository;
 import com.example.final_case_social_web.repository.TheGroupRepository;
 import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -48,11 +66,8 @@ public class AdminRestController {
     private GroupPostRepository groupPostRepository;
     @Autowired
     private ReportRepository reportRepository;
-
-    private CompletableFuture<?> completableFuture() {
-        List<User> users = userService.findAllRoleUser();
-        return CompletableFuture.completedFuture(new ResponseEntity<>(users, HttpStatus.BAD_REQUEST));
-    }
+    @Autowired
+    private TestDataRepository testDataRepository;
 
     // Xem tất cả user
     @GetMapping("/adminAction")
@@ -224,13 +239,9 @@ public class AdminRestController {
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
     }
 
-    @GetMapping("/getFile")
+    @GetMapping("/file")
     public ResponseEntity<?> getFile(@RequestParam Long idUser,
                                      @RequestParam String typeFile, HttpServletResponse response) throws IOException {
-        if (Objects.isNull(userService.checkAdmin(idUser))) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
-        }
         response.setContentType("multipart/octet-stream");
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition", "attachment;filename=" + LocalDateTime.now().toString());
@@ -248,6 +259,208 @@ public class AdminRestController {
             bufferedWriter.close();
             fileWriter.close();
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/export-excel")
+    public void exportExcel(HttpServletResponse response) throws IOException {
+        // Tạo workbook mới
+        SXSSFWorkbook workbook = new SXSSFWorkbook();
+        // Tạo sheet mới
+        SXSSFSheet sheet = workbook.createSheet("Danh sách");
+        // Tạo header row
+        SXSSFRow headerRow = sheet.createRow(0);
+
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        headerCellStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerCellStyle.setBorderRight(BorderStyle.THIN);
+        headerCellStyle.setBorderBottom(BorderStyle.THIN);
+        for (int i = 0; i < ExcelTest.headerNames.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(ExcelTest.headerNames[i]);
+            cell.setCellStyle(headerCellStyle);
+        }
+        sheet.setDefaultColumnWidth(40);
+        // Tạo data rows
+        final double startTime = System.currentTimeMillis();
+        List<Object[]> dataRows = testDataRepository.findAll()
+                .stream().map(data -> new Object[]{
+                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
+                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
+                        data.getVaccination(), data.getPassport()
+                }).collect(Collectors.toList());
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillis);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        CellStyle dataCellStyle = workbook.createCellStyle();
+        dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        dataCellStyle.setWrapText(true);
+        int rowNum = 1;
+        for (Object[] rowData : dataRows) {
+            SXSSFRow row = sheet.createRow(rowNum++);
+            int columnNum = 0;
+            for (Object field : rowData) {
+                Cell cell = row.createCell(columnNum++);
+                cell.setCellValue((String) field);
+                cell.setCellStyle(dataCellStyle);
+            }
+        }
+        // Thiết lập header cho response
+        response.setHeader("Content-disposition", "attachment; filename=" + System.currentTimeMillis() + ".xlsx");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        // Ghi workbook vào OutputStream của response
+        OutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+        final double elapsedTimeMillisEnd = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillisEnd);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+    }
+
+    @GetMapping("/export-excel-2")
+    public void exportExcel2(HttpServletResponse response) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Danh sách");
+        XSSFRow headerRow = sheet.createRow(0);
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        headerCellStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerCellStyle.setBorderRight(BorderStyle.THIN);
+        headerCellStyle.setBorderBottom(BorderStyle.THIN);
+        for (int i = 0; i < ExcelTest.headerNames.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(ExcelTest.headerNames[i]);
+            cell.setCellStyle(headerCellStyle);
+        }
+        sheet.setDefaultColumnWidth(40);
+        final double startTime = System.currentTimeMillis();
+        List<Object[]> dataRows = testDataRepository.findAll()
+                .stream().map(data -> new Object[]{
+                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
+                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
+                        data.getVaccination(), data.getPassport()
+                }).collect(Collectors.toList());
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillis);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        CellStyle dataCellStyle = workbook.createCellStyle();
+        dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        dataCellStyle.setWrapText(true);
+        int rowNum = 1;
+        for (Object[] rowData : dataRows) {
+            XSSFRow row = sheet.createRow(rowNum++);
+            int columnNum = 0;
+            for (Object field : rowData) {
+                Cell cell = row.createCell(columnNum++);
+                cell.setCellValue((String) field);
+                cell.setCellStyle(dataCellStyle);
+            }
+        }
+
+        response.setHeader("Content-disposition", "attachment; filename=" + System.currentTimeMillis() + ".xlsx");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        OutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
+        final double elapsedTimeMillisEnd = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillisEnd);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+        XSSFSheet worksheet = workbook.getSheetAt(0);
+        List<TestData> testData = new ArrayList<>();
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            XSSFRow row = worksheet.getRow(i);
+            if (Objects.isNull(row)) continue;
+            String firstName = row.getCell(0).getStringCellValue();
+            String lastName = row.getCell(1).getStringCellValue();
+            String address = row.getCell(2).getStringCellValue();
+            String education = row.getCell(3).getStringCellValue();
+            String phone = row.getCell(4).getStringCellValue();
+            String country = row.getCell(5).getStringCellValue();
+            String religion = row.getCell(6).getStringCellValue();
+            String license = row.getCell(7).getStringCellValue();
+            TestData data = new TestData(firstName, lastName, address, education, phone, country, religion, license);
+            testData.add(data);
+        }
+        if (!CollectionUtils.isEmpty(testData)) {
+            testDataRepository.saveAll(testData);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/import-2")
+    public ResponseEntity<?> importExcel2(@RequestParam("file") MultipartFile file) throws IOException {
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        Sheet worksheet = workbook.getSheetAt(0);
+        List<TestData> testData = StreamSupport.stream(worksheet.spliterator(), false)
+                .skip(1) // Bỏ qua dòng tiêu đề
+                .map(row -> {
+                    String firstName = row.getCell(0).getStringCellValue();
+                    String lastName = row.getCell(1).getStringCellValue();
+                    String address = row.getCell(2).getStringCellValue();
+                    String education = row.getCell(3).getStringCellValue();
+                    String phone = row.getCell(4).getStringCellValue();
+                    String country = row.getCell(5).getStringCellValue();
+                    String religion = row.getCell(6).getStringCellValue();
+                    String license = row.getCell(7).getStringCellValue();
+                    return new TestData(firstName, lastName, address, education, phone, country, religion, license);
+                })
+                .collect(Collectors.toList());
+        testDataRepository.saveAll(testData);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/export")
+    public void exportExcelNew(HttpServletResponse response) throws IOException {
+        String fileName = "test-data.xlsx";
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+        WriteCellStyle headStyle = new WriteCellStyle();
+        WriteFont font = new WriteFont();
+        font.setFontName("Arial"); // Đổi font chữ thành Arial
+        headStyle.setWrapped(true);
+        headStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex()); // Đổi màu header thành xám
+        headStyle.setFillPatternType(FillPatternType.SOLID_FOREGROUND);
+        headStyle.setWriteFont(font);
+        // Tạo một đối tượng HorizontalCellStyleStrategy để định dạng kiểu chữ cho header
+        HorizontalCellStyleStrategy styleStrategy = new HorizontalCellStyleStrategy(headStyle, headStyle);
+        final double startTime = System.currentTimeMillis();
+        List<TestData> testData = testDataRepository.findAll();
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillis);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        EasyExcel.write(response.getOutputStream(), TestData.class)
+                .registerWriteHandler(styleStrategy)
+                .sheet("Test Data")
+                .doWrite(testData);
+        final double elapsedTimeMillisEnd = System.currentTimeMillis();
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+        Common.executionTime(startTime, elapsedTimeMillisEnd);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
+    }
+
+    @GetMapping("/create-data-test")
+    public ResponseEntity<?> createDataTest() {
+        List<TestData> list = Stream.generate(TestData::new)
+                .limit(1000)
+                .collect(Collectors.toList());
+        testDataRepository.saveAll(list);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

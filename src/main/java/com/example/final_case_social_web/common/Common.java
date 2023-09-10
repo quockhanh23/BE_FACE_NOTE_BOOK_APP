@@ -1,11 +1,13 @@
 package com.example.final_case_social_web.common;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class Common {
 
     public static boolean checkRegex(String input, String regex) {
@@ -23,8 +25,8 @@ public class Common {
     }
 
     public static void executionTime(double startTime, double elapsedTimeMillis) {
-        System.out.println("Total execution time: " + (elapsedTimeMillis - startTime));
-        System.out.println("Total execution time(s): " + (elapsedTimeMillis - startTime) / 1000);
+        log.warn("Total execution time: " + (elapsedTimeMillis - startTime));
+        log.warn("Total execution time(s): " + (elapsedTimeMillis - startTime) / 1000);
     }
 
     public static String formatDate(String date) {

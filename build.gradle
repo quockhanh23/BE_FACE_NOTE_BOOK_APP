@@ -34,14 +34,15 @@ dependencies {
     implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
     implementation 'org.modelmapper:modelmapper:3.1.1'
     implementation 'org.apache.poi:poi-ooxml:5.2.2'
-
+    implementation group: 'commons-io', name: 'commons-io', version: '2.7'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.2'
+    implementation 'com.alibaba:easyexcel:3.2.1'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
-    // deploy heroku
     // https://mvnrepository.com/artifact/com.github.jsimone/webapp-runner
     compileOnly 'com.github.jsimone:webapp-runner:9.0.27.1'
 
