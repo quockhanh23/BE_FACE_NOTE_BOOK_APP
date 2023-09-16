@@ -21,13 +21,13 @@ import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.jasper.tagplugins.jstl.core.If;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -42,10 +42,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -244,7 +241,7 @@ public class AdminRestController {
                                      @RequestParam String typeFile, HttpServletResponse response) throws IOException {
         response.setContentType("multipart/octet-stream");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + LocalDateTime.now().toString());
+        response.setHeader("Content-Disposition", "attachment;filename=" + LocalDateTime.now());
         if ("txt".equalsIgnoreCase(typeFile)) {
             FileWriter fileWriter = new FileWriter("test.txt");
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -264,10 +261,21 @@ public class AdminRestController {
 
     @GetMapping("/export-excel")
     public void exportExcel(HttpServletResponse response) throws IOException {
+        final double startTime = System.currentTimeMillis();
+        List<String[]> dataRows = testDataRepository.findAll()
+                .stream().map(data -> new String[]{
+                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
+                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
+                        data.getVaccination(), data.getPassport()
+                }).collect(Collectors.toList());
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillis);
         // Tạo workbook mới
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         // Tạo sheet mới
         SXSSFSheet sheet = workbook.createSheet("Danh sách");
+        // Ép kiểu để sử dụng XSSFDataValidationHelper
+        XSSFSheet xssfSheet = workbook.getXSSFWorkbook().getSheet(sheet.getSheetName());
         // Tạo header row
         SXSSFRow headerRow = sheet.createRow(0);
 
@@ -281,34 +289,24 @@ public class AdminRestController {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(ExcelTest.headerNames[i]);
             cell.setCellStyle(headerCellStyle);
+            writeValueDropDownList(xssfSheet, ExcelTest.headerNames[i], dataRows.size(), i);
+            writeValueComment(xssfSheet, cell, ExcelTest.headerNames[i]);
         }
         sheet.setDefaultColumnWidth(40);
-        // Tạo data rows
-        final double startTime = System.currentTimeMillis();
-        List<Object[]> dataRows = testDataRepository.findAll()
-                .stream().map(data -> new Object[]{
-                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
-                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
-                        data.getVaccination(), data.getPassport()
-                }).collect(Collectors.toList());
-        final double elapsedTimeMillis = System.currentTimeMillis();
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
-        Common.executionTime(startTime, elapsedTimeMillis);
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         CellStyle dataCellStyle = workbook.createCellStyle();
         dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
         dataCellStyle.setWrapText(true);
         int rowNum = 1;
-        for (Object[] rowData : dataRows) {
+        for (String[] rowData : dataRows) {
             SXSSFRow row = sheet.createRow(rowNum++);
             int columnNum = 0;
-            for (Object field : rowData) {
+            for (String field : rowData) {
                 Cell cell = row.createCell(columnNum++);
-                cell.setCellValue((String) field);
+                cell.setCellValue(field);
                 cell.setCellStyle(dataCellStyle);
             }
         }
-        // Thiết lập header cho response
+
         response.setHeader("Content-disposition", "attachment; filename=" + System.currentTimeMillis() + ".xlsx");
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
@@ -318,13 +316,20 @@ public class AdminRestController {
         workbook.close();
         outputStream.close();
         final double elapsedTimeMillisEnd = System.currentTimeMillis();
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         Common.executionTime(startTime, elapsedTimeMillisEnd);
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
     }
 
     @GetMapping("/export-excel-2")
     public void exportExcel2(HttpServletResponse response) throws IOException {
+        final double startTime = System.currentTimeMillis();
+        List<Object[]> dataRows = testDataRepository.findAll()
+                .stream().map(data -> new Object[]{
+                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
+                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
+                        data.getVaccination(), data.getPassport()
+                }).collect(Collectors.toList());
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillis);
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Danh sách");
         XSSFRow headerRow = sheet.createRow(0);
@@ -338,19 +343,9 @@ public class AdminRestController {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(ExcelTest.headerNames[i]);
             cell.setCellStyle(headerCellStyle);
+            writeValueDropDownList(sheet, ExcelTest.headerNames[i], dataRows.size(), i);
         }
         sheet.setDefaultColumnWidth(40);
-        final double startTime = System.currentTimeMillis();
-        List<Object[]> dataRows = testDataRepository.findAll()
-                .stream().map(data -> new Object[]{
-                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
-                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
-                        data.getVaccination(), data.getPassport()
-                }).collect(Collectors.toList());
-        final double elapsedTimeMillis = System.currentTimeMillis();
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
-        Common.executionTime(startTime, elapsedTimeMillis);
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         CellStyle dataCellStyle = workbook.createCellStyle();
         dataCellStyle.setAlignment(HorizontalAlignment.CENTER);
         dataCellStyle.setWrapText(true);
@@ -373,9 +368,7 @@ public class AdminRestController {
         workbook.close();
         outputStream.close();
         final double elapsedTimeMillisEnd = System.currentTimeMillis();
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         Common.executionTime(startTime, elapsedTimeMillisEnd);
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
     }
 
     @PostMapping("/import")
@@ -408,8 +401,7 @@ public class AdminRestController {
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet worksheet = workbook.getSheetAt(0);
         List<TestData> testData = StreamSupport.stream(worksheet.spliterator(), false)
-                .skip(1) // Bỏ qua dòng tiêu đề
-                .map(row -> {
+                .skip(1).map(row -> {
                     String firstName = row.getCell(0).getStringCellValue();
                     String lastName = row.getCell(1).getStringCellValue();
                     String address = row.getCell(2).getStringCellValue();
@@ -442,17 +434,13 @@ public class AdminRestController {
         final double startTime = System.currentTimeMillis();
         List<TestData> testData = testDataRepository.findAll();
         final double elapsedTimeMillis = System.currentTimeMillis();
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         Common.executionTime(startTime, elapsedTimeMillis);
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         EasyExcel.write(response.getOutputStream(), TestData.class)
                 .registerWriteHandler(styleStrategy)
                 .sheet("Test Data")
                 .doWrite(testData);
         final double elapsedTimeMillisEnd = System.currentTimeMillis();
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         Common.executionTime(startTime, elapsedTimeMillisEnd);
-        log.info(Constants.MESSAGE_STRIKE_THROUGH);
     }
 
     @GetMapping("/create-data-test")
@@ -462,5 +450,37 @@ public class AdminRestController {
                 .collect(Collectors.toList());
         testDataRepository.saveAll(list);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private void writeValueDropDownList(XSSFSheet sheet, String value, int dataSite, int indexColumnAddDropList) {
+        Map<String, String[]> dropDownList = new HashMap<>();
+        String[] test = {"1", "2", "3"};
+        dropDownList.put("First Name", test);
+        for (Map.Entry<String, String[]> entry : dropDownList.entrySet()) {
+            if (entry.getKey() != null && entry.getKey().equals(value)) {
+                String[] list = entry.getValue();
+                if (list == null) continue;
+                XSSFDataValidationHelper validationHelper = new XSSFDataValidationHelper(sheet);
+                DataValidation dataValidation = validationHelper.createValidation(validationHelper.createExplicitListConstraint(list),
+                        new CellRangeAddressList(1, dataSite, indexColumnAddDropList, indexColumnAddDropList));
+                dataValidation.setShowErrorBox(false);
+                dataValidation.setSuppressDropDownArrow(true);
+                sheet.addValidationData(dataValidation);
+            }
+        }
+    }
+
+    private void writeValueComment(XSSFSheet sheet, Cell cell, String value) {
+        Map<String, String> commentHeader = new HashMap<>();
+        commentHeader.put("First Name", "Test");
+        for (Map.Entry<String, String> entry : commentHeader.entrySet()) {
+            if (entry.getKey() != null && entry.getKey().equals(value)) {
+                XSSFDrawing drawing = sheet.createDrawingPatriarch();
+                XSSFComment comment = drawing.createCellComment(new XSSFClientAnchor());
+                comment.setString(new XSSFRichTextString(entry.getValue()));
+                comment.setAuthor("User");
+                cell.setCellComment(comment);
+            }
+        }
     }
 }

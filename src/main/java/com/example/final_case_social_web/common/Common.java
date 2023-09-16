@@ -25,8 +25,10 @@ public class Common {
     }
 
     public static void executionTime(double startTime, double elapsedTimeMillis) {
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
         log.warn("Total execution time: " + (elapsedTimeMillis - startTime));
         log.warn("Total execution time(s): " + (elapsedTimeMillis - startTime) / 1000);
+        log.info(Constants.MESSAGE_STRIKE_THROUGH);
     }
 
     public static String formatDate(String date) {

@@ -64,7 +64,6 @@ public class ExcelComponent {
         style.setBorderRight(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         cell.setCellStyle(style);
-        sheet.autoSizeColumn(columnCount);
     }
 
     private static void createCell(XSSFWorkbook workbook, XSSFSheet sheet, Row row, int columnCount, Object value) {
@@ -78,7 +77,6 @@ public class ExcelComponent {
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
-
 
         if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
