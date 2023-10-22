@@ -118,12 +118,13 @@ public class PostRestController {
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
-        List<HidePost> list = hidePostRepository.findAll();
-        if (CollectionUtils.isEmpty(list)) return new ResponseEntity<>(HttpStatus.OK);
+        List<HidePost> list = hidePostRepository.findAllByIdUser(idUser);
         if (Constants.HIDE.equalsIgnoreCase(type)) {
-            for (HidePost post : list) {
-                if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
-                    return new ResponseEntity<>(HttpStatus.OK);
+            if (!CollectionUtils.isEmpty(list)) {
+                for (HidePost post : list) {
+                    if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    }
                 }
             }
             HidePost hidePost = new HidePost();
@@ -132,7 +133,7 @@ public class PostRestController {
             hidePost.setIdPost(idPost);
             hidePostRepository.save(hidePost);
         }
-        if (Constants.UN_HIDE.equalsIgnoreCase(type)) {
+        if (Constants.UN_HIDE.equalsIgnoreCase(type) && !CollectionUtils.isEmpty(list)) {
             for (HidePost post : list) {
                 if (post.getIdPost().equals(idPost) && post.getIdUser().equals(idUser)) {
                     hidePostRepository.delete(post);
