@@ -5,12 +5,12 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.util.Random;
 
 @Entity
 @Data
@@ -22,25 +22,41 @@ public class TestData {
     @ExcelIgnore
     private Long id;
     @ExcelProperty("First Name")
-    private String firstName = String.valueOf(new Random(5).toString());
+    private String firstName = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Last Name")
-    private String lastName = String.valueOf(new Random(5).toString());
+    private String lastName = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Address")
-    private String address = String.valueOf(new Random(5).toString());
+    private String address = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Education")
-    private String education = String.valueOf(new Random(5).toString());
+    private String education = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Phone")
-    private String phone = String.valueOf(new Random(5).toString());
+    private String phone = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Country")
-    private String country = String.valueOf(new Random(5).toString());
+    private String country = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Religion")
-    private String religion = String.valueOf(new Random(5).toString());
+    private String religion = RandomStringUtils.randomAscii(30);
     @ExcelProperty("License")
-    private String license = String.valueOf(new Random(5).toString());
+    private String license = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Vaccination")
-    private String vaccination = String.valueOf(new Random(5).toString());
+    private String vaccination = RandomStringUtils.randomAscii(30);
     @ExcelProperty("Passport")
-    private String passport = String.valueOf(new Random(5).toString());
+    private String passport = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 1")
+    private String testField1 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 2")
+    private String testField2 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 3")
+    private String testField3 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 4")
+    private String testField4 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 5")
+    private String testField5 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 6")
+    private String testField6 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 7")
+    private String testField7 = RandomStringUtils.randomAscii(30);
+    @ExcelProperty("Test Field 8")
+    private String testField8 = RandomStringUtils.randomAscii(30);
 
     public TestData(String firstName, String lastName, String address, String education, String phone, String country,
                     String religion, String license) {

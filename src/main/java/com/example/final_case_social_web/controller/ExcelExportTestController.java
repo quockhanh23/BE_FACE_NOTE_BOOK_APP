@@ -10,6 +10,7 @@ import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.excel.ExcelTest;
 import com.example.final_case_social_web.model.TestData;
 import com.example.final_case_social_web.repository.TestDataRepository;
+import jxl.write.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -45,25 +46,36 @@ public class ExcelExportTestController {
 
     private void setResponse(HttpServletResponse response, String type) {
         String fileName = System.currentTimeMillis() + type;
-        response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xlsx");
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        if (type.equals("JExcelAPI")) {
+            response.setContentType("application/vnd.ms-excel");
+            response.setHeader("Content-Disposition", "attachment; filename=test-data.xls");
+        } else {
+            response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xlsx");
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        }
     }
 
-    @GetMapping("/export-excel")
-    public void exportExcel(HttpServletResponse response) throws IOException {
-        final double startTime = System.currentTimeMillis();
-        List<String[]> dataRows = testDataRepository.findAll()
+    private List<String[]> convertData() {
+        return testDataRepository.findAll()
                 .stream().map(data -> new String[]{
                         data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
                         data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
-                        data.getVaccination(), data.getPassport()
+                        data.getVaccination(), data.getPassport(), data.getTestField1(), data.getTestField2(),
+                        data.getTestField3(), data.getTestField4(), data.getTestField5(), data.getTestField6(),
+                        data.getTestField7(), data.getTestField8()
                 }).collect(Collectors.toList());
+    }
+
+    @GetMapping("/export-excel")
+    public void SXSSFWorkbook(HttpServletResponse response) throws IOException {
+        final double startTime = System.currentTimeMillis();
+        List<String[]> dataRows = convertData();
         final double elapsedTimeMillis = System.currentTimeMillis();
         Common.executionTime(startTime, elapsedTimeMillis);
         // Tạo workbook mới
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         // Tạo sheet mới
-        SXSSFSheet sheet = workbook.createSheet("Danh sách");
+        SXSSFSheet sheet = workbook.createSheet("SXSSFWorkbook");
         // Ép kiểu để sử dụng XSSFDataValidationHelper
         XSSFSheet xssfSheet = workbook.getXSSFWorkbook().getSheet(sheet.getSheetName());
         // Tạo header row
@@ -108,18 +120,13 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export-excel-2")
-    public void exportExcel2(HttpServletResponse response) throws IOException {
+    public void XSSFWorkbook(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
-        List<String[]> dataRows = testDataRepository.findAll()
-                .stream().map(data -> new String[]{
-                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
-                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
-                        data.getVaccination(), data.getPassport()
-                }).collect(Collectors.toList());
+        List<String[]> dataRows = convertData();
         final double elapsedTimeMillis = System.currentTimeMillis();
         Common.executionTime(startTime, elapsedTimeMillis);
         XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Danh sách");
+        XSSFSheet sheet = workbook.createSheet("XSSFWorkbook");
         XSSFRow headerRow = sheet.createRow(0);
         CellStyle headerCellStyle = workbook.createCellStyle();
         headerCellStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
@@ -159,7 +166,7 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export")
-    public void exportExcelNew(HttpServletResponse response) throws IOException {
+    public void EasyExcel(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
         List<TestData> testData = testDataRepository.findAll();
         final double elapsedTimeMillis = System.currentTimeMillis();
@@ -167,26 +174,93 @@ public class ExcelExportTestController {
         setResponse(response, "EasyExcel");
         WriteFont font = new WriteFont();
         font.setFontName("Arial"); // Đổi font chữ thành Arial
-        WriteCellStyle headStyle = new WriteCellStyle();
-        headStyle.setWrapped(true);
-        headStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headStyle.setFillPatternType(FillPatternType.SOLID_FOREGROUND);
-        headStyle.setWriteFont(font);
+
+        DataFormatData dataFormatData = new DataFormatData();
+        dataFormatData.setFormat("@");
+
+        WriteCellStyle headerStyle = new WriteCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+        headerStyle.setFillPatternType(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setWriteFont(font);
+        headerStyle.setDataFormatData(dataFormatData);
 
         WriteCellStyle contentStyle = new WriteCellStyle();
         contentStyle.setWrapped(true);
         contentStyle.setWriteFont(font);
         contentStyle.setHorizontalAlignment(HorizontalAlignment.CENTER);
-        DataFormatData dataFormatData = new DataFormatData();
-        dataFormatData.setFormat("@");
-        headStyle.setDataFormatData(dataFormatData);
         contentStyle.setDataFormatData(dataFormatData);
-        // Tạo một đối tượng HorizontalCellStyleStrategy để định dạng kiểu chữ cho header và content
-        HorizontalCellStyleStrategy styleStrategy = new HorizontalCellStyleStrategy(headStyle, contentStyle);
+
+        HorizontalCellStyleStrategy styleStrategy = new HorizontalCellStyleStrategy(headerStyle, contentStyle);
         SimpleColumnWidthStyleStrategy simpleColumnWidthStyleStrategy = new SimpleColumnWidthStyleStrategy(40);
+
         EasyExcel.write(response.getOutputStream(), TestData.class)
                 .registerWriteHandler(styleStrategy)
-                .registerWriteHandler(simpleColumnWidthStyleStrategy).sheet("Test Data").doWrite(testData);
+                .registerWriteHandler(simpleColumnWidthStyleStrategy).sheet("EasyExcel").doWrite(testData);
+        final double elapsedTimeMillisEnd = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillisEnd);
+    }
+
+    @GetMapping("/export2")
+    public void JExcelAPI(HttpServletResponse response) throws IOException, WriteException {
+        setResponse(response, "JExcelAPI");
+        final double startTime = System.currentTimeMillis();
+        List<String[]> dataRows = testDataRepository.findAll()
+                .stream().map(data -> new String[]{
+                        data.getFirstName(), data.getLastName(), data.getAddress(), data.getEducation(),
+                        data.getPhone(), data.getCountry(), data.getReligion(), data.getLicense(),
+                        data.getVaccination(), data.getPassport(), data.getTestField1(), data.getTestField2(),
+                        data.getTestField3()
+                }).collect(Collectors.toList());
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillis);
+
+        WritableWorkbook workbook = jxl.Workbook.createWorkbook(response.getOutputStream());
+        WritableSheet sheet = workbook.createSheet("JExcelAPI", 0);
+        WritableFont font = new WritableFont(WritableFont.ARIAL, 12, WritableFont.BOLD);
+        font.setPointSize(14);
+        font.setColour(Colour.BLUE);
+
+        WritableCellFormat headerCellFormat = new WritableCellFormat(font);
+        headerCellFormat.setBackground(Colour.ROSE);
+        headerCellFormat.setWrap(true);
+        headerCellFormat.setAlignment(Alignment.CENTRE);
+        headerCellFormat.setBorder(jxl.format.Border.BOTTOM, jxl.format.BorderLineStyle.THIN);
+        headerCellFormat.setBorder(jxl.format.Border.RIGHT, jxl.format.BorderLineStyle.THIN);
+
+        WritableCellFormat cellFormat = new WritableCellFormat();
+        cellFormat.setAlignment(Alignment.CENTRE);
+        cellFormat.setWrap(true);
+        cellFormat.setBorder(jxl.format.Border.BOTTOM, jxl.format.BorderLineStyle.THIN);
+        cellFormat.setBorder(jxl.format.Border.RIGHT, jxl.format.BorderLineStyle.THIN);
+        String[] headers = {"First Name", "Last Name", "Address", "Education", "Phone", "Country",
+                "Religion", "License", "Vaccination", "Passport", "Test Field 1", "Test Field 2", "Test Field 3"};
+        List<String> options = Arrays.asList("Option 1", "Option 2", "Option 3");
+        WritableCellFeatures cellFeatures = new WritableCellFeatures();
+        cellFeatures.setDataValidationList(options);
+        cellFeatures.hasDropDown();
+        cellFeatures.setComment("121313");
+
+        int defaultColumnWidth = 40;
+        for (int i = 0; i < headers.length; i++) {
+            Label label = new Label(i, 0, headers[i], headerCellFormat);
+            label.setCellFeatures(cellFeatures);
+            sheet.setColumnView(i, defaultColumnWidth);
+            sheet.addCell(label);
+        }
+        int row = 1;
+        for (String[] values : dataRows) {
+            for (int i = 0; i < values.length; i++) {
+                Label label = new Label(i, row, values[i], cellFormat);
+                sheet.addCell(label);
+            }
+            row++;
+        }
+        try {
+            workbook.write();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        workbook.close();
         final double elapsedTimeMillisEnd = System.currentTimeMillis();
         Common.executionTime(startTime, elapsedTimeMillisEnd);
     }
@@ -240,7 +314,7 @@ public class ExcelExportTestController {
     @GetMapping("/create-data-test")
     public ResponseEntity<?> createDataTest() {
         List<TestData> list = Stream.generate(TestData::new)
-                .limit(1000)
+                .limit(10000)
                 .collect(Collectors.toList());
         testDataRepository.saveAll(list);
         return new ResponseEntity<>(HttpStatus.OK);
