@@ -1,50 +1,35 @@
 package com.example.final_case_social_web.controller;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.write.metadata.style.WriteCellStyle;
-import com.alibaba.excel.write.metadata.style.WriteFont;
-import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
-import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.GroupPostDTO;
 import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
-import com.example.final_case_social_web.excel.ExcelTest;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.GroupPostRepository;
 import com.example.final_case_social_web.repository.ReportRepository;
-import com.example.final_case_social_web.repository.TestDataRepository;
 import com.example.final_case_social_web.repository.TheGroupRepository;
 import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddressList;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @PropertySource("classpath:application.properties")
@@ -62,8 +47,6 @@ public class AdminRestController {
     private GroupPostRepository groupPostRepository;
     @Autowired
     private ReportRepository reportRepository;
-    @Autowired
-    private TestDataRepository testDataRepository;
 
     // Xem tất cả user
     @GetMapping("/adminAction")

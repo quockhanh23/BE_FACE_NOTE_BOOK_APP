@@ -172,7 +172,8 @@ public class UserServiceImpl implements UserService {
         if (idAdmin == null) return null;
         Optional<User> adminOptional = userRepository.findById(idAdmin);
         if (adminOptional.isPresent()) {
-            if (adminOptional.get().getRoles().toString().substring(17, 27).equals(Constants.Roles.ROLE_ADMIN)) {
+            Set<Role> role = adminOptional.get().getRoles();
+            if (role.stream().anyMatch(item -> item.getName().equalsIgnoreCase(Constants.Roles.ROLE_ADMIN))) {
                 return adminOptional.get().getRoles();
             }
         }

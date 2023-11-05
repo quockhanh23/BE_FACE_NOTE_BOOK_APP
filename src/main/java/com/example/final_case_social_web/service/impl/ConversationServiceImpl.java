@@ -39,7 +39,6 @@ public class ConversationServiceImpl implements ConversationService {
         return conversationRepository.listConversationByIdUserNotFriend(idUser);
     }
 
-
     @Override
     public void delete(Conversation entity) {
         conversationRepository.delete(entity);
