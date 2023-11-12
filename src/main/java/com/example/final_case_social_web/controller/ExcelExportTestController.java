@@ -70,6 +70,7 @@ public class ExcelExportTestController {
     public void SXSSFWorkbook(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
         List<String[]> dataRows = convertData();
+        dataRows = dataRows.subList(1, 100);
         final double elapsedTimeMillis = System.currentTimeMillis();
         Common.executionTime(startTime, elapsedTimeMillis);
         // Tạo workbook mới
@@ -322,7 +323,8 @@ public class ExcelExportTestController {
 
     private void writeValueDropDownList(XSSFSheet sheet, String value, int dataSite, int indexColumnAddDropList) {
         Map<String, String[]> dropDownList = new HashMap<>();
-        String[] test = {"1", "2", "3"};
+        String[] test = {"First Name", "Last Name", "Address", "Education", "Phone", "Country",
+                "Religion", "License", "Vaccination", "Passport", "Test Field 1", "Test Field 2", "Test Field 3"};
         dropDownList.put("First Name", test);
         for (Map.Entry<String, String[]> entry : dropDownList.entrySet()) {
             if (entry.getKey() != null && entry.getKey().equals(value)) {

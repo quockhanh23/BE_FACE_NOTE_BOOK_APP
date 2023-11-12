@@ -33,10 +33,12 @@ dependencies {
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
     implementation 'org.modelmapper:modelmapper:3.1.1'
-    implementation 'org.apache.poi:poi-ooxml:5.2.2'
     implementation group: 'commons-io', name: 'commons-io', version: '2.7'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.2'
-    implementation 'com.alibaba:easyexcel:3.3.2'
+
+    // https://mvnrepository.com/artifact/com.alibaba/easyexcel
+    implementation group: 'com.alibaba', name: 'easyexcel', version: '3.3.2'
+
     implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -50,6 +52,10 @@ dependencies {
     // sms
     // https://mvnrepository.com/artifact/com.twilio.sdk/twilio
     implementation 'com.twilio.sdk:twilio:9.2.5'
+    implementation group: 'com.itextpdf.tool', name: 'xmlworker', version: '5.5.13.3'
+    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+
+    implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.1.22'
 
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 
