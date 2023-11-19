@@ -11,7 +11,7 @@ import java.io.IOException;
 public class CustomColorProvider implements FontProvider {
 
     @Override
-    public boolean isRegistered(String fontName) {
+    public boolean isRegistered(String fontname) {
         return false;
     }
 
@@ -25,7 +25,7 @@ public class CustomColorProvider implements FontProvider {
             throw new RuntimeException(e);
         }
         BaseColor color1 = new BaseColor(255, 244, 11);
-        Font font = new Font(unicode, 18);
+        Font font = new Font(unicode, 10);
         font.setColor(color1);
         return font;
     }

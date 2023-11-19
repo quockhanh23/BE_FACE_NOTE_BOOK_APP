@@ -2,9 +2,8 @@ package com.example.final_case_social_web.controller;
 
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.User;
-import com.example.final_case_social_web.service.pdf.CustomColorProvider;
-import com.example.final_case_social_web.service.pdf.CustomFontProvider;
 import com.example.final_case_social_web.service.UserService;
+import com.example.final_case_social_web.service.pdf.CustomFontProvider;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -94,15 +93,34 @@ public class PdfController {
             html.append(openTr).append(fullNameColumn).append(emailColumn).append(statusColumn).append(tableRowEnd);
         }
         html.append("</table>");
+        FontProvider fontProvider = new FontProvider() {
+            @Override
+            public boolean isRegistered(String fontName) {
+                return false;
+            }
 
+            @Override
+            public Font getFont(String fontName, String encoding, boolean embedded, float size, int style, BaseColor color) {
+                BaseFont unicode;
+                try {
+                    unicode = BaseFont.createFont("src\\main\\resources\\fonts\\ARIALUNI.ttf",
+                            BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                } catch (DocumentException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+                BaseColor color1 = new BaseColor(255, 244, 11);
+                Font font = new Font(unicode, 10);
+                font.setColor(color1);
+                return font;
+            }
+        };
         // Đọc chuỗi HTML và chuyển đổi thành PDF
         XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
                 new ByteArrayInputStream(html.toString().getBytes()), StandardCharsets.UTF_8, new CustomFontProvider());
 
         String test = "<h1>test color</h1>";
-
         XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
-                new ByteArrayInputStream(test.toString().getBytes()), StandardCharsets.UTF_8, new CustomColorProvider());
+                new ByteArrayInputStream(test.toString().getBytes()), StandardCharsets.UTF_8, fontProvider);
         pdfWriter.close();
         document.close();
         response.getOutputStream().flush();

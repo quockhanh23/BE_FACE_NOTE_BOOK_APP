@@ -19,6 +19,9 @@ import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,9 +51,14 @@ public class ExcelExportTestController {
 
     private void setResponse(HttpServletResponse response, String type) {
         String fileName = System.currentTimeMillis() + type;
+        if (type.equals("word")) {
+            response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".docx");
+            return;
+        }
         if (type.equals("JExcelAPI")) {
             response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment; filename=test-data.xls");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xls");
         } else {
             response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xlsx");
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -70,7 +80,6 @@ public class ExcelExportTestController {
     public void SXSSFWorkbook(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
         List<String[]> dataRows = convertData();
-        dataRows = dataRows.subList(1, 100);
         final double elapsedTimeMillis = System.currentTimeMillis();
         Common.executionTime(startTime, elapsedTimeMillis);
         // Tạo workbook mới
@@ -109,13 +118,46 @@ public class ExcelExportTestController {
                 cell.setCellStyle(dataCellStyle);
             }
         }
-
         setResponse(response, "SXSSFWorkbook");
         // Ghi workbook vào OutputStream của response
         OutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();
+        final double elapsedTimeMillisEnd = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillisEnd);
+    }
+
+    @GetMapping("/export-excel-1")
+    public void SXSSFWorkbookFormFile(HttpServletResponse response) {
+        final double startTime = System.currentTimeMillis();
+        List<String[]> dataRows = convertData();
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillis);
+        try (SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook(new XSSFWorkbook(Files.newInputStream(
+                Paths.get("C:\\Users\\Administrator\\Downloads\\Test.xlsx"))))) {
+            sxssfWorkbook.setCompressTempFiles(true);
+            SXSSFSheet sheet = sxssfWorkbook.getSheetAt(0);
+            int rowNum = 1;
+            for (String[] rowData : dataRows) {
+                SXSSFRow row = sheet.createRow(rowNum++);
+                int columnNum = 0;
+                for (String field : rowData) {
+                    Cell cell = row.createCell(columnNum++);
+                    cell.setCellValue(field);
+                }
+                if (rowNum % 100 == 0) {
+                    sheet.flushRows();
+                }
+            }
+            setResponse(response, "SXSSFWorkbook");
+            OutputStream outputStream = response.getOutputStream();
+            sxssfWorkbook.write(outputStream);
+            sxssfWorkbook.close();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         final double elapsedTimeMillisEnd = System.currentTimeMillis();
         Common.executionTime(startTime, elapsedTimeMillisEnd);
     }
@@ -156,7 +198,6 @@ public class ExcelExportTestController {
                 cell.setCellStyle(dataCellStyle);
             }
         }
-
         setResponse(response, "XSSFWorkbook");
         OutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
@@ -352,5 +393,18 @@ public class ExcelExportTestController {
                 cell.setCellComment(comment);
             }
         }
+    }
+
+    @GetMapping("/export-word")
+    public void exportWord(HttpServletResponse response) throws IOException {
+        XWPFDocument document = new XWPFDocument();
+        XWPFParagraph paragraph = document.createParagraph();
+        XWPFRun run = paragraph.createRun();
+        run.setText("Hello, world!");
+        setResponse(response, "word");
+        OutputStream outputStream = response.getOutputStream();
+        document.write(outputStream);
+        outputStream.close();
+        document.close();
     }
 }
