@@ -3,6 +3,7 @@ package com.example.final_case_social_web.controller;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.service.UserService;
+import com.example.final_case_social_web.service.pdf.CustomBase;
 import com.example.final_case_social_web.service.pdf.CustomFontProvider;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
@@ -74,23 +75,34 @@ public class PdfController {
         List<UserDTO> userDTOList = userService.copyListDTO(users);
         Document document = new Document();
         PdfWriter pdfWriter = PdfWriter.getInstance(document, response.getOutputStream());
+        // Lúc này phải open document
         document.open();
-
+        Image image = Image.getInstance("src\\main\\resources\\fonts\\steam-logo.jpg");
+        image.scaleToFit(100, 100);
+        image.setAbsolutePosition(0, 0);
+        pdfWriter.getDirectContent().addImage(image);
         StringBuilder html = new StringBuilder("<h1>Hello ข้อความ, world!</h1>");
         String table = "<table style=\"color: purple\" border=\"1px\" width=\"100%\">";
         String tableHeader = "<tr>\n" +
+                "<th style=\"text-align: center\">&nbsp;STT&nbsp;</th>\n" +
                 "<th style=\"text-align: center\">&nbsp;Tên đầy đủ&nbsp;</th>\n" +
                 "<th style=\"text-align: center\">&nbsp;Email&nbsp;</th>\n" +
+                "<th style=\"text-align: center\">&nbsp;Số điện thoại&nbsp;</th>\n" +
                 "<th style=\"text-align: center\">&nbsp;Trạng thái&nbsp;</th>\n" +
                 "</tr>";
         html.append(table).append(tableHeader);
+        int num = 1;
         for (UserDTO userDTO : userDTOList) {
             String openTr = "<tr>";
+            String stt = "<td>" + num + "</td>";
             String fullNameColumn = "<td>" + userDTO.getFullName() + "</td>";
             String emailColumn = "<td>" + userDTO.getEmail() + "</td>";
-            String statusColumn = "<td style=\"color: green;\">" + userDTO.getStatus() + "</td>";
+            String number = "<td>" + userDTO.getPhone() + "</td>";
+            String statusColumn = "<td>" + userDTO.getStatus() + "</td>";
             String tableRowEnd = "</tr>";
-            html.append(openTr).append(fullNameColumn).append(emailColumn).append(statusColumn).append(tableRowEnd);
+            html.append(openTr).append(stt)
+                    .append(fullNameColumn).append(emailColumn).append(number)
+                    .append(statusColumn).append(tableRowEnd);
         }
         html.append("</table>");
         FontProvider fontProvider = new FontProvider() {
@@ -101,28 +113,20 @@ public class PdfController {
 
             @Override
             public Font getFont(String fontName, String encoding, boolean embedded, float size, int style, BaseColor color) {
-                BaseFont unicode;
-                try {
-                    unicode = BaseFont.createFont("src\\main\\resources\\fonts\\ARIALUNI.ttf",
-                            BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                } catch (DocumentException | IOException e) {
-                    throw new RuntimeException(e);
-                }
+                BaseFont unicode = CustomBase.getFontArial();
                 BaseColor color1 = new BaseColor(255, 244, 11);
                 Font font = new Font(unicode, 10);
                 font.setColor(color1);
                 return font;
             }
         };
-        // Đọc chuỗi HTML và chuyển đổi thành PDF
         XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
                 new ByteArrayInputStream(html.toString().getBytes()), StandardCharsets.UTF_8, new CustomFontProvider());
-
-        String test = "<h1>test color</h1>";
+        String test = "<h1>test color</h1><h1>test color 2</h1>";
         XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
                 new ByteArrayInputStream(test.toString().getBytes()), StandardCharsets.UTF_8, fontProvider);
-        pdfWriter.close();
         document.close();
+        pdfWriter.close();
         response.getOutputStream().flush();
     }
 }
