@@ -15,11 +15,6 @@ public class GroupPostServiceImpl implements GroupPostService {
     private GroupPostRepository groupPostRepository;
 
     @Override
-    public Iterable<GroupPost> findAll() {
-        return groupPostRepository.findAll();
-    }
-
-    @Override
     public Optional<GroupPost> findById(Long id) {
         return groupPostRepository.findById(id);
     }

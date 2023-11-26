@@ -188,7 +188,7 @@ public class GroupRestController {
             }
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -217,7 +217,7 @@ public class GroupRestController {
             if (groupParticipant.getUser().getId().equals(idUser)
                     && groupParticipant.getTheGroup().getId().equals(idTheGroup)) {
                 return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                        MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                        MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                         HttpStatus.BAD_REQUEST);
             }
         }
@@ -274,7 +274,7 @@ public class GroupRestController {
             }
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 

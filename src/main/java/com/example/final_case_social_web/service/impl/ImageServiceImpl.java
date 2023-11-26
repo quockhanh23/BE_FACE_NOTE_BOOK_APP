@@ -17,11 +17,6 @@ public class ImageServiceImpl implements ImageService {
     private ImageRepository imageRepository;
 
     @Override
-    public Iterable<Image> findAll() {
-        return imageRepository.findAll();
-    }
-
-    @Override
     public Optional<Image> findById(Long id) {
         return imageRepository.findById(id);
     }

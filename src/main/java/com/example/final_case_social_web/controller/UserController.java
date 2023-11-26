@@ -25,7 +25,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -201,7 +200,8 @@ public class UserController {
             Image image = imageService.createImageDefault(user.getCover(), user);
             imageService.save(image);
         }
-//        emailService.sendMail(user.getEmail(), MessageResponse.Email.WELL_COME + user.getFullName(), MessageResponse.Email.THANK);
+//        emailService.sendMail(user.getEmail(), MessageResponse.Email.WELL_COME + user.getFullName(),
+//                MessageResponse.Email.THANK);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
@@ -212,7 +212,7 @@ public class UserController {
                                                @RequestHeader("Authorization") String authorization) {
         if (StringUtils.isEmpty(passwordRetrieval.getUserName()) || StringUtils.isEmpty(passwordRetrieval.getEmail())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                    MessageResponse.NO_VALID), HttpStatus.BAD_REQUEST);
+                    MessageResponse.IN_VALID), HttpStatus.BAD_REQUEST);
         }
         Optional<User> userOptional = userService
                 .findUserByEmailAndUserName(passwordRetrieval.getUserName(), passwordRetrieval.getEmail());
@@ -224,7 +224,7 @@ public class UserController {
         boolean check = userService.errorToken(authorization, userOptional.get().getId());
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         try {
@@ -252,7 +252,7 @@ public class UserController {
         try {
             if (!userService.errorToken(authorization, idUser)) {
                 return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                         HttpStatus.UNAUTHORIZED);
             }
             Optional<User> userOptional = userService.findById(idUser);
@@ -390,7 +390,7 @@ public class UserController {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         String avatarName = "";
@@ -449,7 +449,7 @@ public class UserController {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
@@ -478,7 +478,7 @@ public class UserController {
             }
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -495,7 +495,7 @@ public class UserController {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);

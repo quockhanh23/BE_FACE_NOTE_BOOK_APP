@@ -10,20 +10,23 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Date;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
-public class ReportViolations {
+public class UserComplaints {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String fullName;
+    private String email;
+    private String username;
+    private String numberPhone;
     private String content;
-    private String type;
-    private String reason;
+    private Date createdAt;
+    private Date editedAt;
+    private String createBy;
+    private String editBy;
     private String status;
-    private Date createAt;
-    private Date editAt;
-    private Long idUserReport;
-    private Long idViolate;
+    private String type;
 }

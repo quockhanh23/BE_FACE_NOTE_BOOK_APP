@@ -44,7 +44,7 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private AnswerCommentRepository answerCommentRepository;
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @PersistenceContext
     EntityManager entityManager;

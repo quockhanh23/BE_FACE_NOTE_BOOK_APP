@@ -15,11 +15,6 @@ public class AccountServiceImpl implements GeneralService<User> {
     private UserRepository userRepository;
 
     @Override
-    public Iterable<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }

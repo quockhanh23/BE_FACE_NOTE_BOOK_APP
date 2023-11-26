@@ -154,7 +154,7 @@ public class CommentRestController {
             return new ResponseEntity<>(commentOptional.get().isDelete(), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 

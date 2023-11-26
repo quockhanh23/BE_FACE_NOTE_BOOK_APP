@@ -15,11 +15,6 @@ public class ConversationServiceImpl implements ConversationService {
     private ConversationRepository conversationRepository;
 
     @Override
-    public Iterable<Conversation> findAll() {
-        return conversationRepository.findAll();
-    }
-
-    @Override
     public Optional<Conversation> findById(Long id) {
         return conversationRepository.findById(id);
     }
@@ -27,6 +22,11 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     public Conversation save(Conversation conversation) {
         return conversationRepository.save(conversation);
+    }
+
+    @Override
+    public Iterable<Conversation> findAll() {
+        return conversationRepository.findAll();
     }
 
     @Override

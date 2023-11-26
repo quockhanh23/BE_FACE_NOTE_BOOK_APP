@@ -19,11 +19,6 @@ public class MessengerServiceImpl implements MessengerService {
     private MessengerRepository messengerRepository;
 
     @Override
-    public Iterable<Messenger> findAll() {
-        return messengerRepository.findAll();
-    }
-
-    @Override
     public Optional<Messenger> findById(Long id) {
         return messengerRepository.findById(id);
     }

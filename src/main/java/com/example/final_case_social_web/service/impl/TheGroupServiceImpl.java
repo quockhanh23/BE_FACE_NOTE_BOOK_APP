@@ -16,11 +16,6 @@ public class TheGroupServiceImpl implements TheGroupService {
     private TheGroupRepository theGroupRepository;
 
     @Override
-    public Iterable<TheGroup> findAll() {
-        return theGroupRepository.findAll();
-    }
-
-    @Override
     public Optional<TheGroup> findById(Long id) {
         return theGroupRepository.findById(id);
     }

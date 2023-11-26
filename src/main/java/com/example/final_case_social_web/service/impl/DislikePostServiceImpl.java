@@ -15,11 +15,6 @@ public class DislikePostServiceImpl implements DisLikePostService {
     private DisLikePostRepository disLikeRepository;
 
     @Override
-    public Iterable<DisLikePost> findAll() {
-        return disLikeRepository.findAll();
-    }
-
-    @Override
     public Optional<DisLikePost> findById(Long id) {
         return disLikeRepository.findById(id);
     }

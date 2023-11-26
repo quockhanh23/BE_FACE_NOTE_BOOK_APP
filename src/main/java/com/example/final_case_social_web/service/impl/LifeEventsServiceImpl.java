@@ -15,11 +15,6 @@ public class LifeEventsServiceImpl implements LifeEventsService {
     LifeEventsRepository lifeEventsRepository;
 
     @Override
-    public Iterable<LifeEvents> findAll() {
-        return lifeEventsRepository.findAll();
-    }
-
-    @Override
     public Optional<LifeEvents> findById(Long id) {
         return lifeEventsRepository.findById(id);
     }

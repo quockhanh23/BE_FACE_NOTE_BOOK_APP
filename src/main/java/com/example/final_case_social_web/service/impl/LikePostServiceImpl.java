@@ -15,11 +15,6 @@ public class LikePostServiceImpl implements LikePostService {
     private LikePostRepository likePostRepository;
 
     @Override
-    public Iterable<LikePost> findAll() {
-        return likePostRepository.findAll();
-    }
-
-    @Override
     public Optional<LikePost> findById(Long id) {
         return likePostRepository.findById(id);
     }

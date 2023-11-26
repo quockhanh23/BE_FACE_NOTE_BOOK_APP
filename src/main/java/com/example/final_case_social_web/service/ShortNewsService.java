@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface ShortNewsService extends GeneralService<ShortNews> {
 
+    Iterable<ShortNews> findAll();
+
     void delete(ShortNews entity);
 
     void createShortNews(ShortNews shortNews);

@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface GroupParticipantService extends GeneralService<GroupParticipant> {
 
+    Iterable<GroupParticipant> findAll();
+
     List<GroupParticipant> findAllUserStatusPendingApproval(Long idTheGroup);
 
     List<GroupParticipant> findAllUserStatusApproved(Long idGroup);

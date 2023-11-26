@@ -75,7 +75,7 @@ public class AnswerCommentRestController {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
@@ -115,7 +115,7 @@ public class AnswerCommentRestController {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         Optional<User> userOptional = userService.findById(idUser);
@@ -147,7 +147,7 @@ public class AnswerCommentRestController {
             return new ResponseEntity<>(answerComment.get(), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 }

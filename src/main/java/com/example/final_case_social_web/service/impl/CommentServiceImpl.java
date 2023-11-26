@@ -18,12 +18,7 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
-    ModelMapper modelMapper;
-
-    @Override
-    public Iterable<Comment> findAll() {
-        return commentRepository.findAll();
-    }
+    private ModelMapper modelMapper;
 
     @Override
     public Optional<Comment> findById(Long id) {

@@ -1,12 +1,14 @@
 package com.example.final_case_social_web.model;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 // Không đặt tên là post được

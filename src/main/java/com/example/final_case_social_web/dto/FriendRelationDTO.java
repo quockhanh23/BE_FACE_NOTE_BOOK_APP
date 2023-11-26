@@ -5,7 +5,6 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class FriendRelationDTO {
     private Long id;
     private Long idUser;

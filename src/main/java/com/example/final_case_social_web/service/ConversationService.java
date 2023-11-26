@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface ConversationService extends GeneralService<Conversation> {
 
+    Iterable<Conversation> findAll();
+
     List<Conversation> findAllByIdSender(Long idSender);
 
     List<Conversation> listConversationByIdUserNotFriend(@Param("idUser") Long idUser);

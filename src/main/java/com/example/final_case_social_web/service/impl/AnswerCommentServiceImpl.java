@@ -17,11 +17,6 @@ public class AnswerCommentServiceImpl implements AnswerCommentService {
     private AnswerCommentRepository answerCommentRepository;
 
     @Override
-    public Iterable<AnswerComment> findAll() {
-        return answerCommentRepository.findAll();
-    }
-
-    @Override
     public Optional<AnswerComment> findById(Long id) {
         return answerCommentRepository.findById(id);
     }

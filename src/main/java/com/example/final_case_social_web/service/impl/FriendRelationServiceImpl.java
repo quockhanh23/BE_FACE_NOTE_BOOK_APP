@@ -23,11 +23,6 @@ public class FriendRelationServiceImpl implements FriendRelationService {
     private FriendRelationRepository friendRelationRepository;
 
     @Override
-    public Iterable<FriendRelation> findAll() {
-        return friendRelationRepository.findAll();
-    }
-
-    @Override
     public Optional<FriendRelation> findById(Long id) {
         return friendRelationRepository.findById(id);
     }

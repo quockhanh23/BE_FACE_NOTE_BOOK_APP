@@ -55,7 +55,7 @@ public class AdminRestController {
                                          @RequestHeader("Authorization") String authorization) {
         if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if (Objects.isNull(userService.checkAdmin(idAdmin))) {
@@ -96,7 +96,7 @@ public class AdminRestController {
                                              @RequestHeader("Authorization") String authorization) {
         if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if (userService.checkAdmin(idAdmin) == null) {
@@ -138,7 +138,7 @@ public class AdminRestController {
                                         @RequestHeader("Authorization") String authorization) {
         if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if (userService.checkAdmin(idAdmin) == null) {
@@ -161,7 +161,7 @@ public class AdminRestController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -173,7 +173,7 @@ public class AdminRestController {
                                         @RequestHeader("Authorization") String authorization) {
         if (!userService.errorToken(authorization, idAdmin)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if (userService.checkAdmin(idAdmin) == null) {
@@ -196,7 +196,7 @@ public class AdminRestController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -206,7 +206,7 @@ public class AdminRestController {
                                              @RequestHeader("Authorization") String authorization) {
         if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if (userService.checkAdmin(idUser) == null) {

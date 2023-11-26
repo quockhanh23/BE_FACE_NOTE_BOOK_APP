@@ -6,7 +6,6 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class NotificationDTO {
     private Long id;
     private String title;

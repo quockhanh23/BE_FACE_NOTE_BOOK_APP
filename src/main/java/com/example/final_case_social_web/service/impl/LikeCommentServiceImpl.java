@@ -15,11 +15,6 @@ public class LikeCommentServiceImpl implements LikeCommentService {
     private LikeCommentRepository likeCommentRepository;
 
     @Override
-    public Iterable<LikeComment> findAll() {
-        return likeCommentRepository.findAll();
-    }
-
-    @Override
     public Optional<LikeComment> findById(Long id) {
         return likeCommentRepository.findById(id);
     }

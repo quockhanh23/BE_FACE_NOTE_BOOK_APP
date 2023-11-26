@@ -26,7 +26,7 @@ public class MessageResponse {
     }
 
     public static class Email {
-        public static final String WELL_COME = "Xin chào bạn ";
+        public static final String WELL_COME = "Xin chào ";
         public static final String THANK = "Cảm ơn bạn đã sử dụng dịch vụ";
         public static final String RESET_PASSWORD = "Cấp lại mật khẩu";
         public static final String CHANGE_PASSWORD = "Đổi mật khẩu";
@@ -45,5 +45,5 @@ public class MessageResponse {
     public static final String DESCRIPTION_BLANK = "Trường dữ liệu bị trống: ";
     public static final String WRONG_SOME_THING = "Dữ liệu đầu vào không phù hợp";
     public static final String ERROR = "Có lỗi sảy ra";
-    public static final String NO_VALID = "Không hợp lệ";
+    public static final String IN_VALID = "Không hợp lệ";
 }

@@ -1,12 +1,14 @@
 package com.example.final_case_social_web.model;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "friendRelation")
 public class FriendRelation {
@@ -19,21 +21,7 @@ public class FriendRelation {
     @ManyToOne
     @JoinColumn(name = "friend_id")
     private User friend;
-
     @ManyToOne
     @JoinColumn(name = "userLogin_id")
     private User userLogin;
-
-    public FriendRelation(Long id, Long idUser, Long idFriend, String statusFriend) {
-        this.id = id;
-        this.idUser = idUser;
-        this.idFriend = idFriend;
-        this.statusFriend = statusFriend;
-    }
-
-    public FriendRelation(Long idUser, Long idFriend, String statusFriend) {
-        this.idUser = idUser;
-        this.idFriend = idFriend;
-        this.statusFriend = statusFriend;
-    }
 }

@@ -7,7 +7,6 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ShortNewsDTO {
     private Long id;
     private String content;

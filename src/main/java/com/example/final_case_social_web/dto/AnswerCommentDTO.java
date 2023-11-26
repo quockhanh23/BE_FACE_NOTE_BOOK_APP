@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class AnswerCommentDTO {
     private String content;
     private LocalDateTime createAt;

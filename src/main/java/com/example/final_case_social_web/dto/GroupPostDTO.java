@@ -7,7 +7,6 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class GroupPostDTO {
     private Long id;
     private String status;

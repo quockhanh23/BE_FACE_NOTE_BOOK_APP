@@ -74,7 +74,7 @@ public class PostRestController {
             }
             if (!check) {
                 return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                         HttpStatus.UNAUTHORIZED);
             }
             List<Post2> post2List = postService.allPost(idUser);
@@ -115,7 +115,7 @@ public class PostRestController {
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         List<HidePost> list = hidePostRepository.findAllByIdUser(idUser);
@@ -166,7 +166,7 @@ public class PostRestController {
         }
         if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         postService.create(post);
@@ -193,7 +193,7 @@ public class PostRestController {
         }
         if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if (postOptional.get().getUser().getId().equals(userOptional.get().getId())) {
@@ -205,7 +205,7 @@ public class PostRestController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -272,7 +272,7 @@ public class PostRestController {
         }
         if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         if ("Public".equals(type)) {
@@ -290,7 +290,7 @@ public class PostRestController {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                    MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                    MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -308,7 +308,7 @@ public class PostRestController {
         }
         if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         List<Post2> post2List = postRepository.findAllById(listIdPost);
@@ -337,7 +337,7 @@ public class PostRestController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                MessageResponse.NO_VALID, MessageResponse.DESCRIPTION),
+                MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -351,7 +351,7 @@ public class PostRestController {
         }
         if (!userService.errorToken(authorization, postOptional.get().getUser().getId())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         PostDTO postDTO = modelMapper.map(postOptional.get(), PostDTO.class);
@@ -366,7 +366,7 @@ public class PostRestController {
                                             @RequestHeader("Authorization") String authorization) {
         if (!userService.errorToken(authorization, idUser)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.NO_VALID.toLowerCase()),
+                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
         List<Post2> post2List = postService.findAllByUserIdAndDeleteTrue(idUser);

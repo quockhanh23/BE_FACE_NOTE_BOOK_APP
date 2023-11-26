@@ -77,12 +77,12 @@ public class PdfController {
         PdfWriter pdfWriter = PdfWriter.getInstance(document, response.getOutputStream());
         // Lúc này phải open document
         document.open();
-        Image image = Image.getInstance("src\\main\\resources\\fonts\\steam-logo.jpg");
+        Image image = Image.getInstance("src\\main\\resources\\image\\steam-logo.jpg");
         image.scaleToFit(100, 100);
         image.setAbsolutePosition(0, 0);
         pdfWriter.getDirectContent().addImage(image);
         StringBuilder html = new StringBuilder("<h1>Hello ข้อความ, world!</h1>");
-        String table = "<table style=\"color: purple\" border=\"1px\" width=\"100%\">";
+        String table = "<table style=\"color: purple\" border=\"1px solid\" width=\"100%\">";
         String tableHeader = "<tr>\n" +
                 "<th style=\"text-align: center\">&nbsp;STT&nbsp;</th>\n" +
                 "<th style=\"text-align: center\">&nbsp;Tên đầy đủ&nbsp;</th>\n" +
@@ -124,7 +124,7 @@ public class PdfController {
                 new ByteArrayInputStream(html.toString().getBytes()), StandardCharsets.UTF_8, new CustomFontProvider());
         String test = "<h1>test color</h1><h1>test color 2</h1>";
         XMLWorkerHelper.getInstance().parseXHtml(pdfWriter, document,
-                new ByteArrayInputStream(test.toString().getBytes()), StandardCharsets.UTF_8, fontProvider);
+                new ByteArrayInputStream(test.getBytes()), StandardCharsets.UTF_8, fontProvider);
         document.close();
         pdfWriter.close();
         response.getOutputStream().flush();

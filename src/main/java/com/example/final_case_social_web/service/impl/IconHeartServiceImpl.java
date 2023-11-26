@@ -16,11 +16,6 @@ public class IconHeartServiceImpl implements IconHeartService {
     private IconHeartRepository iconHeartRepository;
 
     @Override
-    public Iterable<IconHeart> findAll() {
-        return iconHeartRepository.findAll();
-    }
-
-    @Override
     public Optional<IconHeart> findById(Long id) {
         return iconHeartRepository.findById(id);
     }

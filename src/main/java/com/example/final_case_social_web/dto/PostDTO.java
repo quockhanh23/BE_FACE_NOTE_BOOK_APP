@@ -7,7 +7,6 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class PostDTO {
     private Long id;
     private Date createAt;
