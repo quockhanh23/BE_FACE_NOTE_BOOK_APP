@@ -9,6 +9,8 @@ import com.alibaba.excel.write.style.column.SimpleColumnWidthStyleStrategy;
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.excel.ExcelTest;
 import com.example.final_case_social_web.model.TestData;
+import com.example.final_case_social_web.model.TestData2;
+import com.example.final_case_social_web.repository.TestData2Repository;
 import com.example.final_case_social_web.repository.TestDataRepository;
 import jxl.write.*;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,9 @@ public class ExcelExportTestController {
 
     @Autowired
     private TestDataRepository testDataRepository;
+
+    @Autowired
+    private TestData2Repository testData2Repository;
 
     private void setResponse(HttpServletResponse response, String type) {
         String fileName = System.currentTimeMillis() + type;
@@ -359,6 +364,15 @@ public class ExcelExportTestController {
                 .limit(10000)
                 .collect(Collectors.toList());
         testDataRepository.saveAll(list);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/create-data-test2")
+    public ResponseEntity<?> createDataTest2() {
+        List<TestData2> list = Stream.generate(TestData2::new)
+                .limit(10000)
+                .collect(Collectors.toList());
+        testData2Repository.saveAll(list);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

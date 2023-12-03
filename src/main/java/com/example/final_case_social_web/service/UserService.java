@@ -77,5 +77,7 @@ public interface UserService extends UserDetailsService {
 
     List<User> getAllUsersAsync();
 
+    int handleWords(String value);
+
     void doTask();
 }

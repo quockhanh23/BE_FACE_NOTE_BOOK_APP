@@ -165,6 +165,18 @@ public class UserController {
                     MessageResponse.RegisterMessage.NO_VALID_USER_NAME),
                     HttpStatus.BAD_REQUEST);
         }
+        int check = userService.handleWords(user.getUsername());
+        if (check == 1) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    "Tên đăng nhập có chứa những từ ngữ không phù hợp"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        int check2 = userService.handleWords(user.getFullName());
+        if (check2 == 1) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    "Tên đầy đủ nhập có chứa những từ ngữ không phù hợp"),
+                    HttpStatus.BAD_REQUEST);
+        }
         if (!userService.isCorrectConfirmPassword(user)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.RegisterMessage.WRONG_CONFIRM_PASSWORD),

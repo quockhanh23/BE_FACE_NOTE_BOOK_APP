@@ -41,17 +41,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		} catch (Exception e) {
 			logger.error("Can NOT set user authentication -> Message: {}", e);
 		}
-
 		filterChain.doFilter(request, response);
 	}
 
 	private String getJwtFromRequest(HttpServletRequest request) {
 		String authHeader = request.getHeader("Authorization");
-
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			return authHeader.replace("Bearer ", "");
 		}
-
 		return null;
 	}
 }

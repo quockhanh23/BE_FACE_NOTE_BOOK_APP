@@ -43,12 +43,10 @@ public class JwtService {
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty -> Message: {}", e);
         }
-
         return false;
     }
 
     public String getUserNameFromJwtToken(String token) {
-
         String userName = Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)

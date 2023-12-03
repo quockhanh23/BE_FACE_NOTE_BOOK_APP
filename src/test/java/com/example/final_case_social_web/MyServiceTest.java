@@ -43,7 +43,6 @@ public class MyServiceTest {
 
     @Test
     public void testFindById() {
-        // Given
         Long id = 1L;
         User user = new User();
         user.setId(id);

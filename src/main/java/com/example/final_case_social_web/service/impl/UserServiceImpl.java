@@ -397,6 +397,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int handleWords(String value) {
+        String[] dirtyWords = {"fuck", "địt", "lồn"};
+        boolean containsDirtyWord = StringUtils.containsAny(value, dirtyWords);
+        if (containsDirtyWord) return 1;
+        return 0;
+    }
+
+    @Override
     public List<User> getAllUsersAsync() {
         for (int i = 0; i < 5; i++) {
             TaskThread taskThread = new TaskThread(userRepository);
