@@ -160,7 +160,7 @@ public class UserController {
         if (bindingResult.hasFieldErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = userService.handlerWordsLanguage(user, new UserCheckWords());
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(user);
         if (null != responseEntity) return responseEntity;
         if (!Common.checkRegex(user.getUsername(), Regex.CHECK_USER_NAME)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -381,9 +381,14 @@ public class UserController {
                                                @RequestHeader("Authorization") String authorization) {
         if (StringUtils.isEmpty(user.getFullName()) || StringUtils.isEmpty(user.getPhone())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                    MessageResponse.DESCRIPTION_BLANK),
-                    HttpStatus.BAD_REQUEST);
+                    MessageResponse.DESCRIPTION_BLANK), HttpStatus.BAD_REQUEST);
         }
+        if (!Common.checkRegex(user.getPhone(), Regex.CHECK_NUMBER_PHONE)) {
+            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                    MessageResponse.WRONG_NUMBER_PHONE), HttpStatus.BAD_REQUEST);
+        }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(user);
+        if (null != responseEntity) return responseEntity;
         Optional<User> userOptional = this.userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

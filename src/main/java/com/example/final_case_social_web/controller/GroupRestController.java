@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.model.*;
@@ -121,6 +122,16 @@ public class GroupRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
+        if (StringUtils.isEmpty(theGroup.getGroupName())) {
+            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("groupName"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        if (StringUtils.isEmpty(theGroup.getType())) {
+            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("type"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(theGroup);
+        if (null != responseEntity) return responseEntity;
         theGroup.setCreateBy(userOptional.get().getFullName());
         theGroup.setIdUserCreate(userOptional.get().getId());
         theGroup.setCreateAt(new Date());
@@ -131,14 +142,6 @@ public class GroupRestController {
         }
         if (StringUtils.isEmpty(theGroup.getCoverGroup())) {
             theGroup.setCoverGroup(Constants.ImageDefault.DEFAULT_COVER_GROUP);
-        }
-        if (StringUtils.isEmpty(theGroup.getGroupName())) {
-            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("groupName"),
-                    HttpStatus.BAD_REQUEST);
-        }
-        if (StringUtils.isEmpty(theGroup.getType())) {
-            return new ResponseEntity<>(ResponseNotification.responseMessageDataField("type"),
-                    HttpStatus.BAD_REQUEST);
         }
         theGroupService.save(theGroup);
         ImageGroup coverGroup = imageGroupService
@@ -351,6 +354,8 @@ public class GroupRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(groupPost);
+        if (null != responseEntity) return responseEntity;
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

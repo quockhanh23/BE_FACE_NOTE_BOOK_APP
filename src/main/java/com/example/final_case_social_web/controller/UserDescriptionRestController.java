@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.model.UserDescription;
@@ -46,6 +47,8 @@ public class UserDescriptionRestController {
         if (StringUtils.isEmpty(userDescription.getDescription().trim())) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(userDescription);
+        if (null != responseEntity) return responseEntity;
         Optional<User> optionalUser = userService.findById(idUser);
         if (!optionalUser.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -65,6 +68,8 @@ public class UserDescriptionRestController {
         if (StringUtils.isEmpty(userDescription.getDescription().trim())) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(userDescription);
+        if (null != responseEntity) return responseEntity;
         Optional<UserDescription> description = userDescriptionService.findById(idUserDescription);
         if (!description.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

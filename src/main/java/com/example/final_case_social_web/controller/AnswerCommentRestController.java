@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.AnswerCommentDTO;
@@ -72,6 +73,8 @@ public class AnswerCommentRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(answerComment);
+        if (null != responseEntity) return responseEntity;
         boolean check = userService.errorToken(authorization, idUser);
         if (!check) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),

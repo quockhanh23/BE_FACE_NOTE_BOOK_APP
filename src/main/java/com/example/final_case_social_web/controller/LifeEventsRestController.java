@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.model.LifeEvents;
 import com.example.final_case_social_web.model.User;
@@ -55,6 +56,8 @@ public class LifeEventsRestController {
         if (StringUtils.isEmpty(lifeEvents.getWork())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField("work"), HttpStatus.BAD_REQUEST);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(lifeEvents);
+        if (null != responseEntity) return responseEntity;
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -87,6 +90,8 @@ public class LifeEventsRestController {
                 return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                         HttpStatus.NOT_FOUND);
             }
+            ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(lifeEvents);
+            if (null != responseEntity) return responseEntity;
             if (lifeEvents.getWork() != null) {
                 lifeEventsOptional.get().setWork(lifeEvents.getWork());
             } else {

@@ -44,6 +44,7 @@ public class MessageResponse {
     public static final String DESCRIPTION_DUPLICATE = "Trường dữ liệu đã trùng lặp: ";
     public static final String DESCRIPTION_BLANK = "Trường dữ liệu bị trống: ";
     public static final String WRONG_SOME_THING = "Dữ liệu đầu vào không phù hợp";
+    public static final String WRONG_NUMBER_PHONE = "Số điện thoại không phù hợp";
     public static final String ERROR = "Có lỗi sảy ra";
     public static final String IN_VALID = "Không hợp lệ";
 }

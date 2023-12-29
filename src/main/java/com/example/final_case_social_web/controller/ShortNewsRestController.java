@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.ShortNewsDTO;
@@ -246,7 +247,9 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
-        shortNewsService.createShortNews(shortNews);
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(shortNews);
+        if (null != responseEntity) return responseEntity;
+        shortNewsService.createDefaultShortNews(shortNews);
         if (shortNews.getImage().equals(Constants.ImageDefault.DEFAULT_IMAGE_SHORT_NEW)) {
             if (StringUtils.isEmpty(shortNews.getContent())) {
                 return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),

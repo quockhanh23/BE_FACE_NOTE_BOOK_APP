@@ -134,4 +134,17 @@ public class Constants {
     public static final String REPOST_TYPE_USER = "0";
     public static final String REPOST_TYPE_POST = "1";
     public static final String REPOST_TYPE_GROUP = "2";
+
+    public static class FieldsCheckWords {
+        public static final String FIELD_USER_NAME = "username";
+        public static final String FIELD_FULL_NAME = "fullName";
+        public static final String FIELD_EMAIL = "email";
+        public static final String FIELD_ADDRESS = "address";
+        public static final String FIELD_EDUCATION = "education";
+        public static final String FIELD_FAVORITE = "favorite";
+        public static final String FIELD_CONTENT = "content";
+        public static final String FIELD_DESCRIPTION = "description";
+        public static final String FIELD_GROUP_NAME = "groupName";
+        public static final String FIELD_WORK = "work";
+    }
 }

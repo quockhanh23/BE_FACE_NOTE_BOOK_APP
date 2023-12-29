@@ -108,8 +108,7 @@ public class PostRestController {
     }
 
     @DeleteMapping("/hidePost")
-    public ResponseEntity<?> hidePost(@RequestParam Long idUser,
-                                      @RequestParam Long idPost,
+    public ResponseEntity<?> hidePost(@RequestParam Long idUser, @RequestParam Long idPost,
                                       @RequestParam String type,
                                       @RequestHeader("Authorization") String authorization) {
         boolean check = userService.errorToken(authorization, idUser);
@@ -155,6 +154,8 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(post);
+        if (null != responseEntity) return responseEntity;
         if (post.getImage() != null) {
             Image image = imageService.createImageDefault(post.getImage(), post.getUser());
             imageService.save(image);
@@ -177,8 +178,7 @@ public class PostRestController {
 
     // Chỉnh sửa post
     @PutMapping("/updatePost")
-    public ResponseEntity<?> updatePost(@RequestParam Long idPost,
-                                        @RequestParam Long idUser,
+    public ResponseEntity<?> updatePost(@RequestParam Long idPost, @RequestParam Long idUser,
                                         @RequestBody Post2 post,
                                         @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
@@ -196,6 +196,8 @@ public class PostRestController {
                     Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
                     HttpStatus.UNAUTHORIZED);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(post);
+        if (null != responseEntity) return responseEntity;
         if (postOptional.get().getUser().getId().equals(userOptional.get().getId())) {
             postOptional.get().setEditAt(new Date());
             if (post.getContent() != null || post.getContent().trim().equals(Constants.BLANK)) {

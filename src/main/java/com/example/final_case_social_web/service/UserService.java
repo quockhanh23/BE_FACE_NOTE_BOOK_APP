@@ -6,7 +6,6 @@ import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -77,8 +76,6 @@ public interface UserService extends UserDetailsService {
     List<UserDTO> copyListDTO(List<User> users);
 
     List<User> getAllUsersAsync();
-
-    ResponseEntity<?> handlerWordsLanguage(Object ob, Object obTransfer);
 
     void doTask();
 }

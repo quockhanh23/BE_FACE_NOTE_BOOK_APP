@@ -38,7 +38,7 @@ public class ShortNewsServiceImpl implements ShortNewsService {
     }
 
     @Override
-    public void createShortNews(ShortNews shortNews) {
+    public void createDefaultShortNews(ShortNews shortNews) {
         shortNews.setCreateAt(new Date());
         shortNews.setToDay(new Date());
         shortNews.setExpired(3);

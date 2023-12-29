@@ -11,7 +11,7 @@ public interface ShortNewsService extends GeneralService<ShortNews> {
 
     void delete(ShortNews entity);
 
-    void createShortNews(ShortNews shortNews);
+    void createDefaultShortNews(ShortNews shortNews);
 
     void saveAll(List<ShortNews> shortNews);
 

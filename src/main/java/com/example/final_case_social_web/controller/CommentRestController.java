@@ -90,6 +90,8 @@ public class CommentRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
+        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(comment);
+        if (null != responseEntity) return responseEntity;
         Optional<Post2> post2Optional = postService.findById(idPost);
         if (!post2Optional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
