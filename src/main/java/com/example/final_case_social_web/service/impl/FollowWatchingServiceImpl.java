@@ -57,8 +57,8 @@ public class FollowWatchingServiceImpl implements FollowWatchingService {
 
     @Override
     public Object checkUserHadFollow(Long idUserLogin, Long idUserFollow) {
-        Optional<User> userOptionalLogin = userRepository.findById(idUserLogin);
-        Optional<User> userOptionalFollow = userRepository.findById(idUserFollow);
+        Optional<User> userOptionalLogin = findById(idUserLogin);
+        Optional<User> userOptionalFollow = findById(idUserFollow);
         if (!userOptionalLogin.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
@@ -75,5 +75,9 @@ public class FollowWatchingServiceImpl implements FollowWatchingService {
             }
         }
         return null;
+    }
+
+    private Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 }

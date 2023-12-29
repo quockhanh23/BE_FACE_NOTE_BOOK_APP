@@ -199,7 +199,7 @@ public class ImageRestController {
                     HttpStatus.NOT_FOUND);
         }
         List<Image> imageListDeleted = imageService.findAllImageDeletedByUserId(idUser);
-        if (!CollectionUtils.isEmpty(imageListDeleted)) {
+        if (CollectionUtils.isNotEmpty(imageListDeleted)) {
             if (Constants.DELETE_ALL.equalsIgnoreCase(type)) {
                 imageRepository.deleteInBatch(imageListDeleted);
                 return new ResponseEntity<>(HttpStatus.OK);

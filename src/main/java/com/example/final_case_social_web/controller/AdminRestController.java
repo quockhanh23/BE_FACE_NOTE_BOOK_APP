@@ -21,11 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -216,28 +211,5 @@ public class AdminRestController {
         List<User> users = userService.findAllByEmailOrUsername(searchText);
         List<UserDTO> userDTOList = userService.copyListDTO(users);
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
-    }
-
-    @GetMapping("/file")
-    public ResponseEntity<?> getFile(@RequestParam Long idUser,
-                                     @RequestParam String typeFile, HttpServletResponse response) throws IOException {
-        response.setContentType("multipart/octet-stream");
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Disposition", "attachment;filename=" + LocalDateTime.now());
-        if ("txt".equalsIgnoreCase(typeFile)) {
-            FileWriter fileWriter = new FileWriter("test.txt");
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("test");
-            bufferedWriter.close();
-            fileWriter.close();
-        }
-        if ("csv".equalsIgnoreCase(typeFile)) {
-            FileWriter fileWriter = new FileWriter("test.csv");
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("test");
-            bufferedWriter.close();
-            fileWriter.close();
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

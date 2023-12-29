@@ -47,14 +47,8 @@ public class NotificationController {
 
     @GetMapping("/findAllByIdSendToNotSeen")
     public ResponseEntity<?> findAllByIdSendToNotSeen(@RequestParam Long idSenTo) {
-        List<Notification> notificationList = new ArrayList<>();
-        try {
-            notificationList = notificationService.findAllByIdSendToNotSeen(idSenTo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        int count = notificationList.size();
-        return new ResponseEntity<>(count, HttpStatus.OK);
+        List<Notification> notificationList = notificationService.findAllByIdSendToNotSeen(idSenTo);
+        return new ResponseEntity<>(notificationList.size(), HttpStatus.OK);
     }
 
     // Đã xem tất cả thông báo

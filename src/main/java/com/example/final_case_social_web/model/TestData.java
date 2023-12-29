@@ -2,7 +2,6 @@ package com.example.final_case_social_web.model;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -15,7 +14,6 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class TestData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

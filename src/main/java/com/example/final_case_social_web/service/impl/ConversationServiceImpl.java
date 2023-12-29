@@ -40,6 +40,11 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
+    public List<Conversation> getConversationBySenderIdOrReceiverId(Long senderId, Long receiverId) {
+        return conversationRepository.getConversationBySenderIdOrReceiverId(senderId, receiverId);
+    }
+
+    @Override
     public void delete(Conversation entity) {
         conversationRepository.delete(entity);
     }

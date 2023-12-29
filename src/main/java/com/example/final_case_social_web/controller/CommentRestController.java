@@ -50,9 +50,7 @@ public class CommentRestController {
     @GetMapping("/allComment")
     public ResponseEntity<List<Comment>> allComment() {
         List<Comment> list = commentService.getCommentTrue();
-        if (CollectionUtils.isEmpty(list)) {
-            list = new ArrayList<>();
-        }
+        if (CollectionUtils.isEmpty(list)) list = new ArrayList<>();
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
@@ -162,9 +160,7 @@ public class CommentRestController {
     @GetMapping("/getAllCommentByIdUser")
     public ResponseEntity<List<Comment>> getAllCommentByIdUser(@RequestParam Long idUser) {
         List<Comment> commentList = commentService.findAllByUserId(idUser);
-        if (CollectionUtils.isEmpty(commentList)) {
-            commentList = new ArrayList<>();
-        }
+        if (CollectionUtils.isEmpty(commentList)) commentList = new ArrayList<>();
         return new ResponseEntity<>(commentList, HttpStatus.OK);
     }
 
@@ -172,9 +168,7 @@ public class CommentRestController {
     @GetMapping("/getAllCommentByIdPost")
     public ResponseEntity<List<Comment>> getAllCommentByIdPost(@RequestParam Long idPost) {
         List<Comment> commentList = commentService.getCommentByIdPost(idPost);
-        if (CollectionUtils.isEmpty(commentList)) {
-            commentList = new ArrayList<>();
-        }
+        if (CollectionUtils.isEmpty(commentList)) commentList = new ArrayList<>();
         return new ResponseEntity<>(commentList, HttpStatus.OK);
     }
 }

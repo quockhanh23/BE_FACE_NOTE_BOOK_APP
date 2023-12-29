@@ -32,10 +32,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +49,7 @@ import java.util.stream.StreamSupport;
 @CrossOrigin("*")
 @RequestMapping("/api/test")
 @Slf4j
-public class ExcelExportTestController {
+public class ExportFileTestController {
 
     @Autowired
     private TestDataRepository testDataRepository;
@@ -82,7 +85,7 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export-excel")
-    public void SXSSFWorkbook(HttpServletResponse response) throws IOException {
+    public void exportSXSSFWorkbook(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
         List<String[]> dataRows = convertData();
         final double elapsedTimeMillis = System.currentTimeMillis();
@@ -134,7 +137,7 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export-excel-1")
-    public void SXSSFWorkbookFormFile(HttpServletResponse response) {
+    public void exportSXSSFWorkbookFormFile(HttpServletResponse response) {
         final double startTime = System.currentTimeMillis();
         List<String[]> dataRows = convertData();
         final double elapsedTimeMillis = System.currentTimeMillis();
@@ -168,7 +171,7 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export-excel-2")
-    public void XSSFWorkbook(HttpServletResponse response) throws IOException {
+    public void exportSSFWorkbook(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
         List<String[]> dataRows = convertData();
         final double elapsedTimeMillis = System.currentTimeMillis();
@@ -213,7 +216,7 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export")
-    public void EasyExcel(HttpServletResponse response) throws IOException {
+    public void exportEasyExcel(HttpServletResponse response) throws IOException {
         final double startTime = System.currentTimeMillis();
         List<TestData> testData = testDataRepository.findAll();
         final double elapsedTimeMillis = System.currentTimeMillis();
@@ -248,7 +251,7 @@ public class ExcelExportTestController {
     }
 
     @GetMapping("/export2")
-    public void JExcelAPI(HttpServletResponse response) throws IOException, WriteException {
+    public void exportJExcelAPI(HttpServletResponse response) throws IOException, WriteException {
         setResponse(response, "JExcelAPI");
         final double startTime = System.currentTimeMillis();
         List<String[]> dataRows = testDataRepository.findAll()
@@ -313,7 +316,7 @@ public class ExcelExportTestController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<?> importExcelXSSFWorkbook(@RequestParam("file") MultipartFile file) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
         XSSFSheet worksheet = workbook.getSheetAt(0);
         List<TestData> testData = new ArrayList<>();
@@ -338,7 +341,7 @@ public class ExcelExportTestController {
     }
 
     @PostMapping("/import-2")
-    public ResponseEntity<?> importExcel2(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<?> importExcelWorkbook(@RequestParam("file") MultipartFile file) throws IOException {
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet worksheet = workbook.getSheetAt(0);
         List<TestData> testData = StreamSupport.stream(worksheet.spliterator(), false)
@@ -420,5 +423,27 @@ public class ExcelExportTestController {
         document.write(outputStream);
         outputStream.close();
         document.close();
+    }
+
+    @GetMapping("/export-csv")
+    public ResponseEntity<?> getFile(@RequestParam String typeFile, HttpServletResponse response) throws IOException {
+        response.setContentType("multipart/octet-stream");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + LocalDateTime.now());
+        if ("txt".equalsIgnoreCase(typeFile)) {
+            FileWriter fileWriter = new FileWriter("test.txt");
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write("test");
+            bufferedWriter.close();
+            fileWriter.close();
+        }
+        if ("csv".equalsIgnoreCase(typeFile)) {
+            FileWriter fileWriter = new FileWriter("test.csv");
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write("test");
+            bufferedWriter.close();
+            fileWriter.close();
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

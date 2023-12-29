@@ -89,12 +89,11 @@ public class BlackListController {
                         responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
             }
             Optional<BlackList> blackListOptional = blackListService.findBlock(idUserLogin, idUserBlock);
-            if (blackListOptional.isPresent()) {
-                if (blackListOptional.get().getStatus().equals(Constants.BLOCKED)) {
-                    blackListService.createDefault(blackListOptional.get(), idUserLogin, 0L, Constants.UPDATE);
-                }
-            } else {
+            if (!blackListOptional.isPresent()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            if (blackListOptional.get().getStatus().equals(Constants.BLOCKED)) {
+                blackListService.createDefault(blackListOptional.get(), idUserLogin, 0L, Constants.UPDATE);
             }
         } catch (Exception e) {
             e.printStackTrace();

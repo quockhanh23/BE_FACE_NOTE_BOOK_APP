@@ -13,5 +13,8 @@ public interface ConversationService extends GeneralService<Conversation> {
 
     List<Conversation> listConversationByIdUserNotFriend(@Param("idUser") Long idUser);
 
+    List<Conversation> getConversationBySenderIdOrReceiverId(@Param("senderId") Long senderId,
+                                                             @Param("receiverId") Long receiverId);
+
     void delete(Conversation entity);
 }

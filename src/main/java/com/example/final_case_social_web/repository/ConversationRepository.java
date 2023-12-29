@@ -26,5 +26,9 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
             "and (sender_id = :idUser or receiver_id = :idUser)", nativeQuery = true)
     List<Conversation> listConversationByIdUserNotFriend(@Param("idUser") Long idUser);
 
+    @Modifying
+    @Query(value = "select * from conversation where receiver_id in (:senderId, :receiverId) or sender_id in (:senderId, :receiverId);", nativeQuery = true)
+    List<Conversation> getConversationBySenderIdOrReceiverId(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId);
+
     void delete(Conversation entity);
 }

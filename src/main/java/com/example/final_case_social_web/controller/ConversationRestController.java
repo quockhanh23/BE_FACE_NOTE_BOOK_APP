@@ -62,9 +62,8 @@ public class ConversationRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_RECEIVER, idReceiver), HttpStatus.NOT_FOUND);
         }
-        Iterable<Conversation> conversations = conversationService.findAll();
-        List<Conversation> conversationList = (List<Conversation>) conversations;
-        if (conversations != null) {
+        List<Conversation> conversationList = conversationService.getConversationBySenderIdOrReceiverId(idSender, idReceiver);
+        if (!CollectionUtils.isEmpty(conversationList)) {
             for (Conversation conversation : conversationList) {
                 if ((conversation.getIdSender().getId().equals(idSender)
                         && conversation.getIdReceiver().getId().equals(idReceiver))
@@ -278,7 +277,8 @@ public class ConversationRestController {
                 List<Messenger> messengerList = messengers.stream()
                         .filter(item -> item.getConversation().getId().equals(id)).collect(Collectors.toList());
                 if (!CollectionUtils.isEmpty(messengerList)) {
-                    conversationList.stream().filter(item -> item.getId().equals(id)).findFirst().ifPresent(conversations::add);
+                    conversationList.stream()
+                            .filter(item -> item.getId().equals(id)).findFirst().ifPresent(conversations::add);
                 }
             }
         }

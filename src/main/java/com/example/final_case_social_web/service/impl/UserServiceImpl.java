@@ -6,6 +6,7 @@ import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.ListAvatarDefault;
+import com.example.final_case_social_web.dto.UserCheckWords;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
@@ -23,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -328,7 +331,7 @@ public class UserServiceImpl implements UserService {
                     MessageResponse.RegisterMessage.USER_NAME_DUPLICATE);
         }
         List<String> email = list.stream().map(User::getEmail).collect(Collectors.toList());
-        if (email.stream().anyMatch(item -> item.equals(user.getEmail()))) {
+        if (email.stream().parallel().anyMatch(item -> item.equals(user.getEmail()))) {
             return new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.RegisterMessage.EMAIL_USED);
         }
@@ -397,8 +400,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int handleWords(String value) {
-        String[] dirtyWords = {"fuck", "địt", "lồn"};
+    public ResponseEntity<?> handlerWordsLanguage(Object ob, Object obTransfer) {
+        BeanUtils.copyProperties(ob, obTransfer);
+        try {
+            Field[] fieldsOfFieldClass = UserCheckWords.class.getDeclaredFields();
+            for (int i = 0; i < fieldsOfFieldClass.length; i++) {
+                Field field = fieldsOfFieldClass[i];
+                field.setAccessible(true);
+                Object value = field.get(obTransfer);
+                int check = handleWords(value.toString());
+                if (check == 1) {
+                    return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
+                            field.getName() + " chứa những từ ngữ không phù hợp"), HttpStatus.BAD_REQUEST);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>( new ResponseNotification(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                    "Có lỗi xảy ra: ", e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private int handleWords(String value) {
+        String[] dirtyWords = {"fuck", "địt", "lồn", "ĐMM", "ĐCM"};
         boolean containsDirtyWord = StringUtils.containsAny(value, dirtyWords);
         if (containsDirtyWord) return 1;
         return 0;

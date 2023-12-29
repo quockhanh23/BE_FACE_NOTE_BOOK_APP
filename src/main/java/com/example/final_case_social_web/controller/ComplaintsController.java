@@ -27,12 +27,12 @@ public class ComplaintsController {
     }
 
     @DeleteMapping("/deleteComp")
-    public ResponseEntity<?> deleteComp(@RequestParam Long idUser) {
+    public ResponseEntity<?> deleteComplaints(@RequestParam Long idUser) {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> save(@RequestParam Long idUser, @RequestBody UserComplaints userComplaints) {
+    public ResponseEntity<?> saveComplaints(@RequestBody UserComplaints userComplaints) {
         userComplaints.setCreatedAt(new Date());
         userComplaints.setStatus("");
         userComplaintsService.save(userComplaints);

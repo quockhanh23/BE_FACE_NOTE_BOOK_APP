@@ -160,21 +160,11 @@ public class UserController {
         if (bindingResult.hasFieldErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        ResponseEntity<?> responseEntity = userService.handlerWordsLanguage(user, new UserCheckWords());
+        if (null != responseEntity) return responseEntity;
         if (!Common.checkRegex(user.getUsername(), Regex.CHECK_USER_NAME)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.RegisterMessage.NO_VALID_USER_NAME),
-                    HttpStatus.BAD_REQUEST);
-        }
-        int check = userService.handleWords(user.getUsername());
-        if (check == 1) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                    "Tên đăng nhập có chứa những từ ngữ không phù hợp"),
-                    HttpStatus.BAD_REQUEST);
-        }
-        int check2 = userService.handleWords(user.getFullName());
-        if (check2 == 1) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                    "Tên đầy đủ nhập có chứa những từ ngữ không phù hợp"),
                     HttpStatus.BAD_REQUEST);
         }
         if (!userService.isCorrectConfirmPassword(user)) {
@@ -300,7 +290,7 @@ public class UserController {
             final double startTime = System.currentTimeMillis();
             List<User> userBannedList = userService.findAllUserBanned();
             if (!CollectionUtils.isEmpty(userBannedList)) {
-                if (userBannedList.stream().anyMatch(item -> item.getUsername().equals(user.getUsername()))) {
+                if (userBannedList.stream().parallel().anyMatch(item -> item.getUsername().equals(user.getUsername()))) {
                     return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                             MessageResponse.LoginMessage.USER_HAS_LOCK),
                             HttpStatus.BAD_REQUEST);
