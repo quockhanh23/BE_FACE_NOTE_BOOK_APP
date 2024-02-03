@@ -1,4 +1,4 @@
-package com.example.final_case_social_web.Object;
+package com.example.final_case_social_web.object;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

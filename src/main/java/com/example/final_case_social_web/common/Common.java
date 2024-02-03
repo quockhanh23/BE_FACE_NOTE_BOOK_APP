@@ -1,6 +1,6 @@
 package com.example.final_case_social_web.common;
 
-import com.example.final_case_social_web.checkwords.FieldsCheckWords;
+import com.example.final_case_social_web.object.FieldsCheckWords;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -125,5 +125,16 @@ public class Common {
             return "Công việc" + content;
         }
         return field + content;
+    }
+
+    public static String addEscapeOnSpecialCharactersWhenSearch(String input) {
+        if (StringUtils.isEmpty(input)) return input;
+        if (input.contains("%") && !input.contains("\\%")) {
+            input = input.replace("%", "\\%");
+        }
+        if (input.contains("_") && !input.contains("\\_")) {
+            input = input.replace("_", "\\_");
+        }
+        return input;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.service.impl;
 
 import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.dto.MessengerDTO2;
 import com.example.final_case_social_web.model.Conversation;
 import com.example.final_case_social_web.model.Messenger;
 import com.example.final_case_social_web.model.User;
@@ -60,7 +61,7 @@ public class MessengerServiceImpl implements MessengerService {
     }
 
     @Override
-    public List<Messenger> lastMessage(Long idConversation) {
+    public Messenger lastMessage(Long idConversation) {
         return messengerRepository.lastMessage(idConversation);
     }
 
@@ -78,7 +79,7 @@ public class MessengerServiceImpl implements MessengerService {
     }
 
     @Override
-    public List<Messenger> lastTimeMessage(Long idConversation) {
+    public Object lastTimeMessage(Long idConversation) {
         return messengerRepository.lastTimeMessage(idConversation);
     }
 
@@ -90,6 +91,11 @@ public class MessengerServiceImpl implements MessengerService {
     @Override
     public List<Messenger> searchMessage(String searchText, Long idConversation) {
         return messengerRepository.searchMessage(searchText, idConversation);
+    }
+
+    @Override
+    public List<MessengerDTO2> testConverterJPA(Long idConversation) {
+        return messengerRepository.findByConversation_Id(idConversation);
     }
 
 }

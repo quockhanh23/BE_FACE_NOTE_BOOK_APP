@@ -1,7 +1,7 @@
 package com.example.final_case_social_web.service.impl;
 
 
-import com.example.final_case_social_web.Object.AvatarDefault;
+import com.example.final_case_social_web.object.AvatarDefault;
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;

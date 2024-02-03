@@ -31,4 +31,6 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
     List<Conversation> getConversationBySenderIdOrReceiverId(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId);
 
     void delete(Conversation entity);
+
+    boolean existsConversationsById(Long idConversation);
 }

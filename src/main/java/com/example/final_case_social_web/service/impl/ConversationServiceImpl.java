@@ -48,4 +48,9 @@ public class ConversationServiceImpl implements ConversationService {
     public void delete(Conversation entity) {
         conversationRepository.delete(entity);
     }
+
+    @Override
+    public boolean existsConversationsById(Long idConversation) {
+        return conversationRepository.existsConversationsById(idConversation);
+    }
 }

@@ -1,11 +1,9 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
-import com.example.final_case_social_web.dto.ConversationDTO;
-import com.example.final_case_social_web.dto.MessagePhotoDTO;
-import com.example.final_case_social_web.dto.MessengerDTO;
-import com.example.final_case_social_web.dto.UserDTO;
+import com.example.final_case_social_web.dto.*;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.ConversationDeleteTimeRepository;
@@ -83,16 +81,17 @@ public class ConversationRestController {
 
     @GetMapping("/searchMessage")
     public ResponseEntity<?> searchMessage(String search, @RequestParam Long idConversation) {
+        search = Common.addEscapeOnSpecialCharactersWhenSearch(search);
         List<Messenger> messengers = messengerService.searchMessage(search, idConversation);
         return new ResponseEntity<>(messengers, HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteOneSide")
     public ResponseEntity<?> deleteOneSide(@RequestParam Long idUser, @RequestParam Long idConversation) {
-        Optional<Conversation> conversation = conversationService.findById(idConversation);
-        if (!conversation.isPresent()) {
-            return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_CONVERSATION, idConversation),
-                    HttpStatus.NOT_FOUND);
+        boolean checkPresent = conversationService.existsConversationsById(idConversation);
+        if (!checkPresent) {
+            return new ResponseEntity<>(ResponseNotification.
+                    responseMessage(Constants.IdCheck.ID_CONVERSATION, idConversation), HttpStatus.NOT_FOUND);
         }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
@@ -180,9 +179,9 @@ public class ConversationRestController {
         messenger.setConversation(conversation.get());
         if (!Objects.equals(messenger.getConversation().getIdSender().getId(), userOptional.get().getId())
                 && (messenger.getConversation().getIdReceiver().getId().equals(userOptional.get().getId()))) {
-            Messenger messenger1 = messengerService.createDefaultMessage(messenger, userOptional.get(),
+            Messenger message = messengerService.createDefaultMessage(messenger, userOptional.get(),
                     Constants.RESPONSE, Constants.ConversationStatus.STATUS_TWO);
-            messengerService.save(messenger1);
+            messengerService.save(message);
             Notification notification = notificationService.createDefault(messenger.getConversation().getIdSender(),
                     messenger.getConversation().getIdReceiver(),
                     Constants.Notification.TITLE_SEND_MESSAGE, idConversation,
@@ -192,9 +191,9 @@ public class ConversationRestController {
         }
         if (!Objects.equals(messenger.getConversation().getIdReceiver().getId(), userOptional.get().getId())
                 && messenger.getConversation().getIdSender().getId().equals(userOptional.get().getId())) {
-            Messenger messenger1 = messengerService.createDefaultMessage(messenger, userOptional.get(),
+            Messenger message = messengerService.createDefaultMessage(messenger, userOptional.get(),
                     Constants.REQUEST, Constants.ConversationStatus.STATUS_TWO);
-            messengerService.save(messenger1);
+            messengerService.save(message);
             Notification notification = notificationService.createDefault(messenger.getConversation().getIdReceiver(),
                     messenger.getConversation().getIdSender(),
                     Constants.Notification.TITLE_SEND_MESSAGE, idConversation,
@@ -234,8 +233,8 @@ public class ConversationRestController {
     // Các ảnh đã gửi ở cuộc trò truyện
     @GetMapping("/getAllMessageHavePhoto")
     public ResponseEntity<?> getAllMessageHavePhoto(@RequestParam Long idConversation) {
-        Optional<Conversation> conversation = conversationService.findById(idConversation);
-        if (!conversation.isPresent()) {
+        boolean checkPresent = conversationService.existsConversationsById(idConversation);
+        if (!checkPresent) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_CONVERSATION, idConversation), HttpStatus.NOT_FOUND);
         }
@@ -303,23 +302,28 @@ public class ConversationRestController {
     // Id của người gửi tin nhắn cuối
     @GetMapping("/lastMessageIdSender")
     public ResponseEntity<?> lastMessage(@RequestParam Long idConversation) {
-        List<Messenger> messengers = messengerService.lastMessage(idConversation);
-        Long id = null;
-        if (!CollectionUtils.isEmpty(messengers)) {
-            id = messengers.get(0).getIdSender().getId();
+        Messenger messengers = messengerService.lastMessage(idConversation);
+        if (Objects.nonNull(messengers)) {
+            return new ResponseEntity<>(messengers.getIdSender().getId(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(id, HttpStatus.OK);
+        return null;
     }
 
     // Tin nhắn cuối cùng
     @GetMapping("/lastMessage")
     public ResponseEntity<?> lastMessageTime(@RequestParam Long idConversation) {
-        List<Messenger> messenger = messengerService.lastTimeMessage(idConversation);
-        Date time = new Date();
-        if (!CollectionUtils.isEmpty(messenger)) {
-            time = messenger.get(0).getCreateAt();
+        Object lastTimeMessage = messengerService.lastTimeMessage(idConversation);
+        if (Objects.nonNull(lastTimeMessage)) {
+            return new ResponseEntity<>(lastTimeMessage, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Date(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(time, HttpStatus.OK);
+    }
+
+    @GetMapping("/testConverterJPA")
+    public ResponseEntity<?> testConverterJPA(@RequestParam Long idConversation) {
+        List<MessengerDTO2> objects = messengerService.testConverterJPA(idConversation);
+        return new ResponseEntity<>(objects, HttpStatus.OK);
     }
 
     // Xóa 1 tin nhắn

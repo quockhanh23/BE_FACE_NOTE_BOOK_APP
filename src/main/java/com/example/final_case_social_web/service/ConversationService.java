@@ -17,4 +17,6 @@ public interface ConversationService extends GeneralService<Conversation> {
                                                              @Param("receiverId") Long receiverId);
 
     void delete(Conversation entity);
+
+    boolean existsConversationsById(Long idConversation);
 }

@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.repository;
 
+import com.example.final_case_social_web.dto.MessengerDTO2;
 import com.example.final_case_social_web.model.Conversation;
 import com.example.final_case_social_web.model.Messenger;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,11 +30,13 @@ public interface MessengerRepository extends JpaRepository<Messenger, Long> {
 
     @Modifying
     @Query(value = "select * from messenger where conversation_id = :idConversation order by id desc limit 1", nativeQuery = true)
-    List<Messenger> lastMessage(@Param("idConversation") Long idConversation);
+    Messenger lastMessage(@Param("idConversation") Long idConversation);
 
-    @Modifying
-    @Query(value = "select * from messenger where conversation_id = :idConversation order by create_at desc limit 1", nativeQuery = true)
-    List<Messenger> lastTimeMessage(@Param("idConversation") Long idConversation);
+    @Query(value = "select create_at from messenger where conversation_id = :idConversation order by create_at desc limit 1", nativeQuery = true)
+    Object lastTimeMessage(@Param("idConversation") Long idConversation);
+
+
+    List<MessengerDTO2> findByConversation_Id(@Param("idConversation") Long idConversation);
 
     @Modifying
     @Query(value = "select *\n" +

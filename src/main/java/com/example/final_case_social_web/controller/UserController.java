@@ -127,6 +127,7 @@ public class UserController {
 
     @GetMapping("/searchAll")
     public ResponseEntity<?> searchAll(String search, @RequestParam Long idUserLogin) {
+        search = Common.addEscapeOnSpecialCharactersWhenSearch(search);
         List<UserSearchDTO> list = new ArrayList<>();
         List<User> userList = userService.searchAll(search, idUserLogin);
         if (!CollectionUtils.isEmpty(userList)) {
@@ -143,6 +144,7 @@ public class UserController {
     // Tìm kiếm bạn bè của người dùng
     @GetMapping("/searchFriend")
     public ResponseEntity<?> searchFriend(@RequestParam String search, @RequestParam Long idUser) {
+        search = Common.addEscapeOnSpecialCharactersWhenSearch(search);
         List<UserDTO> userDTOList = userService.listFriend(idUser);
         List<User> friend = userService.searchFriend(search, idUser);
         List<UserDTO> list = new ArrayList<>();
@@ -412,14 +414,13 @@ public class UserController {
             }
         }
         if (avatarName.equals("")) {
-            if (!StringUtils.isEmpty(user.getAvatar())) {
-                if (!user.getAvatar().equalsIgnoreCase(userOptional.get().getAvatar())) {
-                    userOptional.get().setAvatar(user.getAvatar());
-                    Image image = imageService.createImageDefault(user.getAvatar(), user);
-                    imageService.save(image);
-                    Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
-                    lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(user.getAvatar()));
-                }
+            if (StringUtils.isNotEmpty(user.getAvatar())
+                    && !user.getAvatar().equalsIgnoreCase(userOptional.get().getAvatar())) {
+                userOptional.get().setAvatar(user.getAvatar());
+                Image image = imageService.createImageDefault(user.getAvatar(), user);
+                imageService.save(image);
+                Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
+                lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(user.getAvatar()));
             }
         } else {
             userOptional.get().setAvatar(avatarName);

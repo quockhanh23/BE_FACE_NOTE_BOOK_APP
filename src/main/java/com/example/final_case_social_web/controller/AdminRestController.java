@@ -1,5 +1,6 @@
 package com.example.final_case_social_web.controller;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.dto.GroupPostDTO;
@@ -208,6 +209,7 @@ public class AdminRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
         }
+        searchText = Common.addEscapeOnSpecialCharactersWhenSearch(searchText);
         List<User> users = userService.findAllByEmailOrUsername(searchText);
         List<UserDTO> userDTOList = userService.copyListDTO(users);
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);

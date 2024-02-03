@@ -440,6 +440,7 @@ public class GroupRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
+        search = Common.addEscapeOnSpecialCharactersWhenSearch(search);
         List<TheGroup> theGroupList = theGroupService.searchAllByGroupNameAndType(search, idUser);
         return new ResponseEntity<>(theGroupList, HttpStatus.OK);
     }
