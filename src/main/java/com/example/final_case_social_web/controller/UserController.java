@@ -5,6 +5,7 @@ import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.common.Regex;
 import com.example.final_case_social_web.dto.*;
+import com.example.final_case_social_web.exeption.InvalidException;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.LastUserLoginRepository;
@@ -32,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -102,9 +104,7 @@ public class UserController {
     @GetMapping("/historyLogin")
     public ResponseEntity<?> getListHistoryLogin() {
         List<LastUserLogin> userLogins = lastUserLoginRepository.historyLogin();
-        if (CollectionUtils.isEmpty(userLogins)) {
-            userLogins = new ArrayList<>();
-        }
+        if (CollectionUtils.isEmpty(userLogins)) userLogins = new ArrayList<>();
         return new ResponseEntity<>(userLogins, HttpStatus.OK);
     }
 
@@ -160,7 +160,11 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@Valid @RequestBody User user, BindingResult bindingResult) {
         if (bindingResult.hasFieldErrors()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            Map<String, String> fieldError = new HashMap<>();
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                fieldError.put(error.getField(), error.getDefaultMessage());
+            }
+            throw new InvalidException("Không hợp lệ", fieldError);
         }
         ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(user);
         if (null != responseEntity) return responseEntity;
@@ -175,16 +179,12 @@ public class UserController {
                     HttpStatus.BAD_REQUEST);
         }
         ResponseNotification responseNotification = userService.checkExistUserNameAndEmail(user);
-        if (responseNotification != null) {
-            return new ResponseEntity<>(responseNotification, HttpStatus.BAD_REQUEST);
-        }
+        if (responseNotification != null) return new ResponseEntity<>(responseNotification, HttpStatus.BAD_REQUEST);
+
         Set<Role> roles = new HashSet<>();
         Role role;
-        if (user.getRoles() != null) {
-            role = roleService.findByName(Constants.Roles.ROLE_ADMIN);
-        } else {
-            role = roleService.findByName(Constants.Roles.ROLE_USER);
-        }
+        role = (user.getRoles() != null) ?
+                roleService.findByName(Constants.Roles.ROLE_ADMIN) : roleService.findByName(Constants.Roles.ROLE_USER);
         roles.add(role);
         user.setRoles(roles);
         userService.createDefault(user);

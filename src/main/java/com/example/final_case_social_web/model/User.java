@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -26,10 +27,11 @@ public class User implements Serializable {
     private Long id;
 
     @Column(length = 200, nullable = false, unique = true)
+    @NotNull
     private String username;
-
+    @NotNull
     private String password;
-
+    @NotNull
     private String confirmPassword;
 
     private boolean enabled = true;
