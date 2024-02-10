@@ -12,7 +12,8 @@ import java.util.List;
 @Repository
 public interface GroupPostRepository extends JpaRepository<GroupPost, Long> {
     @Modifying
-    @Query(value = "select * from group_post where the_group_id = :idGroup and status = 'Approved'", nativeQuery = true)
+    @Query(value = "select * from group_post where the_group_id = :idGroup and status = 'Approved' order by id desc ",
+            nativeQuery = true)
     List<GroupPost> findAllPostByIdGroup(@Param("idGroup") Long idGroup);
 
     @Modifying
