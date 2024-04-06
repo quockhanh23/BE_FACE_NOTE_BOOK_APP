@@ -15,4 +15,18 @@ public class NotificationDTO {
     private Long typeId;
     private String type;
     private Date createAt;
+
+    @Override
+    public String toString() {
+        return "NotificationDTO{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", status='" + status + '\'' +
+                ", idSendTo=" + idSendTo +
+                ", idAction=" + idAction +
+                ", typeId=" + typeId +
+                ", type='" + type + '\'' +
+                ", createAt=" + createAt +
+                '}';
+    }
 }

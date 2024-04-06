@@ -6,6 +6,10 @@ public class Regex {
     public static final String CHECK_NUMBER_PHONE = "^[0-9]{9,11}$";
     public static final String CHECK_EMAIL = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+(?:\\.[a-zA-Z0-9_!#$%&'*+/=?`{|}~^-]+)*@"
             + "[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+
+    private static final String PATTERN_EMAIL =
+            "^[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@" +
+                    "(?:\\w(?:[\\w-]*\\w)?\\.)+(\\w(?:[\\w-]*\\w))$";
     public static final String CHECK_USER_NAME = "^[a-z|A-Z|0-9]{3,16}$";
     public static final String CHECK_PASSWORD = "^.{3,10}+$";
     public static final String CHECK_LENGTH_POST = "^.{1,500}+$";

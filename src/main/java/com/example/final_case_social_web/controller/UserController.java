@@ -36,6 +36,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -546,5 +549,23 @@ public class UserController {
     public List<User> getAllUsersAsync() {
         userService.doTask();
         return new ArrayList<>();
+    }
+
+    @GetMapping("/hello")
+    public String hello(@CookieValue(value = "hitCounter", defaultValue = "0") Long hitCounter,
+                        HttpServletResponse response, HttpServletRequest request) {
+        hitCounter++;
+        Cookie cookie = new Cookie("hitCounter", hitCounter.toString());
+        cookie.setMaxAge(24 * 60 * 60);
+        response.addCookie(cookie);
+        //get all cookies
+        Cookie[] cookies = request.getCookies();
+        for (int i = 0; i < cookies.length; i++) {
+            if (cookies[i].getName().equals("hitCounter")) {
+                System.out.println("cookieValue:" + cookies[i].getValue());
+                break;
+            }
+        }
+        return "hello";
     }
 }

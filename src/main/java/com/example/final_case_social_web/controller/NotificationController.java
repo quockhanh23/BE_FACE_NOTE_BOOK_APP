@@ -42,6 +42,7 @@ public class NotificationController {
                 notificationDTOS.add(notificationDTO);
             }
         }
+        log.info("List Notification by user: {}", notificationDTOS);
         return new ResponseEntity<>(notificationDTOS, HttpStatus.OK);
     }
 
