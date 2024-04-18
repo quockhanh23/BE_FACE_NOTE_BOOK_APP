@@ -251,7 +251,7 @@ public class UserController {
     }
 
     // Đổi mật khẩu
-    @Transactional
+    @Transactional()
     @PostMapping("/matchPassword")
     public ResponseEntity<?> matchPassword(@RequestBody UserChangePassword userChangePassword,
                                            @RequestParam Long idUser,

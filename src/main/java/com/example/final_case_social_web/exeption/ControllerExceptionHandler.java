@@ -36,4 +36,13 @@ public class ControllerExceptionHandler {
         message.setFieldError(exception.getItems());
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(RequestLimitException.class)
+    public ResponseEntity<ErrorMessage> requestLimitException(RequestLimitException exception, WebRequest request) {
+        ErrorMessage message = new ErrorMessage();
+        message.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        message.setMessage(exception.getMessage());
+        message.setDescription(request.getDescription(false));
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
 }
