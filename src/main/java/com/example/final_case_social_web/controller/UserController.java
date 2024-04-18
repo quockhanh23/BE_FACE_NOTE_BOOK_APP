@@ -292,7 +292,6 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            final double startTime = System.currentTimeMillis();
             List<User> userBannedList = userService.findAllUserBanned();
             if (!CollectionUtils.isEmpty(userBannedList)) {
                 if (userBannedList.stream().parallel().anyMatch(item -> item.getUsername().equals(user.getUsername()))) {
@@ -336,11 +335,6 @@ public class UserController {
                 verificationToken.get().setToken(jwt);
                 verificationTokenRepository.save(verificationToken.get());
             }
-
-            final double elapsedTimeMillis = System.currentTimeMillis();
-            log.info(Constants.MESSAGE_STRIKE_THROUGH);
-            Common.executionTime(startTime, elapsedTimeMillis);
-            log.info(Constants.MESSAGE_STRIKE_THROUGH);
             return ResponseEntity.ok(new JwtResponse(jwt, currentUser.get().getId(),
                     userDetails.getUsername(), userDetails.getAuthorities()));
         } catch (Exception e) {

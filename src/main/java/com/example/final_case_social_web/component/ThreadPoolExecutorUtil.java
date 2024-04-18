@@ -1,5 +1,6 @@
-package com.example.final_case_social_web.service;
+package com.example.final_case_social_web.component;
 
+import com.example.final_case_social_web.thread.TaskThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

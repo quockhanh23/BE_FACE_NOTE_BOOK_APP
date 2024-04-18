@@ -1,5 +1,7 @@
 package com.example.final_case_social_web.component;
 
+import com.example.final_case_social_web.common.Common;
+import com.example.final_case_social_web.common.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,39 +18,44 @@ public class LoggingAspect {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Before");
         String className = joinPoint.getTarget().getClass().getName();
         String methodName = joinPoint.getSignature().getName();
-        log.info("Logging: A method " + className + "." + methodName + " is about to be called");
+        log.info("A method " + className + "." + methodName + " is about to be called");
     }
 
     @Before("execution(* com.example.final_case_social_web.service.*.*(..))")
     public void beforeServiceMethods() {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Before");
-        log.info("Logging: A service method is about to be called");
+        log.info("A service method is about to be called");
     }
 
     @AfterReturning("execution(* com.example.final_case_social_web.service.*.*(..))")
     public void afterReturningServiceMethods() {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @AfterReturning");
-        log.info("Logging: A service method has returned successfully");
+        log.info("A service method has returned successfully");
     }
 
     @AfterThrowing(pointcut = "execution(* com.example.final_case_social_web.controller.*.*(..))", throwing = "ex")
     public void afterThrowingServiceMethods(Exception ex) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @AfterThrowing");
-        log.info("Logging: A service method has thrown an exception: " + ex.getMessage());
+        log.info("A service method has thrown an exception: " + ex.getMessage());
     }
 
     @After("execution(* com.example.final_case_social_web.service.*.*(..))")
     public void afterServiceMethods() {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @After");
-        log.info("Logging: A service method has finished (with or without exception)");
+        log.info("A service method has finished (with or without exception)");
     }
 
-    @Around("execution(* com.example.final_case_social_web.service.*.*(..))")
+    @Around("execution(* com.example.final_case_social_web.controller.*.*(..))")
     public Object aroundServiceMethods(ProceedingJoinPoint joinPoint) throws Throwable {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Around");
-        log.info("Logging: Before invoking the service method");
+        String className = joinPoint.getTarget().getClass().getName();
+        String methodName = joinPoint.getSignature().getName();
+        log.info("A method " + className + "." + methodName + " is about to be called");
+        final double startTime = System.currentTimeMillis();
         Object result = joinPoint.proceed();
-        log.info("Logging: After invoking the service method");
+        final double elapsedTimeMillis = System.currentTimeMillis();
+        Common.executionTime(startTime, elapsedTimeMillis);
+        log.info("After invoking the service method " + className + "." + methodName);
         return result;
     }
 }

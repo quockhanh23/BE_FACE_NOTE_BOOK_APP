@@ -1,4 +1,4 @@
-package com.example.final_case_social_web.service;
+package com.example.final_case_social_web.thread;
 
 
 import com.example.final_case_social_web.model.User;

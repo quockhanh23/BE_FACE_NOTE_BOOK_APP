@@ -9,6 +9,7 @@ import java.net.InetAddress;
 @Component
 public class CustomHealthCheck implements HealthIndicator {
 
+    // Call API http://localhost:8080/actuator/healthcheck
     @Override
     public Health health() {
         try {
