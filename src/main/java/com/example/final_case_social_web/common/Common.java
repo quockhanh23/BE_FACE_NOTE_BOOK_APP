@@ -1,7 +1,7 @@
 package com.example.final_case_social_web.common;
 
-import com.example.final_case_social_web.object.FieldsCheckWords;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.object.FieldsCheckWords;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -136,5 +139,16 @@ public class Common {
             input = input.replace("_", "\\_");
         }
         return input;
+    }
+
+    public static Date changeLocalDateToDate(LocalDate localDate) {
+        if (localDate == null) return null;
+        Date date;
+        try {
+            date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (Exception e) {
+            date = null;
+        }
+        return date;
     }
 }

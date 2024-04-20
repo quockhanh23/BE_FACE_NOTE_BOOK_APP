@@ -1,6 +1,9 @@
 package com.example.final_case_social_web.dto;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -20,7 +23,10 @@ public class UserDTO {
     private String address;
     private String gender;
     private String education;
+    @JsonIgnore
+    // Lỗi xảy ra ở đây, ACCEPT_CASE_INSENSITIVE_VALUES: json không đọc được LocalDate, đã thử nhiều cách nhưng không được
     private LocalDate dateOfBirth;
+    private Date dateOfBirth2;
     private Date createAt;
     private String status;
     private long mutualFriends;
@@ -33,5 +39,30 @@ public class UserDTO {
         this.fullName = fullName;
         this.avatar = avatar;
         this.cover = cover;
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", favorite='" + favorite + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", cover='" + cover + '\'' +
+                ", address='" + address + '\'' +
+                ", gender='" + gender + '\'' +
+                ", education='" + education + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", dateOfBirth2=" + dateOfBirth2 +
+                ", createAt=" + createAt +
+                ", status='" + status + '\'' +
+                ", mutualFriends=" + mutualFriends +
+                ", sendRequestFriend=" + sendRequestFriend +
+                ", peopleSendRequestFriend=" + peopleSendRequestFriend +
+                ", numberRepost=" + numberRepost +
+                '}';
     }
 }

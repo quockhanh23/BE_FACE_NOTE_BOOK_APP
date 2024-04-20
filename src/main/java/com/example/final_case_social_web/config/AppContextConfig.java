@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.handler.MappedInterceptor;
 
 @Configuration
-public class AppContextConfiguration {
+public class AppContextConfig {
     @Bean
     public MappedInterceptor myInterceptor() {
         return new MappedInterceptor(null, new RequestLimitingInterceptor());

@@ -19,6 +19,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.3'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // RabbitMQ
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-amqp'
+
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
 
     runtimeOnly 'mysql:mysql-connector-java'
@@ -63,13 +66,16 @@ dependencies {
     // https://mvnrepository.com/artifact/org.flywaydb/flyway-mysql
     implementation group: 'org.flywaydb', name: 'flyway-mysql', version: '8.5.13'
 
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
+    runtimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0"
+
     implementation 'io.springfox:springfox-swagger2:3.0.0'
     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 
     implementation group: 'com.itextpdf.tool', name: 'xmlworker', version: '5.5.13.3'
     implementation 'com.itextpdf:itextpdf:5.5.13.3'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-
 }
 
 tasks.named('test') {
