@@ -12,6 +12,11 @@ repositories {
     mavenCentral()
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -21,7 +26,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     // RabbitMQ
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-amqp'
-
+    // Redis
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
 
     runtimeOnly 'mysql:mysql-connector-java'
@@ -65,6 +70,12 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.flywaydb/flyway-mysql
     implementation group: 'org.flywaydb', name: 'flyway-mysql', version: '8.5.13'
+
+    // https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka
+    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '2.8.8'
+
+    // https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients
+    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.7.0'
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
