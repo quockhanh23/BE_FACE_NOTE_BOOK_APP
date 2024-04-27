@@ -48,12 +48,8 @@ public class AdminRestController {
     @GetMapping("/adminAction")
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
                                          @RequestParam String type,
+                                         // Sử dụng param này bên Aspect
                                          @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idAdmin)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         if (Objects.isNull(userService.checkAdmin(idAdmin))) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
@@ -89,12 +85,8 @@ public class AdminRestController {
 
     @GetMapping("/getAllGroupPost")
     public ResponseEntity<?> getAllGroupPost(@RequestParam Long idGroup, @RequestParam Long idAdmin,
+                                             // Sử dụng param này bên Aspect
                                              @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idAdmin)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
@@ -131,12 +123,8 @@ public class AdminRestController {
     public ResponseEntity<?> actionUser(@RequestParam Long idAdmin,
                                         @RequestParam Long idUser,
                                         @RequestParam String type,
+                                        // Sử dụng param này bên Aspect
                                         @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idAdmin)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
@@ -166,12 +154,8 @@ public class AdminRestController {
     public ResponseEntity<?> actionPost(@RequestParam Long idAdmin,
                                         @RequestParam Long idPost,
                                         @RequestParam String type,
+                                        // Sử dụng param này bên Aspect
                                         @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idAdmin)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);

@@ -255,13 +255,9 @@ public class UserController {
     @PostMapping("/matchPassword")
     public ResponseEntity<?> matchPassword(@RequestBody UserChangePassword userChangePassword,
                                            @RequestParam Long idUser,
+                                           // Sử dụng param này bên Aspect
                                            @RequestHeader("Authorization") String authorization) {
         try {
-            if (!userService.errorToken(authorization, idUser)) {
-                return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                        Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                        HttpStatus.UNAUTHORIZED);
-            }
             Optional<User> userOptional = userService.findById(idUser);
             if (!userOptional.isPresent()) {
                 return new ResponseEntity<>(ResponseNotification.
@@ -377,6 +373,7 @@ public class UserController {
     @PutMapping("/users/{idUser}")
     public ResponseEntity<?> updateUserProfile(@PathVariable Long idUser,
                                                @RequestBody User user,
+                                               // Sử dụng param này bên Aspect
                                                @RequestHeader("Authorization") String authorization) {
         if (StringUtils.isEmpty(user.getFullName()) || StringUtils.isEmpty(user.getPhone())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -392,12 +389,6 @@ public class UserController {
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
-        }
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
         }
         String avatarName = "";
         boolean checkCover = false;
@@ -450,13 +441,8 @@ public class UserController {
     @DeleteMapping("/changeStatusUser")
     public ResponseEntity<?> changeStatusUser(@RequestParam Long idUser,
                                               @RequestParam String type,
+                                              // Sử dụng param này bên Aspect
                                               @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -496,13 +482,8 @@ public class UserController {
     public ResponseEntity<?> changeImage(@RequestParam Long idUser,
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
+                                         // Sử dụng param này bên Aspect
                                          @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
