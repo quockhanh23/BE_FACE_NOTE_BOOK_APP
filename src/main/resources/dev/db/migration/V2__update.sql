@@ -3,6 +3,7 @@ alter table follow_watching
 
 INSERT INTO roles (id, name)
 VALUES (1, 'ROLE_USER'),
-       (2, 'ROLE_USER') ON DUPLICATE KEY
+       (2, 'ROLE_ADMIN') ON DUPLICATE KEY
 UPDATE name =
 VALUES (name);
+
