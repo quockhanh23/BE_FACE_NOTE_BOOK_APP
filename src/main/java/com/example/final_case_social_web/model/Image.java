@@ -1,6 +1,5 @@
 package com.example.final_case_social_web.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +21,5 @@ public class Image {
     private String status;
     private Date createAt = new Date();
     private Date deleteAt;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Long idUser;
 }

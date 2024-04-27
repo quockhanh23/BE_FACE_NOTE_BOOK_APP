@@ -75,6 +75,8 @@ public interface UserService extends UserDetailsService {
 
     List<UserDTO> copyListDTO(List<User> users);
 
+    void saveImageUserLogin(Long idUser, String image);
+
     List<User> getAllUsersAsync();
 
     void doTask();

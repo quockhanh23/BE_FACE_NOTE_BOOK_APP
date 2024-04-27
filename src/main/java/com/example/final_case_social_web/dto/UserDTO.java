@@ -1,11 +1,9 @@
 package com.example.final_case_social_web.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -23,10 +21,9 @@ public class UserDTO {
     private String address;
     private String gender;
     private String education;
-    @JsonIgnore
-    // Lỗi xảy ra ở đây, ACCEPT_CASE_INSENSITIVE_VALUES: json không đọc được LocalDate, đã thử nhiều cách nhưng không được
-    private LocalDate dateOfBirth;
-    private Date dateOfBirth2;
+    // ACCEPT_CASE_INSENSITIVE_VALUES: json không đọc được LocalDate, đã thử nhiều cách nhưng không được
+    private Date dateOfBirth;
+
     private Date createAt;
     private String status;
     private long mutualFriends;
@@ -56,7 +53,6 @@ public class UserDTO {
                 ", gender='" + gender + '\'' +
                 ", education='" + education + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
-                ", dateOfBirth2=" + dateOfBirth2 +
                 ", createAt=" + createAt +
                 ", status='" + status + '\'' +
                 ", mutualFriends=" + mutualFriends +

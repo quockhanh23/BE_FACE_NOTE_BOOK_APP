@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class LoggingAspect {
 
     @Before("execution(* com.example.final_case_social_web.controller.*.*(..))")
-    public void beforeServiceMethods(JoinPoint joinPoint) {
+    public void beforeControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Before");
         String className = joinPoint.getTarget().getClass().getName();
         String methodName = joinPoint.getSignature().getName();
@@ -19,9 +19,11 @@ public class LoggingAspect {
     }
 
     @Before("execution(* com.example.final_case_social_web.service.*.*(..))")
-    public void beforeServiceMethods() {
+    public void beforeServiceMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Before");
-        log.info("A service method is about to be called");
+        String className = joinPoint.getTarget().getClass().getName();
+        String methodName = joinPoint.getSignature().getName();
+        log.info("A method " + className + "." + methodName + " is about to be called");
     }
 
     @AfterReturning("execution(* com.example.final_case_social_web.service.*.*(..))")

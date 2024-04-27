@@ -16,5 +16,5 @@ public interface LastUserLoginRepository extends JpaRepository<LastUserLogin, Lo
     @Query(value = "select * from last_user_login order by login_time desc limit 3", nativeQuery = true)
     List<LastUserLogin> historyLogin();
 
-    Optional<LastUserLogin> findAllByIdUser(Long id);
+    LastUserLogin findByIdUser(Long id);
 }

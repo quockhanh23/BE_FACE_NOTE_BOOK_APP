@@ -4,6 +4,7 @@ import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.common.Regex;
+import com.example.final_case_social_web.component.RedisBaseService;
 import com.example.final_case_social_web.dto.PostDTO;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.*;
@@ -58,7 +59,9 @@ public class PostRestController {
     @Autowired
     private IconHeartRepository iconHeartRepository;
     @Autowired
-    PostRepository postRepository;
+    private PostRepository postRepository;
+    @Autowired
+    private RedisBaseService redisBaseService;
 
     @GetMapping("/allPostPublic")
     public ResponseEntity<?> allPostPublic(@RequestParam Long idUser,
@@ -173,6 +176,7 @@ public class PostRestController {
         postService.create(post);
         post.setUser(userOptional.get());
         postService.save(post);
+        redisBaseService.delete("post");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -204,6 +208,7 @@ public class PostRestController {
                 postOptional.get().setContent(post.getContent());
             }
             postService.save(postOptional.get());
+            redisBaseService.delete("post");
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -289,6 +294,7 @@ public class PostRestController {
         }
         if (!StringUtils.isEmpty(type) && ("Public".equals(type) || "Private".equals(type) || "Delete".equals(type))) {
             postService.save(postOptional.get());
+            redisBaseService.delete("post");
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -327,6 +333,7 @@ public class PostRestController {
             disLikePostRepository.deleteInBatch(disLikePosts);
             iconHeartRepository.deleteInBatch(iconHearts);
             postRepository.deleteInBatch(post2List);
+            redisBaseService.delete("post");
             return new ResponseEntity<>(HttpStatus.OK);
         }
         // Khôi phục tất cả
@@ -336,6 +343,7 @@ public class PostRestController {
                 post2.setDelete(false);
             });
             postRepository.saveAll(post2List);
+            redisBaseService.delete("post");
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),

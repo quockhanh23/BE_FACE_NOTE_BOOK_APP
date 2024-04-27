@@ -1,21 +1,22 @@
 package com.example.final_case_social_web.service.impl;
 
 
-import com.example.final_case_social_web.object.AvatarDefault;
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.component.ThreadPoolExecutorUtil;
 import com.example.final_case_social_web.dto.ListAvatarDefault;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.object.AvatarDefault;
 import com.example.final_case_social_web.repository.FollowWatchingRepository;
+import com.example.final_case_social_web.repository.LastUserLoginRepository;
 import com.example.final_case_social_web.repository.UserRepository;
 import com.example.final_case_social_web.repository.VerificationTokenRepository;
 import com.example.final_case_social_web.service.FriendRelationService;
-import com.example.final_case_social_web.thread.TaskThread;
-import com.example.final_case_social_web.component.ThreadPoolExecutorUtil;
 import com.example.final_case_social_web.service.UserService;
+import com.example.final_case_social_web.thread.TaskThread;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,25 +53,32 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
     @Autowired
+    private LastUserLoginRepository lastUserLoginRepository;
+    @Autowired
     private ThreadPoolExecutorUtil threadPoolExecutorUtil;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException(username);
+        try {
+            User user = userRepository.findByUsername(username);
+            if (user == null) {
+                throw new UsernameNotFoundException(username);
+            }
+            if (this.checkLogin(user)) {
+                return UserPrinciple.build(user);
+            }
+            boolean enable = false;
+            boolean accountNonExpired = false;
+            boolean credentialsNonExpired = false;
+            boolean accountNonLocked = false;
+            return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                    user.getPassword(), enable, accountNonExpired, credentialsNonExpired,
+                    accountNonLocked, null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (this.checkLogin(user)) {
-            return UserPrinciple.build(user);
-        }
-        boolean enable = false;
-        boolean accountNonExpired = false;
-        boolean credentialsNonExpired = false;
-        boolean accountNonLocked = false;
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
-                user.getPassword(), enable, accountNonExpired, credentialsNonExpired,
-                accountNonLocked, null);
+        return null;
     }
 
 
@@ -371,6 +379,14 @@ public class UserServiceImpl implements UserService {
             userDTOList.add(userDTO);
         }
         return userDTOList;
+    }
+
+    @Override
+    public void saveImageUserLogin(Long idUser, String image) {
+        LastUserLogin lastUserLogin = lastUserLoginRepository.findByIdUser(idUser);
+        if (Objects.isNull(lastUserLogin)) return;
+        lastUserLogin.setAvatar(image);
+        lastUserLoginRepository.save(lastUserLogin);
     }
 
     @Override

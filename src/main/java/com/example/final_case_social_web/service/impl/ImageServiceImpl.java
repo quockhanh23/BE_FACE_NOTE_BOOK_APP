@@ -7,6 +7,7 @@ import com.example.final_case_social_web.repository.ImageRepository;
 import com.example.final_case_social_web.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class ImageServiceImpl implements ImageService {
         image1.setLinkImage(image);
         image1.setStatus(Constants.STATUS_PUBLIC);
         image1.setDeleteAt(null);
-        image1.setUser(user);
+        image1.setIdUser(user.getId());
         return image1;
     }
 

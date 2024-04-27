@@ -3,6 +3,7 @@ package com.example.final_case_social_web.controller;
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.component.RedisBaseService;
 import com.example.final_case_social_web.dto.GroupPostDTO;
 import com.example.final_case_social_web.dto.PostCheck;
 import com.example.final_case_social_web.dto.UserDTO;
@@ -13,6 +14,9 @@ import com.example.final_case_social_web.repository.ReportRepository;
 import com.example.final_case_social_web.repository.TheGroupRepository;
 import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -22,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,23 +48,46 @@ public class AdminRestController {
     private GroupPostRepository groupPostRepository;
     @Autowired
     private ReportRepository reportRepository;
+    @Autowired
+    private RedisBaseService redisBaseService;
+
+    private ObjectMapper intObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.findAndRegisterModules();
+        return objectMapper;
+    }
 
     // Xem tất cả user
     @GetMapping("/adminAction")
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
                                          @RequestParam String type,
                                          // Sử dụng param này bên Aspect
-                                         @RequestHeader("Authorization") String authorization) {
+                                         @RequestHeader("Authorization") String authorization) throws IOException {
         if (Objects.isNull(userService.checkAdmin(idAdmin))) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
         }
+        ObjectMapper objectMapper = intObjectMapper();
         if ("user".equals(type)) {
+            Object ob = redisBaseService.getObjectByKey("user");
+            if (Objects.nonNull(ob)) {
+                UserDTO[] myObjects = objectMapper.readValue(ob.toString(), UserDTO[].class);
+                return new ResponseEntity<>(myObjects, HttpStatus.OK);
+            }
             List<User> users = userService.findAllRoleUser();
             List<UserDTO> userDTOList = userService.copyListDTO(users);
+            String json = objectMapper.writeValueAsString(userDTOList);
+            redisBaseService.set("user", json);
             return new ResponseEntity<>(userDTOList, HttpStatus.OK);
         }
         if ("post".equals(type)) {
+            Object ob = redisBaseService.getObjectByKey("post");
+            if (Objects.nonNull(ob)) {
+                PostCheck[] myObjects = objectMapper.readValue(ob.toString(), PostCheck[].class);
+                return new ResponseEntity<>(myObjects, HttpStatus.OK);
+            }
             Iterable<Post2> post2List = postService.findAll();
             List<Post2> list = (List<Post2>) post2List;
             List<PostCheck> postChecks = new ArrayList<>();
@@ -71,6 +99,8 @@ public class AdminRestController {
                 postChecks.add(postCheck);
             });
             postChecks.sort((p1, p2) -> (p2.getCreateAt().compareTo(p1.getCreateAt())));
+            String json = objectMapper.writeValueAsString(postChecks);
+            redisBaseService.set("post", json);
             return new ResponseEntity<>(postChecks, HttpStatus.OK);
         }
         if ("group".equals(type)) {
@@ -142,6 +172,7 @@ public class AdminRestController {
                 optionalUser.get().setStatus(Constants.STATUS_ACTIVE);
             }
             userService.save(optionalUser.get());
+            redisBaseService.delete("user");
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -173,6 +204,7 @@ public class AdminRestController {
                 postOptional.get().setStatus(Constants.STATUS_PRIVATE);
                 postService.save(postOptional.get());
             }
+            redisBaseService.delete("post");
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),

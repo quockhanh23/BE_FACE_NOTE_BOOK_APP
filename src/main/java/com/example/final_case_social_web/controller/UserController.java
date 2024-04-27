@@ -4,6 +4,7 @@ import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
 import com.example.final_case_social_web.common.Regex;
+import com.example.final_case_social_web.component.RedisBaseService;
 import com.example.final_case_social_web.dto.*;
 import com.example.final_case_social_web.exeption.InvalidException;
 import com.example.final_case_social_web.model.*;
@@ -69,6 +70,8 @@ public class UserController {
     private ImageService imageService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private RedisBaseService redisBaseService;
 
     @GetMapping("/saveHistoryLogin")
     public ResponseEntity<?> saveHistoryLogin(@RequestParam Long idUserLogin, @RequestHeader("IP") String IP) {
@@ -78,15 +81,15 @@ public class UserController {
                 return new ResponseEntity<>(ResponseNotification.
                         responseMessage(Constants.IdCheck.ID_USER, idUserLogin), HttpStatus.NOT_FOUND);
             }
-            Optional<LastUserLogin> userLoginOptional = lastUserLoginRepository.findAllByIdUser(userOptional.get().getId());
-            if (userLoginOptional.isPresent()) {
-                userLoginOptional.get().setIdUser(userOptional.get().getId());
-                userLoginOptional.get().setLoginTime(new Date());
-                userLoginOptional.get().setUserName(userOptional.get().getUsername());
-                userLoginOptional.get().setAvatar(userOptional.get().getAvatar());
-                userLoginOptional.get().setFullName(userOptional.get().getFullName());
-                userLoginOptional.get().setIpAddress(IP);
-                lastUserLoginRepository.save(userLoginOptional.get());
+            LastUserLogin lastUserLogin = lastUserLoginRepository.findByIdUser(userOptional.get().getId());
+            if (Objects.nonNull(lastUserLogin)) {
+                lastUserLogin.setIdUser(userOptional.get().getId());
+                lastUserLogin.setLoginTime(new Date());
+                lastUserLogin.setUserName(userOptional.get().getUsername());
+                lastUserLogin.setAvatar(userOptional.get().getAvatar());
+                lastUserLogin.setFullName(userOptional.get().getFullName());
+                lastUserLogin.setIpAddress(IP);
+                lastUserLoginRepository.save(lastUserLogin);
             } else {
                 LastUserLogin userLogin = new LastUserLogin();
                 userLogin.setIdUser(userOptional.get().getId());
@@ -209,6 +212,7 @@ public class UserController {
         }
 //        emailService.sendMail(user.getEmail(), MessageResponse.Email.WELL_COME + user.getFullName(),
 //                MessageResponse.Email.THANK);
+        redisBaseService.delete("user");
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
@@ -405,17 +409,17 @@ public class UserController {
             if (StringUtils.isNotEmpty(user.getAvatar())
                     && !user.getAvatar().equalsIgnoreCase(userOptional.get().getAvatar())) {
                 userOptional.get().setAvatar(user.getAvatar());
-                Image image = imageService.createImageDefault(user.getAvatar(), user);
-                imageService.save(image);
-                Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
-                lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(user.getAvatar()));
+                try {
+                    Image image = imageService.createImageDefault(user.getAvatar(), user);
+                    imageService.save(image);
+                    userService.saveImageUserLogin(idUser, user.getAvatar());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             userOptional.get().setAvatar(avatarName);
-            Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
-            if (lastUserLogin.isPresent()) {
-                lastUserLogin.get().setAvatar(avatarName);
-            }
+            userService.saveImageUserLogin(idUser, avatarName);
         }
         if (!StringUtils.isEmpty(user.getCover())
                 && !userOptional.get().getCover().equals(user.getCover())
@@ -435,6 +439,7 @@ public class UserController {
         userOptional.get().setFavorite(user.getFavorite());
         userOptional.get().setEducation(user.getEducation());
         userService.save(userOptional.get());
+        redisBaseService.delete("user");
         return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
     }
 
@@ -468,6 +473,7 @@ public class UserController {
                 return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
             }
         }
+        redisBaseService.delete("user");
         return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                 MessageResponse.IN_VALID, MessageResponse.DESCRIPTION),
                 HttpStatus.BAD_REQUEST);
@@ -496,13 +502,13 @@ public class UserController {
         }
         if (Constants.AVATAR.equals(type)) {
             userOptional.get().setAvatar(imageOptional.get().getLinkImage());
-            Optional<LastUserLogin> lastUserLogin = lastUserLoginRepository.findAllByIdUser(idUser);
-            lastUserLogin.ifPresent(userLogin -> userLogin.setAvatar(imageOptional.get().getLinkImage()));
+            userService.saveImageUserLogin(idUser, imageOptional.get().getLinkImage());
         }
         if (Constants.COVER.equals(type)) {
             userOptional.get().setCover(imageOptional.get().getLinkImage());
         }
         userService.save(userOptional.get());
+        redisBaseService.delete("user");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

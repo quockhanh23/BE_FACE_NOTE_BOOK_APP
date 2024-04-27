@@ -7,6 +7,7 @@ import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,15 +32,20 @@ public class RabbitMQController { // Producers
     @Autowired
     private UserService userService;
 
+    private ObjectMapper intObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.findAndRegisterModules();
+        return objectMapper;
+    }
 
     @GetMapping("/push-message")
     ResponseEntity<?> sendMessage(@RequestParam(value = "message", defaultValue = "Test push message") String message)
             throws JsonProcessingException {
         List<User> userList = userService.findAllRoleUser();
         List<UserDTO> userDTOList = userService.copyListDTO(userList);
-        userDTOList.forEach(userDTO -> userDTO.setDateOfBirth2(Common.changeLocalDateToDate(userDTO.getDateOfBirth())));
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+        ObjectMapper objectMapper = intObjectMapper();
         String json = objectMapper.writeValueAsString(userDTOList);
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, json);
         System.out.println("Sent message: " + message);
