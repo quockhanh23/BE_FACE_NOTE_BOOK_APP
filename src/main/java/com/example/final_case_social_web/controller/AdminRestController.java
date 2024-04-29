@@ -51,14 +51,6 @@ public class AdminRestController {
     @Autowired
     private RedisBaseService redisBaseService;
 
-    private ObjectMapper intObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.findAndRegisterModules();
-        return objectMapper;
-    }
-
     // Xem tất cả user
     @GetMapping("/adminAction")
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
@@ -69,7 +61,7 @@ public class AdminRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
         }
-        ObjectMapper objectMapper = intObjectMapper();
+        ObjectMapper objectMapper = Common.intObjectMapper();
         if ("user".equals(type)) {
             Object ob = redisBaseService.getObjectByKey("user");
             if (Objects.nonNull(ob)) {

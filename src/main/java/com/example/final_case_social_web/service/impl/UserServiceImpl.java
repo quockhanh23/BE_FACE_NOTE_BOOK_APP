@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -81,18 +83,21 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-
     @Override
+    @CacheEvict(cacheNames = {"allFriendByUserId", "findAllUserBanned", "listPeople", "friendSuggestion",
+            "findAllByIdIn", "findAllUser", "findAllRoleUser"}, allEntries = true)
     public void save(User user) {
         userRepository.save(user);
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllRoleUser")
     public List<User> findAllRoleUser() {
         return userRepository.findAllRoleUser();
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllUser")
     public Iterable<User> findAll() {
         return userRepository.findAll();
     }
@@ -211,26 +216,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllByIdIn",
+            key = "#root.methodName + '_' + T(com.example.utils.CacheKeyGenerator).generateKey(#inputList)")
     public Set<User> findAllByIdIn(Set<Long> inputList) {
         return userRepository.findAllByIdIn(inputList);
     }
 
     @Override
+    @Cacheable(cacheNames = "friendSuggestion", key = "#idUser")
     public List<User> friendSuggestion(Long idUser) {
         return userRepository.friendSuggestion(idUser);
     }
 
     @Override
+    @Cacheable(cacheNames = "listPeople", key = "#idUser")
     public List<User> listPeople(Long idUser) {
         return userRepository.listPeople(idUser);
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllUserBanned")
     public List<User> findAllUserBanned() {
         return userRepository.findAllUserBanned();
     }
 
     @Override
+    @Cacheable(cacheNames = "allFriendByUserId", key = "#idUser")
     public List<User> allFriendByUserId(Long idUser) {
         return userRepository.allFriendByUserId(idUser);
     }

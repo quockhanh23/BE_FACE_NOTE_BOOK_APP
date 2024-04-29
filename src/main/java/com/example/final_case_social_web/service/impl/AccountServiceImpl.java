@@ -4,6 +4,7 @@ import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.repository.UserRepository;
 import com.example.final_case_social_web.service.GeneralService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,6 +21,7 @@ public class AccountServiceImpl implements GeneralService<User> {
     }
 
     @Override
+    @CacheEvict(cacheNames = "users", allEntries = true)
     public User save(User user) {
         return userRepository.save(user);
     }

@@ -13,6 +13,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -50,6 +52,7 @@ public class PostServiceImpl implements PostService {
     EntityManager entityManager;
 
     @Override
+    @Cacheable(cacheNames = "findAllPost")
     public Iterable<Post2> findAll() {
         return postRepository.findAll();
     }
@@ -60,21 +63,25 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost"}, allEntries = true)
     public Post2 save(Post2 post) {
         return postRepository.save(post);
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllPostByUser", key = "#id")
     public List<Post2> findAllPostByUser(Long id) {
         return postRepository.findAllPostByUser(id);
     }
 
     @Override
+    @Cacheable(cacheNames = "allPost", key = "#id")
     public List<Post2> allPost(Long id) {
         return postRepository.AllPost(id);
     }
 
     @Override
+    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost"}, allEntries = true)
     public void delete(Post2 entity) {
         postRepository.delete(entity);
     }
@@ -98,6 +105,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost"}, allEntries = true)
     public void saveAll(List<Post2> post2List) {
         postRepository.saveAll(post2List);
     }
