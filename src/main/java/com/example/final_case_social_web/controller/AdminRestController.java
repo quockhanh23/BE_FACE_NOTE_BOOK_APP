@@ -75,11 +75,6 @@ public class AdminRestController {
             return new ResponseEntity<>(userDTOList, HttpStatus.OK);
         }
         if ("post".equals(type)) {
-            Object ob = redisBaseService.getObjectByKey("post");
-            if (Objects.nonNull(ob)) {
-                PostCheck[] myObjects = objectMapper.readValue(ob.toString(), PostCheck[].class);
-                return new ResponseEntity<>(myObjects, HttpStatus.OK);
-            }
             Iterable<Post2> post2List = postService.findAll();
             List<Post2> list = (List<Post2>) post2List;
             List<PostCheck> postChecks = new ArrayList<>();
@@ -91,8 +86,6 @@ public class AdminRestController {
                 postChecks.add(postCheck);
             });
             postChecks.sort((p1, p2) -> (p2.getCreateAt().compareTo(p1.getCreateAt())));
-            String json = objectMapper.writeValueAsString(postChecks);
-            redisBaseService.set("post", json);
             return new ResponseEntity<>(postChecks, HttpStatus.OK);
         }
         if ("group".equals(type)) {

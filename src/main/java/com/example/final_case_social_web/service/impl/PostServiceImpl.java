@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
     private ModelMapper modelMapper;
 
     @PersistenceContext
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Override
     @Cacheable(cacheNames = "findAllPost")
@@ -81,7 +81,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost"}, allEntries = true)
+    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost", "findAllByUserIdAndDeleteTrue"},
+            allEntries = true)
     public void delete(Post2 entity) {
         postRepository.delete(entity);
     }
@@ -105,7 +106,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost"}, allEntries = true)
+    @CacheEvict(cacheNames = {"allPost", "findAllPostByUser", "findAllPost", "findAllByUserIdAndDeleteTrue"},
+            allEntries = true)
     public void saveAll(List<Post2> post2List) {
         postRepository.saveAll(post2List);
     }
@@ -123,6 +125,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllByUserIdAndDeleteTrue", key = "#user_id")
     public List<Post2> findAllByUserIdAndDeleteTrue(Long user_id) {
         return postRepository.findAllByUserIdAndDeleteIsTrue(user_id);
     }

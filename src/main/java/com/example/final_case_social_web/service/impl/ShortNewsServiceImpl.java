@@ -6,6 +6,8 @@ import com.example.final_case_social_web.repository.ShortNewsRepository;
 import com.example.final_case_social_web.service.ShortNewsService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -28,11 +30,13 @@ public class ShortNewsServiceImpl implements ShortNewsService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"getListShortNewInTrash", "myShortNew", "findAllShortNewsPublic"}, allEntries = true)
     public ShortNews save(ShortNews shortNews) {
         return shortNewsRepository.save(shortNews);
     }
 
     @Override
+    @CacheEvict(cacheNames = {"getListShortNewInTrash", "myShortNew", "findAllShortNewsPublic"}, allEntries = true)
     public void delete(ShortNews entity) {
         shortNewsRepository.delete(entity);
     }
@@ -49,6 +53,7 @@ public class ShortNewsServiceImpl implements ShortNewsService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"getListShortNewInTrash", "myShortNew", "findAllShortNewsPublic"}, allEntries = true)
     public void saveAll(List<ShortNews> shortNews) {
         shortNewsRepository.saveAll(shortNews);
     }
@@ -72,16 +77,19 @@ public class ShortNewsServiceImpl implements ShortNewsService {
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllShortNewsPublic")
     public List<ShortNews> findAllShortNewsPublic() {
         return shortNewsRepository.findAllShortNewsPublic();
     }
 
     @Override
+    @Cacheable(cacheNames = "myShortNew", key = "#idUser")
     public List<ShortNews> myShortNew(Long idUser) {
         return shortNewsRepository.myShortNew(idUser);
     }
 
     @Override
+    @Cacheable(cacheNames = "getListShortNewInTrash", key = "#idUser")
     public List<ShortNews> getListShortNewInTrash(Long idUser) {
         return shortNewsRepository.getListShortNewInTrash(idUser);
     }

@@ -35,13 +35,15 @@ public class LoggingAspect {
     @AfterThrowing(pointcut = "execution(* com.example.final_case_social_web.controller.*.*(..))", throwing = "ex")
     public void afterThrowingControllerMethods(Exception ex) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @afterThrowingControllerMethods");
-        log.info("A service method has thrown an exception: " + ex.getMessage());
+        log.error("A service method has thrown an exception: " + ex.getMessage());
+        ex.printStackTrace();
     }
 
     @AfterThrowing(pointcut = "execution(* com.example.final_case_social_web.service.*.*(..))", throwing = "ex")
     public void afterThrowingServiceMethods(Exception ex) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @afterThrowingServiceMethods");
-        log.info("A service method has thrown an exception: " + ex.getMessage());
+        log.error("A service method has thrown an exception: " + ex.getMessage());
+        ex.printStackTrace();
     }
 
     @After("execution(* com.example.final_case_social_web.service.*.*(..))")

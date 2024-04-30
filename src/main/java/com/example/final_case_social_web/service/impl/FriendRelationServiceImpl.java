@@ -10,6 +10,8 @@ import com.example.final_case_social_web.service.FriendRelationService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ public class FriendRelationServiceImpl implements FriendRelationService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"findAllListRequestAddFriendById", "listRequest", "listRequest2"}, allEntries = true)
     public FriendRelation save(FriendRelation friendRelation) {
         return friendRelationRepository.save(friendRelation);
     }
@@ -38,16 +41,19 @@ public class FriendRelationServiceImpl implements FriendRelationService {
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllListRequestAddFriendById", key = "#idUser")
     public List<FriendRelation> findAllListRequestAddFriendById(Long idUser) {
         return friendRelationRepository.findAllListRequestAddFriendById(idUser);
     }
 
     @Override
+    @Cacheable(cacheNames = "listRequest", key = "#idUser")
     public List<FriendRelation> listRequest(Long idUser) {
         return friendRelationRepository.listRequest(idUser);
     }
 
     @Override
+    @Cacheable(cacheNames = "listRequest2", key = "#idUser")
     public List<FriendRelation> listRequest2(Long idUser) {
         return friendRelationRepository.listRequest2(idUser);
     }
