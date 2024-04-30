@@ -15,8 +15,6 @@ import com.example.final_case_social_web.repository.TheGroupRepository;
 import com.example.final_case_social_web.service.PostService;
 import com.example.final_case_social_web.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
@@ -55,7 +53,7 @@ public class AdminRestController {
     @GetMapping("/adminAction")
     public ResponseEntity<?> adminAction(@RequestParam Long idAdmin,
                                          @RequestParam String type,
-                                         // Sử dụng param này bên Aspect
+                                         @SuppressWarnings("unused")
                                          @RequestHeader("Authorization") String authorization) throws IOException {
         if (Objects.isNull(userService.checkAdmin(idAdmin))) {
             return new ResponseEntity<>(ResponseNotification.
@@ -100,7 +98,7 @@ public class AdminRestController {
 
     @GetMapping("/getAllGroupPost")
     public ResponseEntity<?> getAllGroupPost(@RequestParam Long idGroup, @RequestParam Long idAdmin,
-                                             // Sử dụng param này bên Aspect
+                                             @SuppressWarnings("unused")
                                              @RequestHeader("Authorization") String authorization) {
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
@@ -138,7 +136,7 @@ public class AdminRestController {
     public ResponseEntity<?> actionUser(@RequestParam Long idAdmin,
                                         @RequestParam Long idUser,
                                         @RequestParam String type,
-                                        // Sử dụng param này bên Aspect
+                                        @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
@@ -171,6 +169,7 @@ public class AdminRestController {
                                         @RequestParam Long idPost,
                                         @RequestParam String type,
                                         // Sử dụng param này bên Aspect
+                                        @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
         if (userService.checkAdmin(idAdmin) == null) {
             return new ResponseEntity<>(ResponseNotification.
@@ -200,12 +199,8 @@ public class AdminRestController {
     @GetMapping("/searchAllPeople")
     public ResponseEntity<?> searchAllPeople(@RequestParam Long idUser,
                                              @RequestParam(required = false) String searchText,
+                                             @SuppressWarnings("unused")
                                              @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         if (userService.checkAdmin(idUser) == null) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);

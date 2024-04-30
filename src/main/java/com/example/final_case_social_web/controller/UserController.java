@@ -259,7 +259,7 @@ public class UserController {
     @PostMapping("/matchPassword")
     public ResponseEntity<?> matchPassword(@RequestBody UserChangePassword userChangePassword,
                                            @RequestParam Long idUser,
-                                           // Sử dụng param này bên Aspect
+                                           @SuppressWarnings("unused")
                                            @RequestHeader("Authorization") String authorization) {
         try {
             Optional<User> userOptional = userService.findById(idUser);
@@ -377,7 +377,7 @@ public class UserController {
     @PutMapping("/users/{idUser}")
     public ResponseEntity<?> updateUserProfile(@PathVariable Long idUser,
                                                @RequestBody User user,
-                                               // Sử dụng param này bên Aspect
+                                               @SuppressWarnings("unused")
                                                @RequestHeader("Authorization") String authorization) {
         if (StringUtils.isEmpty(user.getFullName()) || StringUtils.isEmpty(user.getPhone())) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
@@ -446,7 +446,7 @@ public class UserController {
     @DeleteMapping("/changeStatusUser")
     public ResponseEntity<?> changeStatusUser(@RequestParam Long idUser,
                                               @RequestParam String type,
-                                              // Sử dụng param này bên Aspect
+                                              @SuppressWarnings("unused")
                                               @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
@@ -488,7 +488,7 @@ public class UserController {
     public ResponseEntity<?> changeImage(@RequestParam Long idUser,
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
-                                         // Sử dụng param này bên Aspect
+                                         @SuppressWarnings("unused")
                                          @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {

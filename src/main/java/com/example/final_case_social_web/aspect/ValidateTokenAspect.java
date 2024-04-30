@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Aspect
 @Component
@@ -28,7 +29,6 @@ public class ValidateTokenAspect {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String[] parameterNames = methodSignature.getParameterNames();
         Object[] args = joinPoint.getArgs();
-
         Map<String, Object> parameterMap = new HashMap<>();
         for (int i = 0; i < parameterNames.length; i++) {
             parameterMap.put(parameterNames[i], args[i]);
@@ -38,33 +38,45 @@ public class ValidateTokenAspect {
         return parameterMap;
     }
 
+    private void parameterMapWithIdAndAuthorization(JoinPoint joinPoint, String idType) {
+        Map<String, Object> parameterMap = getMethodSignature(joinPoint);
+        if (parameterMap.containsKey("authorization") && parameterMap.containsKey(idType)) {
+            Object authorizationValue = parameterMap.get("authorization");
+            Object id = parameterMap.get(idType);
+            if (Objects.isNull(authorizationValue) || Objects.isNull(id)) return;
+            if (!userService.errorToken(authorizationValue.toString(), Long.valueOf(id.toString()))) {
+                throw new TokenInvalidException(Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase());
+            }
+        }
+    }
+
     @Before("execution(* com.example.final_case_social_web.controller.AdminRestController.*(..))")
     public void beforeAdminRestControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token AdminRestController Methods");
-        Map<String, Object> parameterMap = getMethodSignature(joinPoint);
-        if (parameterMap.containsKey("authorization") && parameterMap.containsKey("idAdmin")) {
-            Object authorizationValue = parameterMap.get("authorization");
-            Object idAdmin = parameterMap.get("idAdmin");
-            log.info("Authorization value: " + authorizationValue);
-
-            if (!userService.errorToken(authorizationValue.toString(), Long.valueOf(idAdmin.toString()))) {
-                throw new TokenInvalidException(Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase());
-            }
-        }
+        parameterMapWithIdAndAuthorization(joinPoint, "idAdmin");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token AdminRestController Methods");
     }
 
-    @Before("execution(* com.example.final_case_social_web.controller.UserController.*(..))")
+    @Before("execution(* com.example.final_case_social_web.controller.UserController.*(..)) && !execution(* com.example.final_case_social_web.controller.UserController.passwordRetrieval(..))")
     public void beforeUserControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token UserController Methods");
-        Map<String, Object> parameterMap = getMethodSignature(joinPoint);
-        if (parameterMap.containsKey("authorization") && parameterMap.containsKey("idUser")) {
-            Object authorizationValue = parameterMap.get("authorization");
-            Object idUser = parameterMap.get("idUser");
-            if (!userService.errorToken(authorizationValue.toString(), Long.valueOf(idUser.toString()))) {
-                throw new TokenInvalidException(Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase());
-            }
-        }
+        parameterMapWithIdAndAuthorization(joinPoint, "idUser");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token UserController Methods");
+    }
+
+    @Before("execution(* com.example.final_case_social_web.controller.ImageRestController.*(..)) && !execution(* com.example.final_case_social_web.controller.ImageRestController.findAllImages(..))")
+    public void beforeImageRestControllerMethods(JoinPoint joinPoint) {
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token ImageRestController Methods");
+        parameterMapWithIdAndAuthorization(joinPoint, "idUser");
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token ImageRestController Methods");
+    }
+
+    @Before("execution(* com.example.final_case_social_web.controller.PostRestController.*(..)) " +
+            "&& !execution(* com.example.final_case_social_web.controller.PostRestController.allPostPublic(..)) " +
+            "&& !execution(* com.example.final_case_social_web.controller.PostRestController.findOnePostById(..))")
+    public void beforePostRestControllerMethods(JoinPoint joinPoint) {
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token PostRestController Methods");
+        parameterMapWithIdAndAuthorization(joinPoint, "idUser");
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token PostRestController Methods");
     }
 }

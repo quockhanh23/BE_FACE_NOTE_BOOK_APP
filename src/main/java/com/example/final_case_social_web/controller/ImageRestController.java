@@ -70,12 +70,8 @@ public class ImageRestController {
     @PostMapping("/addPhoto")
     public ResponseEntity<?> addPhoto(@RequestBody Image image,
                                       @RequestParam Long idUser,
+                                      @SuppressWarnings("unused")
                                       @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         if (Objects.isNull(userService.checkUser(idUser))) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
@@ -89,12 +85,8 @@ public class ImageRestController {
     public ResponseEntity<?> actionPhoto(@RequestParam Long idUser,
                                          @RequestParam Long idImage,
                                          @RequestParam String type,
+                                         @SuppressWarnings("unused")
                                          @RequestHeader("Authorization") String authorization) {
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -163,13 +155,8 @@ public class ImageRestController {
     // Danh sách ảnh đã xóa
     @GetMapping("/getAllImageDeleted")
     public ResponseEntity<?> getAllImageDeleted(@RequestParam Long idUser,
+                                                @SuppressWarnings("unused")
                                                 @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -186,13 +173,8 @@ public class ImageRestController {
     @DeleteMapping("/actionAllImage")
     public ResponseEntity<?> deleteAllImage(@RequestParam Long idUser,
                                             @RequestParam String type,
+                                            @SuppressWarnings("unused")
                                             @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),

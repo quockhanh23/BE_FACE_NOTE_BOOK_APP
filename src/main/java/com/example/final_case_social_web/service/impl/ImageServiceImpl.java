@@ -6,8 +6,9 @@ import com.example.final_case_social_web.model.User;
 import com.example.final_case_social_web.repository.ImageRepository;
 import com.example.final_case_social_web.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,16 +24,19 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {"findAllImageByIdUser", "findAllImageDeletedByUserId"}, allEntries = true)
     public Image save(Image image) {
         return imageRepository.save(image);
     }
 
     @Override
+    @CacheEvict(cacheNames = {"findAllImageByIdUser", "findAllImageDeletedByUserId"}, allEntries = true)
     public void delete(Image entity) {
         imageRepository.delete(entity);
     }
 
     @Override
+    @Cacheable(cacheNames = "findAllImageByIdUser", key = "#idUser")
     public List<Image> findAllImageByIdUser(Long idUser) {
         return imageRepository.findAllImageByIdUser(idUser);
     }
@@ -47,8 +51,8 @@ public class ImageServiceImpl implements ImageService {
         return image1;
     }
 
-
     @Override
+    @Cacheable(cacheNames = "findAllImageDeletedByUserId", key = "#idUser")
     public List<Image> findAllImageDeletedByUserId(Long idUser) {
         return imageRepository.findAllImageDeletedByUserId(idUser);
     }

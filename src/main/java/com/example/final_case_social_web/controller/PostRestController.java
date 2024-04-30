@@ -11,7 +11,6 @@ import com.example.final_case_social_web.model.*;
 import com.example.final_case_social_web.notification.ResponseNotification;
 import com.example.final_case_social_web.repository.*;
 import com.example.final_case_social_web.service.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -111,13 +113,8 @@ public class PostRestController {
     @DeleteMapping("/hidePost")
     public ResponseEntity<?> hidePost(@RequestParam Long idUser, @RequestParam Long idPost,
                                       @RequestParam String type,
+                                      @SuppressWarnings("unused")
                                       @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         List<HidePost> list = hidePostRepository.findAllByIdUser(idUser);
         if (Constants.HIDE.equalsIgnoreCase(type)) {
             if (!CollectionUtils.isEmpty(list)) {
@@ -146,8 +143,10 @@ public class PostRestController {
 
     // Tạo mới bài viết
     @PostMapping("/createPost")
+    @Transactional()
     public ResponseEntity<?> createPost(@RequestBody Post2 post,
                                         @RequestParam Long idUser,
+                                        @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
         if ((post.getContent().trim().equals(Constants.BLANK)
                 || (post.getContent() == null) && post.getImage() == null)
@@ -166,11 +165,6 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         postService.create(post);
         post.setUser(userOptional.get());
         postService.save(post);
@@ -178,10 +172,12 @@ public class PostRestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Chỉnh sửa post
+    // Chỉnh sửa bài viết
     @PutMapping("/updatePost")
+    @Transactional()
     public ResponseEntity<?> updatePost(@RequestParam Long idPost, @RequestParam Long idUser,
                                         @RequestBody Post2 post,
+                                        @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
@@ -192,11 +188,6 @@ public class PostRestController {
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
-        }
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
         }
         ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(post);
         if (null != responseEntity) return responseEntity;
@@ -264,6 +255,7 @@ public class PostRestController {
     public ResponseEntity<?> changeStatusPost(@RequestParam Long idPost,
                                               @RequestParam Long idUser,
                                               @RequestParam String type,
+                                              @SuppressWarnings("unused")
                                               @RequestHeader("Authorization") String authorization) {
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
@@ -274,11 +266,6 @@ public class PostRestController {
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
-        }
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
         }
         if ("Public".equals(type)) {
             postOptional.get().setStatus(Constants.STATUS_PUBLIC);
@@ -306,16 +293,12 @@ public class PostRestController {
     public ResponseEntity<?> actionAllPost(@RequestParam List<Long> listIdPost,
                                            @RequestParam Long idUser,
                                            @RequestParam String type,
+                                           @SuppressWarnings("unused")
                                            @RequestHeader("Authorization") String authorization) {
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
-        }
-        if (!userService.errorToken(authorization, idUser)) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
         }
         List<Post2> post2List = postRepository.findAllById(listIdPost);
         // Xóa tất cả bài viết
