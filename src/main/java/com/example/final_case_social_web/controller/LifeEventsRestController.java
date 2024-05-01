@@ -56,8 +56,7 @@ public class LifeEventsRestController {
         if (StringUtils.isEmpty(lifeEvents.getWork())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField("work"), HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(lifeEvents);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(lifeEvents);
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
@@ -90,8 +89,7 @@ public class LifeEventsRestController {
                 return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                         HttpStatus.NOT_FOUND);
             }
-            ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(lifeEvents);
-            if (null != responseEntity) return responseEntity;
+            Common.handlerWordsLanguage(lifeEvents);
             if (lifeEvents.getWork() != null) {
                 lifeEventsOptional.get().setWork(lifeEvents.getWork());
             } else {

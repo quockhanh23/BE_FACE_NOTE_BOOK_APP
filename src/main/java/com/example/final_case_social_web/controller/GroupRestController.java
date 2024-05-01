@@ -130,8 +130,7 @@ public class GroupRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField("type"),
                     HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(theGroup);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(theGroup);
         theGroup.setCreateBy(userOptional.get().getFullName());
         theGroup.setIdUserCreate(userOptional.get().getId());
         theGroup.setCreateAt(new Date());
@@ -354,8 +353,7 @@ public class GroupRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(groupPost);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(groupPost);
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

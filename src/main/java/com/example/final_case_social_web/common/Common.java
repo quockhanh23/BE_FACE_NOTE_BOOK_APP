@@ -1,6 +1,6 @@
 package com.example.final_case_social_web.common;
 
-import com.example.final_case_social_web.notification.ResponseNotification;
+import com.example.final_case_social_web.exeption.InvalidException;
 import com.example.final_case_social_web.object.FieldsCheckWords;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -8,8 +8,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -43,19 +41,6 @@ public class Common {
         log.info(Constants.MESSAGE_STRIKE_THROUGH);
     }
 
-    public static String formatDate(String date) {
-        if (StringUtils.isEmpty(date)) {
-            return "";
-        }
-        try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            return formatter.format(date);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
     public static String formatToken(String authorization) {
         String tokenRequest;
         if (authorization.startsWith("Bearer ")) {
@@ -66,7 +51,7 @@ public class Common {
         return tokenRequest;
     }
 
-    public static ResponseEntity<?> handlerWordsLanguage(Object ob) {
+    public static void handlerWordsLanguage(Object ob) {
         FieldsCheckWords obTransfer = new FieldsCheckWords();
         BeanUtils.copyProperties(ob, obTransfer);
         try {
@@ -78,17 +63,10 @@ public class Common {
                 Object value = field.get(obTransfer);
                 if (null == value) value = "";
                 int check = handleWords(value.toString().toUpperCase(), dirtyWords);
-                if (check == 1) {
-                    return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
-                            convertFieldName(field.getName())), HttpStatus.BAD_REQUEST);
-                }
+                if (check == 1) throw new InvalidException(convertFieldName(field.getName()));
             }
-            return null;
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-                    "Có lỗi xảy ra: ", e.getMessage()),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InvalidException(e.getMessage());
         }
     }
 
@@ -118,10 +96,8 @@ public class Common {
         if (field.equals(Constants.FieldsCheckWords.FIELD_FAVORITE)) {
             return "Sở thích" + content;
         }
-        if (field.equals(Constants.FieldsCheckWords.FIELD_CONTENT)) {
-            return "Nội dung" + content;
-        }
-        if (field.equals(Constants.FieldsCheckWords.FIELD_DESCRIPTION)) {
+        if (field.equals(Constants.FieldsCheckWords.FIELD_CONTENT)
+                || field.equals(Constants.FieldsCheckWords.FIELD_DESCRIPTION)) {
             return "Nội dung" + content;
         }
         if (field.equals(Constants.FieldsCheckWords.FIELD_GROUP_NAME)) {
@@ -153,6 +129,19 @@ public class Common {
             date = null;
         }
         return date;
+    }
+
+    public static String formatDate(String date) {
+        if (StringUtils.isEmpty(date)) {
+            return "";
+        }
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            return formatter.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
     public static ObjectMapper intObjectMapper() {

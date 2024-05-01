@@ -1,6 +1,5 @@
 package com.example.final_case_social_web.controller;
 
-import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.config.RabbitMQConfig;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.User;

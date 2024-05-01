@@ -247,8 +247,7 @@ public class ShortNewsRestController {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(shortNews);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(shortNews);
         shortNewsService.createDefaultShortNews(shortNews);
         if (shortNews.getImage().equals(Constants.ImageDefault.DEFAULT_IMAGE_SHORT_NEW)) {
             if (StringUtils.isEmpty(shortNews.getContent())) {

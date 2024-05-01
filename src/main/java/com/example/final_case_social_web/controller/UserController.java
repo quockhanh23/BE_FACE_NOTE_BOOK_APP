@@ -172,8 +172,7 @@ public class UserController {
             }
             throw new InvalidException("Không hợp lệ", fieldError);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(user);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(user);
         if (!Common.checkRegex(user.getUsername(), Regex.CHECK_USER_NAME)) {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.RegisterMessage.NO_VALID_USER_NAME),
@@ -387,8 +386,7 @@ public class UserController {
             return new ResponseEntity<>(new ResponseNotification(HttpStatus.BAD_REQUEST.toString(),
                     MessageResponse.WRONG_NUMBER_PHONE), HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(user);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(user);
         Optional<User> userOptional = this.userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

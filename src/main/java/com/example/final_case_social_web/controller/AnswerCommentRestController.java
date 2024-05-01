@@ -68,19 +68,13 @@ public class AnswerCommentRestController {
     public ResponseEntity<?> createAnswerComment(@RequestBody AnswerComment answerComment,
                                                  @RequestParam Long idUser,
                                                  @RequestParam Long idComment,
+                                                 @SuppressWarnings("unused")
                                                  @RequestHeader("Authorization") String authorization) {
         if (StringUtils.isEmpty(answerComment.getContent().trim())) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(answerComment);
-        if (null != responseEntity) return responseEntity;
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
+        Common.handlerWordsLanguage(answerComment);
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -114,13 +108,8 @@ public class AnswerCommentRestController {
     public ResponseEntity<?> deleteAnswerComment(@RequestParam Long idUser,
                                                  @RequestParam Long idComment,
                                                  @RequestParam Long idAnswerComment,
+                                                 @SuppressWarnings("unused")
                                                  @RequestHeader("Authorization") String authorization) {
-        boolean check = userService.errorToken(authorization, idUser);
-        if (!check) {
-            return new ResponseEntity<>(new ResponseNotification(HttpStatus.UNAUTHORIZED.toString(),
-                    Constants.TOKEN, Constants.TOKEN + " " + MessageResponse.IN_VALID.toLowerCase()),
-                    HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> userOptional = userService.findById(idUser);
         if (!userOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

@@ -154,8 +154,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(post);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(post);
         if (post.getImage() != null) {
             Image image = imageService.createImageDefault(post.getImage(), post.getUser());
             imageService.save(image);
@@ -189,8 +188,7 @@ public class PostRestController {
             return new ResponseEntity<>(ResponseNotification.responseMessage(Constants.IdCheck.ID_USER, idUser),
                     HttpStatus.NOT_FOUND);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(post);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(post);
         if (postOptional.get().getUser().getId().equals(userOptional.get().getId())) {
             postOptional.get().setEditAt(new Date());
             if (post.getContent() != null || post.getContent().trim().equals(Constants.BLANK)) {

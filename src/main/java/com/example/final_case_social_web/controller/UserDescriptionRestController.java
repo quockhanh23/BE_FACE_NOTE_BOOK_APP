@@ -47,8 +47,7 @@ public class UserDescriptionRestController {
         if (StringUtils.isEmpty(userDescription.getDescription().trim())) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(userDescription);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(userDescription);
         Optional<User> optionalUser = userService.findById(idUser);
         if (!optionalUser.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
@@ -68,8 +67,7 @@ public class UserDescriptionRestController {
         if (StringUtils.isEmpty(userDescription.getDescription().trim())) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        ResponseEntity<?> responseEntity = Common.handlerWordsLanguage(userDescription);
-        if (null != responseEntity) return responseEntity;
+        Common.handlerWordsLanguage(userDescription);
         Optional<UserDescription> description = userDescriptionService.findById(idUserDescription);
         if (!description.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.

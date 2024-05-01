@@ -10,20 +10,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LoggingAspect {
 
-    @Before("execution(* com.example.final_case_social_web.controller.*.*(..))")
-    public void beforeControllerMethods(JoinPoint joinPoint) {
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Before");
+    private void getInformation(JoinPoint joinPoint) {
         String className = joinPoint.getTarget().getClass().getName();
         String methodName = joinPoint.getSignature().getName();
         log.info("A method " + className + "." + methodName + " is about to be called");
     }
 
+    @Before("execution(* com.example.final_case_social_web.controller.*.*(..))")
+    public void beforeControllerMethods(JoinPoint joinPoint) {
+        getInformation(joinPoint);
+    }
+
     @Before("execution(* com.example.final_case_social_web.service.*.*(..))")
     public void beforeServiceMethods(JoinPoint joinPoint) {
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @Before");
-        String className = joinPoint.getTarget().getClass().getName();
-        String methodName = joinPoint.getSignature().getName();
-        log.info("A method " + className + "." + methodName + " is about to be called");
+        getInformation(joinPoint);
     }
 
     @AfterReturning("execution(* com.example.final_case_social_web.service.*.*(..))")
@@ -34,15 +34,15 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "execution(* com.example.final_case_social_web.controller.*.*(..))", throwing = "ex")
     public void afterThrowingControllerMethods(Exception ex) {
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @afterThrowingControllerMethods");
-        log.error("A service method has thrown an exception: " + ex.getMessage());
+        log.error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @afterThrowingControllerMethods");
+        log.error("A method has thrown an exception: " + ex.getMessage());
         ex.printStackTrace();
     }
 
     @AfterThrowing(pointcut = "execution(* com.example.final_case_social_web.service.*.*(..))", throwing = "ex")
     public void afterThrowingServiceMethods(Exception ex) {
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @afterThrowingServiceMethods");
-        log.error("A service method has thrown an exception: " + ex.getMessage());
+        log.error(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> @afterThrowingServiceMethods");
+        log.error("A method has thrown an exception: " + ex.getMessage());
         ex.printStackTrace();
     }
 

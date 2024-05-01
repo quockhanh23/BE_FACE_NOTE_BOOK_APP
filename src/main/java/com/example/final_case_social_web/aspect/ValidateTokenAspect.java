@@ -38,7 +38,7 @@ public class ValidateTokenAspect {
         return parameterMap;
     }
 
-    private void parameterMapWithIdAndAuthorization(JoinPoint joinPoint, String idType) {
+    private void parameterIdAndAuthorization(JoinPoint joinPoint, String idType) {
         Map<String, Object> parameterMap = getMethodSignature(joinPoint);
         if (parameterMap.containsKey("authorization") && parameterMap.containsKey(idType)) {
             Object authorizationValue = parameterMap.get("authorization");
@@ -53,21 +53,21 @@ public class ValidateTokenAspect {
     @Before("execution(* com.example.final_case_social_web.controller.AdminRestController.*(..))")
     public void beforeAdminRestControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token AdminRestController Methods");
-        parameterMapWithIdAndAuthorization(joinPoint, "idAdmin");
+        parameterIdAndAuthorization(joinPoint, "idAdmin");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token AdminRestController Methods");
     }
 
     @Before("execution(* com.example.final_case_social_web.controller.UserController.*(..)) && !execution(* com.example.final_case_social_web.controller.UserController.passwordRetrieval(..))")
     public void beforeUserControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token UserController Methods");
-        parameterMapWithIdAndAuthorization(joinPoint, "idUser");
+        parameterIdAndAuthorization(joinPoint, "idUser");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token UserController Methods");
     }
 
     @Before("execution(* com.example.final_case_social_web.controller.ImageRestController.*(..)) && !execution(* com.example.final_case_social_web.controller.ImageRestController.findAllImages(..))")
     public void beforeImageRestControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token ImageRestController Methods");
-        parameterMapWithIdAndAuthorization(joinPoint, "idUser");
+        parameterIdAndAuthorization(joinPoint, "idUser");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token ImageRestController Methods");
     }
 
@@ -76,7 +76,14 @@ public class ValidateTokenAspect {
             "&& !execution(* com.example.final_case_social_web.controller.PostRestController.findOnePostById(..))")
     public void beforePostRestControllerMethods(JoinPoint joinPoint) {
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token PostRestController Methods");
-        parameterMapWithIdAndAuthorization(joinPoint, "idUser");
+        parameterIdAndAuthorization(joinPoint, "idUser");
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token PostRestController Methods");
+    }
+
+    @Before("execution(* com.example.final_case_social_web.controller.AnswerCommentRestController.*(..))")
+    public void beforeAnswerCommentRestControllerMethods(JoinPoint joinPoint) {
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Start Checking Token AnswerCommentRestController Methods");
+        parameterIdAndAuthorization(joinPoint, "idUser");
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>End Checking Token AnswerCommentRestController Methods");
     }
 }
