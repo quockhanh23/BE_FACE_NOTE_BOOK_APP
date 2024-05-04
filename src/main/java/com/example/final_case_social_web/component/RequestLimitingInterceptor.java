@@ -47,8 +47,8 @@ public class RequestLimitingInterceptor implements HandlerInterceptor {
         int maxRequestLimit = 10000;
 
         // Kiểm tra xem requestCountMap có chứa thông tin về URI không
+        long currentTime = System.currentTimeMillis();
         if (requestCountMap.containsKey(uri)) {
-            long currentTime = System.currentTimeMillis();
             // Nếu thời gian giữa 2 request lớn hơn 1 ngày (86400000 milliseconds = 24 giờ)
             if (currentTime - firstRequestTime > 86400000) {
                 // Reset lại số lần request và thời gian gọi request cuối cùng
@@ -67,7 +67,6 @@ public class RequestLimitingInterceptor implements HandlerInterceptor {
             }
         } else {
             // Nếu không có thông tin về URI trong requestCountMap, thêm vào và đặt thời gian gọi request
-            long currentTime = System.currentTimeMillis();
             firstRequestTime = currentTime;
             lastRequestTime = currentTime;
             requestCountMap.put(uri, 1);

@@ -127,9 +127,6 @@ create table my_social_web.flyway_schema_history
     success        tinyint(1)                          not null
 );
 
-create index flyway_schema_history_s_idx
-    on my_social_web.flyway_schema_history (success);
-
 create table my_social_web.follow_watching
 (
     id             bigint auto_increment

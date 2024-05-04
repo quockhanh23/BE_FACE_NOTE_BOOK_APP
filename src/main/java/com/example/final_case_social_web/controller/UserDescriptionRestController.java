@@ -34,9 +34,7 @@ public class UserDescriptionRestController {
     @GetMapping("/getDescriptionByIdUser")
     public ResponseEntity<?> getDescriptionByIdUser(@RequestParam Long idUser) {
         List<UserDescription> list = userDescriptionService.findAllByUserId(idUser);
-        if (CollectionUtils.isEmpty(list)) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
+        if (CollectionUtils.isEmpty(list)) return new ResponseEntity<>(HttpStatus.OK);
         return new ResponseEntity<>(list.get(0), HttpStatus.OK);
     }
 
@@ -83,9 +81,7 @@ public class UserDescriptionRestController {
     @DeleteMapping("/deleteDescription")
     public ResponseEntity<?> deleteDescription(@RequestParam Long idUser) {
         List<UserDescription> list = userDescriptionService.findAllByUserId(idUser);
-        if (!CollectionUtils.isEmpty(list)) {
-            userDescriptionService.delete(list.get(0));
-        }
+        if (!CollectionUtils.isEmpty(list)) userDescriptionService.delete(list.get(0));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
