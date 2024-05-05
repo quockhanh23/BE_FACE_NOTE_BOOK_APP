@@ -157,12 +157,10 @@ INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (27, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (28, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (29, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (30, 1);
-INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (31, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (32, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (33, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (34, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (35, 1);
-INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (36, 1);
 INSERT INTO my_social_web.user_role (user_id, role_id) VALUES (37, 1);
 
 
@@ -208,7 +206,6 @@ INSERT INTO my_social_web.user_description (id, create_at, description, edit_at,
 INSERT INTO my_social_web.user_description (id, create_at, description, edit_at, status, user_id) VALUES (3, '2023-04-02 15:56:14', 'My Thỏ', null, 'Public', 9);
 INSERT INTO my_social_web.user_description (id, create_at, description, edit_at, status, user_id) VALUES (4, '2023-04-02 18:39:14', 'Là một người hướng nội', null, 'Public', 13);
 INSERT INTO my_social_web.user_description (id, create_at, description, edit_at, status, user_id) VALUES (5, '2023-04-04 20:39:53', 'Là một người vui vẻ, chăm chỉ', null, 'Public', 17);
-INSERT INTO my_social_web.user_description (id, create_at, description, edit_at, status, user_id) VALUES (7, '2023-04-21 19:52:05', 'Có ai yêu em không????', null, 'Public', 31);
 INSERT INTO my_social_web.user_description (id, create_at, description, edit_at, status, user_id) VALUES (8, '2023-11-26 19:15:42', 'Bán gà ủ muối', null, 'Public', 35);
 
 

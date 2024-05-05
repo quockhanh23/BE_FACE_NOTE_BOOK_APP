@@ -11,7 +11,7 @@ create table my_social_web.answer_comment
     comment_id bigint        null,
     user_id    bigint        null
 )
-    engine = MyISAM;
+
 
 create index FK14803j2qwcis4cu5iff7hudr0
     on my_social_web.answer_comment (user_id);
@@ -29,7 +29,7 @@ create table my_social_web.black_list
     id_user_send_block  bigint      null,
     status              varchar(20) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.comment
 (
@@ -46,7 +46,7 @@ create table my_social_web.comment
     post_id         bigint        null,
     user_id         bigint        null
 )
-    engine = MyISAM;
+
 
 create index FK99qtupwiidpsy7g0o8ppdgaur
     on my_social_web.comment (user_id);
@@ -62,7 +62,7 @@ create table my_social_web.conversation
     receiver_id bigint   null,
     sender_id   bigint   null
 )
-    engine = MyISAM;
+
 
 create index FKj0diew5cfwp3o2bv66gecok30
     on my_social_web.conversation (receiver_id);
@@ -78,7 +78,7 @@ create table my_social_web.conversation_delete_time
     id_delete       bigint   null,
     time_delete     datetime null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.dis_like
 (
@@ -88,7 +88,7 @@ create table my_social_web.dis_like
     post_id   bigint   null,
     user_id   bigint   null
 )
-    engine = MyISAM;
+
 
 create index FK48avq9ytpi8saiufmqia9qdjc
     on my_social_web.dis_like (post_id);
@@ -104,13 +104,14 @@ create table my_social_web.dis_like_comment
     comment_id bigint   null,
     user_id    bigint   null
 )
-    engine = MyISAM;
+
 
 create index FK6shg9ouca1du1ad6xoq9iuew0
     on my_social_web.dis_like_comment (user_id);
 
 create index FKqvybg9xe2wp7vqybh7f8uoo0r
     on my_social_web.dis_like_comment (comment_id);
+
 
 create table my_social_web.follow_watching
 (
@@ -121,7 +122,7 @@ create table my_social_web.follow_watching
     id_user_target bigint      null,
     status         varchar(30) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.friend_relation
 (
@@ -133,7 +134,7 @@ create table my_social_web.friend_relation
     friend_id     bigint      null,
     user_login_id bigint      null
 )
-    engine = MyISAM;
+
 
 create index FKlbppq8ncy32c6r70vpueluhlo
     on my_social_web.friend_relation (user_login_id);
@@ -150,7 +151,7 @@ create table my_social_web.group_participant
     the_group_id bigint      null,
     user_id      bigint      null
 )
-    engine = MyISAM;
+
 
 create index FK83wpp3oxs6gq3fjynloc79r92
     on my_social_web.group_participant (user_id);
@@ -173,7 +174,7 @@ create table my_social_web.group_post
     the_group_id bigint        null,
     user_id      bigint        null
 )
-    engine = MyISAM;
+
 
 create index FK2vivmoxhtl36olsp6dpy3tc24
     on my_social_web.group_post (the_group_id);
@@ -189,7 +190,7 @@ create table my_social_web.hide_post
     id_post   bigint   null,
     id_user   bigint   null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.icon_heart
 (
@@ -199,7 +200,7 @@ create table my_social_web.icon_heart
     post_id   bigint   null,
     user_id   bigint   null
 )
-    engine = MyISAM;
+
 
 create index FKaudse7p7v7w8jrk4u8pk30wsy
     on my_social_web.icon_heart (user_id);
@@ -217,7 +218,7 @@ create table my_social_web.image
     status     varchar(20) null,
     id_user    bigint      null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.image_group
 (
@@ -230,7 +231,7 @@ create table my_social_web.image_group
     link_image      longtext    null,
     status          varchar(20) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.last_user_login
 (
@@ -243,7 +244,7 @@ create table my_social_web.last_user_login
     login_time datetime      null,
     user_name  varchar(255)  null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.life_events
 (
@@ -256,7 +257,7 @@ create table my_social_web.life_events
     work      varchar(255) null,
     user_id   bigint       null
 )
-    engine = MyISAM;
+
 
 create index FKltg7p84uq2tlnk63my40rvt8q
     on my_social_web.life_events (user_id);
@@ -269,7 +270,7 @@ create table my_social_web.like_comment
     comment_id bigint   null,
     user_id    bigint   null
 )
-    engine = MyISAM;
+
 
 create index FKh0r3rvwkfrav930797rs2d9y1
     on my_social_web.like_comment (comment_id);
@@ -285,7 +286,7 @@ create table my_social_web.like_post
     post_id   bigint   null,
     user_id   bigint   null
 )
-    engine = MyISAM;
+
 
 create index FKd55unp8y2tbf5p8tiesotxie7
     on my_social_web.like_post (post_id);
@@ -305,7 +306,7 @@ create table my_social_web.messenger
     conversation_delete_time_id bigint        null,
     sender_id                   bigint        null
 )
-    engine = MyISAM;
+
 
 create index FK1u6uybnnkgbq043y2g6h6g4jn
     on my_social_web.messenger (conversation_id);
@@ -328,7 +329,7 @@ create table my_social_web.notification
     action_id  bigint       null,
     send_to_id bigint       null
 )
-    engine = MyISAM;
+
 
 create index FK2jj22esp65yx46n8sg3tmy5hq
     on my_social_web.notification (send_to_id);
@@ -351,7 +352,7 @@ create table my_social_web.post2
     status          varchar(20)   null,
     user_id         bigint        null
 )
-    engine = MyISAM;
+
 
 create index FKsye56ja11mm8ckd8cfe2672wa
     on my_social_web.post2 (user_id);
@@ -372,7 +373,7 @@ create table my_social_web.report_violations
     status         varchar(20)  null,
     type           varchar(255) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.roles
 (
@@ -380,7 +381,7 @@ create table my_social_web.roles
         primary key,
     name varchar(255) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.saved
 (
@@ -396,7 +397,7 @@ create table my_social_web.saved
     type        varchar(255) null,
     user_create varchar(255) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.short_news
 (
@@ -412,7 +413,7 @@ create table my_social_web.short_news
     to_day    datetime      null,
     user_id   bigint        null
 )
-    engine = MyISAM;
+
 
 create index FKpqnoj3hl9bofyh9bnsgkcp6of
     on my_social_web.short_news (user_id);
@@ -440,7 +441,7 @@ create table my_social_web.test_data
     test_field8 varchar(255) null,
     vaccination varchar(255) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.test_data2
 (
@@ -469,7 +470,7 @@ create table my_social_web.test_data2
     test_field8  varchar(100) null,
     test_field9  varchar(100) null
 )
-    engine = MyISAM;
+
 
 create index test_data2_test_field3_index
     on my_social_web.test_data2 (test_field3);
@@ -489,7 +490,7 @@ create table my_social_web.the_group
     subtype        varchar(255)  null,
     type           varchar(255)  null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.user_complaints
 (
@@ -507,7 +508,7 @@ create table my_social_web.user_complaints
     status       varchar(30)  null,
     type         varchar(255) null
 )
-    engine = MyISAM;
+
 
 create table my_social_web.user_description
 (
@@ -519,7 +520,7 @@ create table my_social_web.user_description
     status      varchar(20)  null,
     user_id     bigint       null
 )
-    engine = MyISAM;
+
 
 create index FKb214rtj0f461a97weydgwlgfr
     on my_social_web.user_description (user_id);
@@ -530,7 +531,7 @@ create table my_social_web.user_role
     role_id bigint not null,
     primary key (user_id, role_id)
 )
-    engine = MyISAM;
+
 
 create index FKt7e7djp752sqn6w22i6ocqy6q
     on my_social_web.user_role (role_id);
@@ -558,7 +559,7 @@ create table my_social_web.user_table
     constraint UK_en3wad7p8qfu8pcmh62gvef6v
         unique (username)
 )
-    engine = MyISAM;
+
 
 create index user_table_status_index
     on my_social_web.user_table (status);
@@ -572,7 +573,7 @@ create table my_social_web.verification_token
     token        varchar(255) null,
     user_id      bigint       not null
 )
-    engine = MyISAM;
+
 
 create index FK140t81x9fnhachhvw7b2eaeo6
     on my_social_web.verification_token (user_id);
