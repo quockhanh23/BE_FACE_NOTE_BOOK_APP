@@ -1,4 +1,4 @@
-package com.example.final_case_social_web.controller;
+package com.example.final_case_social_web.controllertest;
 
 
 import lombok.extern.slf4j.Slf4j;

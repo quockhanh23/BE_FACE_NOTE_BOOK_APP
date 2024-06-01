@@ -4,7 +4,6 @@ import com.example.final_case_social_web.security.jwt.CustomAccessDeniedHandler;
 import com.example.final_case_social_web.security.jwt.JwtAuthenticationFilter;
 import com.example.final_case_social_web.security.jwt.RestAuthenticationEntryPoint;
 import com.example.final_case_social_web.service.UserService;
-import com.example.final_case_social_web.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,11 +29,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserService userService;
-
-    @Bean
-    public UserService userService() {
-        return new UserServiceImpl();
-    }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {

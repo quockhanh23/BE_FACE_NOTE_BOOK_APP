@@ -1,4 +1,4 @@
-package com.example.final_case_social_web.controller;
+package com.example.final_case_social_web.controllertest;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.metadata.data.DataFormatData;
@@ -373,7 +373,7 @@ public class ExportFileTestController {
     @GetMapping("/create-data-test2")
     public ResponseEntity<?> createDataTest2() {
         List<TestData2> list = Stream.generate(TestData2::new)
-                .limit(10000)
+                .limit(100000)
                 .collect(Collectors.toList());
         testData2Repository.saveAll(list);
         return new ResponseEntity<>(HttpStatus.OK);

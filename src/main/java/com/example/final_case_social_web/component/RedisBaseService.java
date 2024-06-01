@@ -15,6 +15,16 @@ public class RedisBaseService {
         redisTemplate.opsForValue().set(key, value);
     }
 
+    // Thêm giá trị vào đầu danh sách
+    public void leftPush(String key, String value) {
+        redisTemplate.opsForList().leftPush(key, value);
+    }
+
+    // Thêm giá trị vào cuối danh sách
+    public void rightPush(String key, String value) {
+        redisTemplate.opsForList().rightPush(key, value);
+    }
+
     // Lấy giá trị từ Redis với key
     public Object getObjectByKey(String key) {
         return redisTemplate.opsForValue().get(key);

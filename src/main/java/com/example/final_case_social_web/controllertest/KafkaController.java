@@ -1,4 +1,4 @@
-package com.example.final_case_social_web.controller;
+package com.example.final_case_social_web.controllertest;
 
 import com.example.final_case_social_web.component.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;

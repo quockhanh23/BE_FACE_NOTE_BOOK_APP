@@ -41,11 +41,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query(value = "select *\n" +
             "from user_table\n" +
-            "where id not in (select id_friend from friend_relation where id_user = :idUser " +
-            "  and status_friend != 'No friend')\n" +
+            "where id not in (select id_friend\n" +
+            "                 from friend_relation\n" +
+            "                 where (id_user = :idUser)\n" +
+            "                   and status_friend in ('Waiting', 'Friend'))\n" +
             "  and id not in (select user_id from user_role where role_id = 2)\n" +
-            "  and user_table.status = 'Active' and id != :idUser\n" +
-            "order by id desc", nativeQuery = true)
+            "  and user_table.status = 'Active'\n" +
+            "  and id != :idUser\n" +
+            "order by id desc;", nativeQuery = true)
     List<User> friendSuggestion(@Param("idUser") Long idUser);
 
     @Modifying

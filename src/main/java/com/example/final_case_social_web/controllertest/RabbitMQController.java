@@ -1,5 +1,6 @@
-package com.example.final_case_social_web.controller;
+package com.example.final_case_social_web.controllertest;
 
+import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.config.RabbitMQConfig;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.User;
@@ -31,20 +32,12 @@ public class RabbitMQController { // Producers
     @Autowired
     private UserService userService;
 
-    private ObjectMapper intObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.findAndRegisterModules();
-        return objectMapper;
-    }
-
     @GetMapping("/push-message")
     ResponseEntity<?> sendMessage(@RequestParam(value = "message", defaultValue = "Test push message") String message)
             throws JsonProcessingException {
         List<User> userList = userService.findAllRoleUser();
         List<UserDTO> userDTOList = userService.copyListDTO(userList);
-        ObjectMapper objectMapper = intObjectMapper();
+        ObjectMapper objectMapper = Common.intObjectMapper();
         String json = objectMapper.writeValueAsString(userDTOList);
         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY, json);
         System.out.println("Sent message: " + message);

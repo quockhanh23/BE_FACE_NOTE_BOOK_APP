@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.final_case_social_web.controller.SmsController.ACCOUNT_SID;
-import static com.example.final_case_social_web.controller.SmsController.AUTH_TOKEN;
+import static com.example.final_case_social_web.controllertest.SmsController.ACCOUNT_SID;
+import static com.example.final_case_social_web.controllertest.SmsController.AUTH_TOKEN;
 
 @Service
 public class SmsTwilioServiceImpl implements SmsTwilioService {

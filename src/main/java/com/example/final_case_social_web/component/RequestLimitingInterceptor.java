@@ -41,6 +41,7 @@ public class RequestLimitingInterceptor implements HandlerInterceptor {
 //        return true;
 //    }
 
+    // Đếm số lượng request
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String uri = request.getRequestURI();

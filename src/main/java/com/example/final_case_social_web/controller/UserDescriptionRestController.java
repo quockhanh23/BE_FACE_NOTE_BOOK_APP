@@ -42,7 +42,7 @@ public class UserDescriptionRestController {
     @PostMapping("/createDescription")
     public ResponseEntity<?> createDescription(@RequestBody UserDescription userDescription,
                                                @RequestParam Long idUser) {
-        if (StringUtils.isEmpty(userDescription.getDescription().trim())) {
+        if (StringUtils.isEmpty(userDescription.getDescription())) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         Common.handlerWordsLanguage(userDescription);
@@ -62,7 +62,7 @@ public class UserDescriptionRestController {
     @PutMapping("/editDescription")
     public ResponseEntity<?> editDescription(@RequestBody UserDescription userDescription,
                                              @RequestParam Long idUserDescription) {
-        if (StringUtils.isEmpty(userDescription.getDescription().trim())) {
+        if (StringUtils.isEmpty(userDescription.getDescription())) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         Common.handlerWordsLanguage(userDescription);

@@ -32,6 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -372,7 +374,7 @@ public class UserController {
     }
 
     // Sửa thông tin người dùng
-    @Transactional
+    @Transactional()
     @PutMapping("/users/{idUser}")
     public ResponseEntity<?> updateUserProfile(@PathVariable Long idUser,
                                                @RequestBody User user,
@@ -522,29 +524,5 @@ public class UserController {
         verificationToken.get().setToken("no token");
         verificationTokenRepository.save(verificationToken.get());
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping(path = "/list/async")
-    public List<User> getAllUsersAsync() {
-        userService.doTask();
-        return new ArrayList<>();
-    }
-
-    @GetMapping("/hello")
-    public String hello(@CookieValue(value = "hitCounter", defaultValue = "0") Long hitCounter,
-                        HttpServletResponse response, HttpServletRequest request) {
-        hitCounter++;
-        Cookie cookie = new Cookie("hitCounter", hitCounter.toString());
-        cookie.setMaxAge(24 * 60 * 60);
-        response.addCookie(cookie);
-        //get all cookies
-        Cookie[] cookies = request.getCookies();
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookies[i].getName().equals("hitCounter")) {
-                System.out.println("cookieValue:" + cookies[i].getValue());
-                break;
-            }
-        }
-        return "hello";
     }
 }
