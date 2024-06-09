@@ -13,7 +13,7 @@ import java.util.Collections;
 @RequestMapping(value = "/api/rest-template")
 public class RestTemplateController {
 
-    // Mặc định response sẽ được trả về ở định dạng XML
+    // Mặc định response của RestTemplate sẽ được trả về ở định dạng XML
     @Autowired
     private RestTemplate restTemplate;
 

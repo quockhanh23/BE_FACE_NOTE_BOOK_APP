@@ -148,8 +148,8 @@ public class PostRestController {
                                         @RequestParam Long idUser,
                                         @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
-        if ((post.getContent().trim().equals(Constants.BLANK)
-                || (post.getContent() == null) && post.getImage() == null)
+        if (((StringUtils.isNotEmpty(post.getContent()) && post.getContent().trim().equals(Constants.BLANK))
+                || (post.getContent() == null && post.getImage() == null))
                 || !Common.checkRegex(post.getContent(), Regex.CHECK_LENGTH_POST)) {
             return new ResponseEntity<>(ResponseNotification.responseMessageDataField(Constants.DataField.CONTENT),
                     HttpStatus.BAD_REQUEST);
@@ -191,7 +191,7 @@ public class PostRestController {
         Common.handlerWordsLanguage(post);
         if (postOptional.get().getUser().getId().equals(userOptional.get().getId())) {
             postOptional.get().setEditAt(new Date());
-            if (post.getContent() != null || post.getContent().trim().equals(Constants.BLANK)) {
+            if (StringUtils.isNotEmpty(post.getContent()) && post.getContent().trim().equals(Constants.BLANK)) {
                 postOptional.get().setContent(post.getContent());
             }
             postService.save(postOptional.get());

@@ -1,6 +1,5 @@
 package com.example.final_case_social_web.exeption;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

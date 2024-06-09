@@ -24,8 +24,8 @@ public class UploadFileLocalController {
     @PostMapping("/upload2")
     public ResponseEntity<?> uploadInProject(@RequestParam("file") MultipartFile image) {
         String fileName = image.getOriginalFilename();
-        directoryCreateInProject();
         String uploadDir = "src/main/resources/static/images/";
+        directoryCreate(uploadDir);
         try {
             File uploadFile = new File(uploadDir + convertFileName(fileName));
             FileCopyUtils.copy(image.getBytes(), uploadFile);
@@ -39,9 +39,10 @@ public class UploadFileLocalController {
     @PostMapping("/upload")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile image) {
         String fileName = image.getOriginalFilename();
-        directoryCreate();
+        String source = "E:/images/";
+        directoryCreate(source);
         try {
-            FileCopyUtils.copy(image.getBytes(), new File("E:/images/" + fileName));
+            FileCopyUtils.copy(image.getBytes(), new File(source + fileName));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -63,20 +64,8 @@ public class UploadFileLocalController {
         }
     }
 
-    public void directoryCreate() {
-        File dir = new File("E:/images/");
-        if (!dir.exists()) {
-            if (dir.mkdir()) {
-                System.out.println("Directory is created!");
-            } else {
-                System.out.println("Directory already exists");
-                System.out.println("Failed to create directory!");
-            }
-        }
-    }
-
-    public void directoryCreateInProject() {
-        File dir = new File("src/main/resources/static/images/");
+    public void directoryCreate(String source) {
+        File dir = new File(source);
         if (!dir.exists()) {
             if (dir.mkdir()) {
                 System.out.println("Directory is created!");
