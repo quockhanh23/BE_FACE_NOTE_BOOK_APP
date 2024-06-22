@@ -7,6 +7,7 @@ import com.example.final_case_social_web.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -65,10 +66,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().ignoringAntMatchers("/**");
         http.httpBasic().authenticationEntryPoint(restServicesEntryPoint());
-        http.authorizeRequests()
-                .antMatchers("/register", "/login", "/**", "/api/friends/**").permitAll()
-                .anyRequest().authenticated()
-                .and().csrf().disable()
+        http.authorizeRequests(request -> request.antMatchers("/api/register", "/api/login").permitAll()
+//                .antMatchers(HttpMethod.GET, "/api/admins/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+                        .antMatchers(HttpMethod.GET, "/api/admins/**").access("hasRole('ROLE_ADMIN')")
+                        .antMatchers(HttpMethod.POST, "/api/admins/**").access("hasRole('ROLE_ADMIN')")
+                        .antMatchers(HttpMethod.PUT, "/api/admins/**").access("hasRole('ROLE_ADMIN')")
+                        .antMatchers(HttpMethod.DELETE, "/api/admins/**").access("hasRole('ROLE_ADMIN')")
+                        .anyRequest().authenticated()).csrf().disable()
                 .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().accessDeniedHandler(customAccessDeniedHandler());

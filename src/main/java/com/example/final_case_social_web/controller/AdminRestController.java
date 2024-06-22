@@ -55,10 +55,6 @@ public class AdminRestController {
                                          @RequestParam String type,
                                          @SuppressWarnings("unused")
                                          @RequestHeader("Authorization") String authorization) throws IOException {
-        if (Objects.isNull(userService.checkAdmin(idAdmin))) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
         ObjectMapper objectMapper = Common.intObjectMapper();
         if ("user".equals(type)) {
             Object ob = redisBaseService.getObjectByKey("user");
@@ -100,10 +96,6 @@ public class AdminRestController {
     public ResponseEntity<?> getAllGroupPost(@RequestParam Long idGroup, @RequestParam Long idAdmin,
                                              @SuppressWarnings("unused")
                                              @RequestHeader("Authorization") String authorization) {
-        if (userService.checkAdmin(idAdmin) == null) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
         List<GroupPost> list = groupPostRepository.findAllByTheGroupId(idGroup);
         List<GroupPostDTO> groupPostDTOList = new ArrayList<>();
         for (GroupPost groupPost : list) {
@@ -138,22 +130,19 @@ public class AdminRestController {
                                         @RequestParam String type,
                                         @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
-        if (userService.checkAdmin(idAdmin) == null) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
         Optional<User> optionalUser = userService.findById(idUser);
         if (!optionalUser.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_USER, idUser), HttpStatus.NOT_FOUND);
         }
-        if (userService.checkAdmin(idAdmin).toString().substring(17, 27).equals(Constants.Roles.ROLE_ADMIN)) {
-            if ("baned".equals(type)) {
-                optionalUser.get().setStatus(Constants.STATUS_BANED);
-            }
-            if ("active".equals(type)) {
-                optionalUser.get().setStatus(Constants.STATUS_ACTIVE);
-            }
+        if ("baned".equals(type)) {
+            optionalUser.get().setStatus(Constants.STATUS_BANED);
+            userService.save(optionalUser.get());
+            redisBaseService.delete("user");
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        if ("active".equals(type)) {
+            optionalUser.get().setStatus(Constants.STATUS_ACTIVE);
             userService.save(optionalUser.get());
             redisBaseService.delete("user");
             return new ResponseEntity<>(HttpStatus.OK);
@@ -171,23 +160,19 @@ public class AdminRestController {
                                         // Sử dụng param này bên Aspect
                                         @SuppressWarnings("unused")
                                         @RequestHeader("Authorization") String authorization) {
-        if (userService.checkAdmin(idAdmin) == null) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idAdmin), HttpStatus.UNAUTHORIZED);
-        }
         Optional<Post2> postOptional = postService.findById(idPost);
         if (!postOptional.isPresent()) {
             return new ResponseEntity<>(ResponseNotification.
                     responseMessage(Constants.IdCheck.ID_POST, idPost), HttpStatus.NOT_FOUND);
         }
-        if (userService.checkAdmin(idAdmin).toString().substring(17, 27).equals(Constants.Roles.ROLE_ADMIN)) {
-            if ("delete".equals(type)) {
-                postService.delete(postOptional.get());
-            }
-            if ("lock".equals(type)) {
-                postOptional.get().setStatus(Constants.STATUS_PRIVATE);
-                postService.save(postOptional.get());
-            }
+        if ("delete".equals(type)) {
+            postService.delete(postOptional.get());
+            redisBaseService.delete("post");
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        if ("lock".equals(type)) {
+            postOptional.get().setStatus(Constants.STATUS_PRIVATE);
+            postService.save(postOptional.get());
             redisBaseService.delete("post");
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -201,10 +186,6 @@ public class AdminRestController {
                                              @RequestParam(required = false) String searchText,
                                              @SuppressWarnings("unused")
                                              @RequestHeader("Authorization") String authorization) {
-        if (userService.checkAdmin(idUser) == null) {
-            return new ResponseEntity<>(ResponseNotification.
-                    responseMessage(Constants.IdCheck.ID_ADMIN, idUser), HttpStatus.UNAUTHORIZED);
-        }
         searchText = Common.addEscapeOnSpecialCharactersWhenSearch(searchText);
         List<User> users = userService.findAllByEmailOrUsername(searchText);
         List<UserDTO> userDTOList = userService.copyListDTO(users);
