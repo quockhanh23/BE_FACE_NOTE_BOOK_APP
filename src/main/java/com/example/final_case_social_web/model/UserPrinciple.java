@@ -18,6 +18,7 @@ public class UserPrinciple implements UserDetails {
 
     private String password;
 
+    // generic type parameter
     private Collection<? extends GrantedAuthority> roles;
 
     public UserPrinciple(Long id,

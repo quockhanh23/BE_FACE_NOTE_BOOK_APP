@@ -4,7 +4,6 @@ package com.example.final_case_social_web.service.impl;
 import com.example.final_case_social_web.common.Common;
 import com.example.final_case_social_web.common.Constants;
 import com.example.final_case_social_web.common.MessageResponse;
-import com.example.final_case_social_web.component.ThreadPoolExecutorUtil;
 import com.example.final_case_social_web.dto.ListAvatarDefault;
 import com.example.final_case_social_web.dto.UserDTO;
 import com.example.final_case_social_web.model.*;

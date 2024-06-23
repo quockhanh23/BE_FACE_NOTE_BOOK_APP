@@ -2,6 +2,7 @@ package com.example.final_case_social_web.security.jwt;
 
 import com.example.final_case_social_web.service.UserService;
 import com.example.final_case_social_web.service.impl.JwtService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public static String getJwtFromRequest(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null) return null;
+        if (StringUtils.isEmpty(authHeader)) return null;
         return authHeader.startsWith("Bearer ") ? authHeader.replace("Bearer ", "") : authHeader;
     }
 }

@@ -66,8 +66,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().ignoringAntMatchers("/**");
         http.httpBasic().authenticationEntryPoint(restServicesEntryPoint());
-        http.authorizeRequests(request -> request.antMatchers("/api/register", "/api/login").permitAll()
-//                .antMatchers(HttpMethod.GET, "/api/admins/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+        http.authorizeRequests(request -> request.antMatchers("/api/register",
+                                "/api/login", "/api/notifications/**", "/api/**").permitAll()
                         .antMatchers(HttpMethod.GET, "/api/admins/**").access("hasRole('ROLE_ADMIN')")
                         .antMatchers(HttpMethod.POST, "/api/admins/**").access("hasRole('ROLE_ADMIN')")
                         .antMatchers(HttpMethod.PUT, "/api/admins/**").access("hasRole('ROLE_ADMIN')")

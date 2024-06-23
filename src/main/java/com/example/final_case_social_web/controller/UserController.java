@@ -32,16 +32,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -74,9 +70,12 @@ public class UserController {
     private EmailService emailService;
     @Autowired
     private RedisBaseService redisBaseService;
+    @Autowired
+    private HttpServletRequest request;
 
     @GetMapping("/saveHistoryLogin")
-    public ResponseEntity<?> saveHistoryLogin(@RequestParam Long idUserLogin, @RequestHeader("IP") String IP) {
+    public ResponseEntity<?> saveHistoryLogin(@RequestParam Long idUserLogin) {
+        String ipAddress = request.getRemoteAddr();
         try {
             Optional<User> userOptional = userService.findById(idUserLogin);
             if (!userOptional.isPresent()) {
@@ -90,7 +89,7 @@ public class UserController {
                 lastUserLogin.setUserName(userOptional.get().getUsername());
                 lastUserLogin.setAvatar(userOptional.get().getAvatar());
                 lastUserLogin.setFullName(userOptional.get().getFullName());
-                lastUserLogin.setIpAddress(IP);
+                lastUserLogin.setIpAddress(ipAddress);
                 lastUserLoginRepository.save(lastUserLogin);
             } else {
                 LastUserLogin userLogin = new LastUserLogin();
@@ -99,7 +98,7 @@ public class UserController {
                 userLogin.setLoginTime(new Date());
                 userLogin.setAvatar(userOptional.get().getAvatar());
                 userLogin.setFullName(userOptional.get().getFullName());
-                userLogin.setIpAddress(IP);
+                userLogin.setIpAddress(ipAddress);
                 lastUserLoginRepository.save(userLogin);
             }
         } catch (Exception e) {

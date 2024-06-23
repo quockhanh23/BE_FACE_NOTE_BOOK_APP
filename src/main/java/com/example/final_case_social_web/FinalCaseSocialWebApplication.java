@@ -1,25 +1,32 @@
 package com.example.final_case_social_web;
 
-import com.example.final_case_social_web.service.FilesStorageService;
+import com.example.final_case_social_web.common.Constants;
+import com.example.final_case_social_web.model.Role;
+import com.example.final_case_social_web.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import javax.annotation.Resource;
 
 @SpringBootApplication
 @EnableScheduling
-public class FinalCaseSocialWebApplication implements CommandLineRunner {
-    @Resource
-    FilesStorageService storageService;
+public class FinalCaseSocialWebApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(FinalCaseSocialWebApplication.class, args);
     }
 
-    public void run(String... arg) throws Exception {
-        storageService.deleteAll();
-        storageService.init();
+    @Bean
+    CommandLineRunner run(RoleRepository roleRepository) {
+        return args ->
+        {
+            if (roleRepository.findByName(Constants.Roles.ROLE_ADMIN) == null) {
+                roleRepository.save(new Role(Constants.Roles.ROLE_ADMIN));
+            }
+            if (roleRepository.findByName(Constants.Roles.ROLE_USER) == null) {
+                roleRepository.save(new Role(Constants.Roles.ROLE_USER));
+            }
+        };
     }
 }
