@@ -58,7 +58,8 @@ public class JsonBuilder {
         return diff;
     }
 
-    public static Map<String, Object> buildRecRequestMessage(String startDate, String endDate, String startTime, String endTime, String clientId) {
+    public static Map<String, Object> buildRecRequestMessage(String startDate, String endDate,
+                                                             String startTime, String endTime, String clientId) {
         Map<String, Object> objectMap = new HashMap<>();
         String startDateFormat = formatDate(startDate);
         String endDateFormat = formatDate(endDate);

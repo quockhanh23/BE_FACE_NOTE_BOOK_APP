@@ -7,7 +7,9 @@ import com.example.final_case_social_web.service.pdf.CustomBase;
 import com.example.final_case_social_web.service.pdf.CustomFontProvider;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,27 @@ public class PdfController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping("/read-file")
+    public static void test() {
+        String pdfFilePath = "C:/Users/Administrator/Downloads/Nguyen-Quoc-Khanh-TopCV.vn-210724.201540.pdf";
+        try {
+            PdfReader pdfReader = new PdfReader(pdfFilePath);
+            //Get the number of pages in pdf.
+            int pages = pdfReader.getNumberOfPages();
+            //Iterate the pdf through pages.
+            for (int i = 1; i <= pages; i++) {
+                // Extract the page content using PdfTextExtractor.
+                String pageContent = PdfTextExtractor.getTextFromPage(pdfReader, i);
+                System.out.println("Content on Page " + i + ": " + pageContent);
+            }
+            //Close the PdfReader.
+            pdfReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @GetMapping("/export-pdf")
     public void exportPdf(HttpServletResponse response) throws IOException, DocumentException {

@@ -93,8 +93,8 @@ dependencies {
     implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 
     // PDF file
-    implementation group: 'com.itextpdf.tool', name: 'xmlworker', version: '5.5.13.3'
-    implementation 'com.itextpdf:itextpdf:5.5.13.3'
+    implementation group: 'com.itextpdf.tool', name: 'xmlworker', version: '5.5.13.4'
+    implementation 'com.itextpdf:itextpdf:5.5.13.4'
 
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }

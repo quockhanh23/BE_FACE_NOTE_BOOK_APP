@@ -20,11 +20,14 @@ import java.util.Date;
 @RequestMapping("/api/uploads")
 public class UploadFileLocalController {
 
+    public static final String SOURCE_LOCAL_DISK = "E:/images/";
+    public static final String SOURCE_LOCAL_SRC = "src/main/resources/static/images/";
+
     // Phải tạo thư mục lưu trữ trước
     @PostMapping("/upload2")
     public ResponseEntity<?> uploadInProject(@RequestParam("file") MultipartFile image) {
         String fileName = image.getOriginalFilename();
-        String uploadDir = "src/main/resources/static/images/";
+        String uploadDir = SOURCE_LOCAL_SRC;
         directoryCreate(uploadDir);
         try {
             File uploadFile = new File(uploadDir + convertFileName(fileName));
@@ -39,7 +42,7 @@ public class UploadFileLocalController {
     @PostMapping("/upload")
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile image) {
         String fileName = image.getOriginalFilename();
-        String source = "E:/images/";
+        String source = SOURCE_LOCAL_DISK;
         directoryCreate(source);
         try {
             FileCopyUtils.copy(image.getBytes(), new File(source + fileName));
@@ -54,7 +57,7 @@ public class UploadFileLocalController {
     @GetMapping("/images/{fileName}")
     public ResponseEntity<byte[]> getImage(@PathVariable("fileName") String fileName) {
         try {
-            File file = new File("E:/images/" + fileName);
+            File file = new File(SOURCE_LOCAL_DISK + fileName);
             byte[] imageBytes = Files.readAllBytes(file.toPath());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);

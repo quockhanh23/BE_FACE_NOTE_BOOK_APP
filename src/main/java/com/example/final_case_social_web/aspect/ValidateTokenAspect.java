@@ -29,7 +29,6 @@ public class ValidateTokenAspect {
     @Autowired
     private HttpServletRequest request;
 
-
     private Map<String, Object> getMethodSignature(JoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String[] parameterNames = methodSignature.getParameterNames();
