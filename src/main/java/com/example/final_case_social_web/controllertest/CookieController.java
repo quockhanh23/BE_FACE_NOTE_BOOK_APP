@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 @PropertySource("classpath:application.properties")
 @CrossOrigin("*")
 @RequestMapping("/api/cookies")
-
 public class CookieController {
 
     @GetMapping("/hello")

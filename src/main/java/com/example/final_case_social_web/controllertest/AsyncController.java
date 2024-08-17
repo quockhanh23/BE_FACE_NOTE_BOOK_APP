@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -35,8 +37,8 @@ public class AsyncController {
     private UserRepository userRepository;
     @Autowired
     private PostRepository postRepository;
-    @Autowired
-    private ThreadPoolExecutorUtil threadPoolExecutorUtil;
+//    @Autowired
+//    private ThreadPoolExecutorUtil threadPoolExecutorUtil;
 
     @GetMapping(path = "/list")
     public ResponseEntity<?> usingCompletableFuture() {
@@ -99,14 +101,14 @@ public class AsyncController {
         List<Post2> post2List = listMono.block();
     }
 
-    public List<User> getUsersAsync() {
-        for (int i = 0; i < 5; i++) {
-            TaskThread taskThread = new TaskThread(userRepository);
-            threadPoolExecutorUtil.executeTask(taskThread);
-        }
-        TaskThread taskThread = new TaskThread(userRepository);
-        threadPoolExecutorUtil.executeTask(taskThread);
-        taskThread.run();
-        return taskThread.users;
-    }
+//    public List<User> getUsersAsync() {
+//        for (int i = 0; i < 5; i++) {
+//            TaskThread taskThread = new TaskThread(userRepository);
+//            threadPoolExecutorUtil.executeTask(taskThread);
+//        }
+//        TaskThread taskThread = new TaskThread(userRepository);
+//        threadPoolExecutorUtil.executeTask(taskThread);
+//        taskThread.run();
+//        return taskThread.users;
+//    }
 }

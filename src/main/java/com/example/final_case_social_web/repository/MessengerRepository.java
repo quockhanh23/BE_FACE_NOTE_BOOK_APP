@@ -1,6 +1,7 @@
 package com.example.final_case_social_web.repository;
 
 import com.example.final_case_social_web.dto.MessengerDTO2;
+import com.example.final_case_social_web.dto.MessengerDTO3;
 import com.example.final_case_social_web.model.Conversation;
 import com.example.final_case_social_web.model.Messenger;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,8 +36,12 @@ public interface MessengerRepository extends JpaRepository<Messenger, Long> {
     @Query(value = "select create_at from messenger where conversation_id = :idConversation order by create_at desc limit 1", nativeQuery = true)
     Object lastTimeMessage(@Param("idConversation") Long idConversation);
 
-
+    // Dùng JPA thuần sử dụng DTO
     List<MessengerDTO2> findByConversation_Id(@Param("idConversation") Long idConversation);
+
+    // Dùng Query
+    @Query(value = "SELECT new com.example.final_case_social_web.dto.MessengerDTO3(c.content) FROM Messenger c WHERE c.id = 1 ORDER BY c.createAt DESC", nativeQuery = true)
+    List<MessengerDTO3> test(Long idProduct);
 
     @Modifying
     @Query(value = "select *\n" +

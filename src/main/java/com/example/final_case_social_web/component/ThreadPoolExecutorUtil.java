@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.*;
 
-@Component
+//@Component
 public class ThreadPoolExecutorUtil {
     private final Logger logger = LoggerFactory.getLogger(ThreadPoolExecutorUtil.class);
 
