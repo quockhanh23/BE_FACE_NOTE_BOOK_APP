@@ -1,6 +1,6 @@
 package com.example.final_case_social_web.controllertest;
 
-import com.example.final_case_social_web.common.MessageResponse;
+import com.example.final_case_social_web.dto.EmailContent;
 import com.example.final_case_social_web.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -19,7 +19,10 @@ public class EmailController {
 
     @GetMapping("/send")
     public ResponseEntity<?> sendEmail(@RequestParam String email) {
-        emailService.sendMail(email, "Đã gửi Email", MessageResponse.Email.THANK);
+        EmailContent emailContent = new EmailContent();
+        emailContent.setEmail(email);
+        emailContent.setTitle("Chào mừng");
+        emailService.sendEmailWelCome(emailContent);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
