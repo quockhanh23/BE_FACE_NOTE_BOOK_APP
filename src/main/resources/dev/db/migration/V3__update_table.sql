@@ -10,3 +10,8 @@ alter table user_complaints
 alter table user_complaints
     modify status varchar(30) null;
 
+alter table follow_watching
+    modify status varchar (30) null;
+
+alter table user_table
+    modify date_of_birth datetime null;

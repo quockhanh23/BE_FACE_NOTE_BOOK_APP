@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class MyServiceTest {
 
-    @InjectMocks
+    @Mock
     private UserRepository userRepository;
 
     @Mock
@@ -47,6 +47,7 @@ public class MyServiceTest {
         Long id = 1L;
         User user = new User();
         user.setId(id);
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(user));
         Mockito.when(userService.findById(id)).thenReturn(Optional.of(user));
     }
 
@@ -54,6 +55,7 @@ public class MyServiceTest {
     public void testFindById2() {
         User user = new User();
         user.setId(1L);
+        Mockito.when(userRepository.findById(2L)).thenReturn(null);
         Mockito.when(userService.findById(2L)).thenReturn(null);
     }
 
