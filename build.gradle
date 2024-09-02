@@ -31,7 +31,7 @@ dependencies {
     // RabbitMQ
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-amqp'
     // Redis
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.0'
 
     runtimeOnly 'mysql:mysql-connector-java'
     runtimeOnly 'org.postgresql:postgresql'
@@ -49,6 +49,12 @@ dependencies {
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
     implementation 'org.modelmapper:modelmapper:3.1.1'
+
+    // QR code
+    // https://mvnrepository.com/artifact/com.google.zxing/core
+    implementation group: 'com.google.zxing', name: 'core', version: '3.3.3'
+    // https://mvnrepository.com/artifact/com.google.zxing/javase
+    implementation group: 'com.google.zxing', name: 'javase', version: '3.3.3'
 
     // Apache poi
     implementation group: 'commons-io', name: 'commons-io', version: '2.7'
