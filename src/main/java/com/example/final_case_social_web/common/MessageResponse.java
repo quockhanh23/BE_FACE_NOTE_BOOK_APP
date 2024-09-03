@@ -4,7 +4,6 @@ public class MessageResponse {
     public static class LoginMessage {
         public static final String USER_NAME = "Sai tên đăng nhập";
         public static final String USER_HAS_LOCK = "Tài khoản đã bị khóa";
-        public static final String LOGIN_SUCCESS = "Đăng nhập thành công";
     }
 
     public static class TipMessage {
